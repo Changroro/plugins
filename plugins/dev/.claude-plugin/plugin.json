@@ -1,0 +1,28 @@
+{
+  "name": "dev",
+  "description": "개발 지원 플러그인 - 코드 리뷰, 프로덕트 분석, 기술 스택 관리",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bae-ChangHyun",
+    "url": "https://github.com/Bae-ChangHyun"
+  },
+  "agents": [
+    "./agents/product-advisor.md",
+    "./agents/stack-updater.md",
+    "./agents/senior-code-reviewer.md"
+  ],
+  "commands": [
+    "./commands/review.md",
+    "./commands/advisor.md",
+    "./commands/update-stack.md"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "keywords": [
+    "code-review",
+    "development",
+    "productivity",
+    "git",
+    "commit"
+  ]
+}

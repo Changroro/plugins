@@ -9,10 +9,19 @@
   },
   "plugins": [
     {
-      "name": "dev_ch",
-      "source": "./plugins/dev_ch",
-      "description": "Personal Claude Code plugin with custom agents, skills, and MCP servers",
-      "version": "1.1.0",
+      "name": "docs",
+      "source": "./plugins/docs",
+      "description": "문서 작성 플러그인 - 블로그, 업무일지, 포트폴리오, README 등",
+      "version": "1.0.0",
+      "author": {
+        "name": "Bae-ChangHyun"
+      }
+    },
+    {
+      "name": "dev",
+      "source": "./plugins/dev",
+      "description": "개발 지원 플러그인 - 코드 리뷰, 프로덕트 분석, 기술 스택 관리",
+      "version": "1.0.0",
       "author": {
         "name": "Bae-ChangHyun"
       }
