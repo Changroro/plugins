@@ -1,0 +1,21 @@
+{
+  "name": "cc-plugins-bch",
+  "owner": {
+    "name": "Bae-ChangHyun",
+    "url": "https://github.com/Bae-ChangHyun"
+  },
+  "metadata": {
+    "description": "Bae-ChangHyun's personal Claude Code plugins marketplace"
+  },
+  "plugins": [
+    {
+      "name": "bch",
+      "source": "./plugins/bch",
+      "description": "Personal Claude Code plugin with custom agents, skills, and MCP servers",
+      "version": "1.1.0",
+      "author": {
+        "name": "Bae-ChangHyun"
+      }
+    }
+  ]
+}
