@@ -126,21 +126,22 @@ You MUST write in a natural, human-like Korean conversational tone:
 <p>[결론]</p>
 ```
 
-## Output Path Management
+## Output Path Management with User Confirmation
 
-- **FIRST**: Read config from `${CLAUDE_PLUGIN_ROOT}/config.json` to get path settings
-- Config keys: `obsidian_base` (base path), `blog_path` (relative path for blog posts)
-- **Default output**: `{obsidian_base}/{blog_path}/[filename]`
-- If config file not found, fallback to current working directory
+- **FIRST**: Use AskUserQuestion tool to confirm output path with user
+- Ask: "블로그 글을 저장할 경로가 맞나요?" with options:
+  * 현재 프로젝트의 `docs/blog/` 폴더
+  * Obsidian 볼트 경로 (직접 입력)
+  * 커스텀 경로 (직접 입력)
 - **User override**: If user specifies a custom path in arguments, use that instead
 - Filename format: `blog_[topic]_[YYYY-MM-DD].md` or `.html`
 
 ## Workflow
 
-1. **Initialization Phase**
-   - Read `${CLAUDE_PLUGIN_ROOT}/config.json` to get `obsidian_base` and `blog_path`
+1. **Initialization Phase with User Confirmation**
+   - Use AskUserQuestion to confirm output path
    - Parse user arguments for topic, URLs, format, and optional custom path
-   - Determine final output path
+   - Determine final output path based on user's choice
 
 2. **Research Phase**
    - WebFetch로 제공된 URL들의 내용 수집
