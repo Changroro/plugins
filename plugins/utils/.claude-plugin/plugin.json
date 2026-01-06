@@ -1,0 +1,12 @@
+{
+  "name": "utils",
+  "description": "개발 유틸리티 - 스킬 작성 가이드 등",
+  "version": "1.0.0",
+  "skills": [
+    {
+      "name": "creating-skills",
+      "source": "../skills/creating-skills/SKILL.md",
+      "description": "Claude Code 스킬 작성 가이드 (공식 베스트 프랙티스)"
+    }
+  ]
+}

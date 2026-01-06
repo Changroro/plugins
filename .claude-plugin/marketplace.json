@@ -25,6 +25,24 @@
       "author": {
         "name": "Bae-ChangHyun"
       }
+    },
+    {
+      "name": "gitwf",
+      "source": "./plugins/gitwf",
+      "description": "Git/GitHub 워크플로우 플러그인 - 커밋, PR 생성/병합/리뷰 자동화",
+      "version": "1.0.0",
+      "author": {
+        "name": "Bae-ChangHyun"
+      }
+    },
+    {
+      "name": "utils",
+      "source": "./plugins/utils",
+      "description": "개발 유틸리티 플러그인 - 스킬 작성 가이드 등",
+      "version": "1.0.0",
+      "author": {
+        "name": "Bae-ChangHyun"
+      }
     }
   ]
 }

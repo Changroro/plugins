@@ -8,9 +8,11 @@
 # 마켓플레이스 추가
 /plugin marketplace add Bae-ChangHyun/cc-plugins-bch
 
-# 플러그인 설치 (개별 또는 전체)
+# 플러그인 설치 (개별)
 /plugin install docs@cc-plugins-bch    # 문서 작성
 /plugin install dev@cc-plugins-bch     # 개발 지원
+/plugin install gitwf@cc-plugins-bch   # Git/GitHub 워크플로우
+/plugin install utils@cc-plugins-bch   # 개발 유틸리티
 ```
 
 ---
@@ -79,17 +81,12 @@
 export OBSIDIAN_API_KEY="your-obsidian-api-key"
 ```
 
-### config.json
+### 경로 설정
 
-```json
-{
-  "obsidian_base": "/your/obsidian/vault/path",
-  "worklog_path": "docs/daily_work",
-  "devlog_path": "docs/daily_work_details",
-  "portfolio_path": "docs/portfolio",
-  "blog_path": "공부/알쓸신잡"
-}
-```
+문서 생성 에이전트는 실행 전 저장 경로를 확인합니다:
+- 현재 프로젝트의 기본 폴더 (`docs/daily_work/` 등)
+- Obsidian 볼트 경로 (직접 입력)
+- 커스텀 경로 (직접 입력)
 
 ---
 
@@ -144,6 +141,73 @@ export OBSIDIAN_API_KEY="your-obsidian-api-key"
 
 ---
 
+# gitwf 플러그인
+
+Git/GitHub 워크플로우 자동화 스킬을 제공합니다.
+
+## Skills
+
+| Skill | Description | 트리거 |
+|-------|-------------|--------|
+| `gitwf:git-commit` | Conventional Commits 형식 커밋 | 커밋 생성 요청 시 |
+| `gitwf:pr-create` | GitHub PR 생성 | PR 생성 요청 시 |
+| `gitwf:pr-merge` | GitHub PR 병합 | PR 병합 요청 시 |
+| `gitwf:pr-review` | PR 리뷰 코멘트 처리 | 리뷰 코멘트 해결 요청 시 |
+
+### git-commit
+
+Conventional Commits 형식으로 커밋 메시지 작성:
+- `type(scope): subject` 형식
+- 타입: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `ci`, `perf`, `style`
+- Breaking changes 지원 (`!` 또는 `BREAKING CHANGE:`)
+
+### pr-create
+
+GitHub PR 생성 자동화:
+- 커밋 분석 및 타입/스코프 추출
+- 태스크 완료 검증 (tasks.md)
+- 테스트 실행 후 PR 생성
+- 라벨 자동 제안
+
+### pr-merge
+
+GitHub PR 병합 체크리스트:
+- 테스트/린트/CI 검증
+- 리뷰 코멘트 응답 확인
+- 병합 메시지 포맷팅
+- 브랜치 정리 자동화
+
+### pr-review
+
+PR 리뷰 코멘트 처리:
+- 심각도별 분류 (CRITICAL/HIGH/MEDIUM/LOW)
+- 수정 적용 및 검증
+- 표준 응답 템플릿
+- 일괄 커밋 전략
+
+---
+
+# utils 플러그인
+
+개발 유틸리티 스킬을 제공합니다.
+
+## Skills
+
+| Skill | Description | 트리거 |
+|-------|-------------|--------|
+| `utils:creating-skills` | Claude Code 스킬 작성 가이드 | 스킬 작성 요청 시 |
+
+### creating-skills
+
+Claude Code 스킬 작성 공식 베스트 프랙티스:
+- SKILL.md 구조 및 프론트매터
+- 네이밍 컨벤션 (lowercase-hyphen)
+- 토큰 예산 관리 (< 500 lines)
+- 헬퍼 스크립트 가이드라인
+- 품질 체크리스트
+
+---
+
 # Update
 
 ```bash
@@ -153,6 +217,8 @@ export OBSIDIAN_API_KEY="your-obsidian-api-key"
 # 플러그인 업데이트
 /plugin update docs@cc-plugins-bch
 /plugin update dev@cc-plugins-bch
+/plugin update gitwf@cc-plugins-bch
+/plugin update utils@cc-plugins-bch
 ```
 
 ---
