@@ -1,5 +1,5 @@
 {
-  "name": "bch",
+  "name": "dev_ch",
   "description": "Bae-ChangHyun's personal Claude Code plugin with custom agents, skills, and MCP servers",
   "version": "1.1.0",
   "author": {
@@ -27,7 +27,8 @@
     "./commands/devlog.md",
     "./commands/advisor.md",
     "./commands/update-stack.md",
-    "./commands/blog.md"
+    "./commands/blog.md",
+    "./commands/docs.md"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",

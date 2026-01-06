@@ -9,8 +9,8 @@
   },
   "plugins": [
     {
-      "name": "bch",
-      "source": "./plugins/bch",
+      "name": "dev_ch",
+      "source": "./plugins/dev_ch",
       "description": "Personal Claude Code plugin with custom agents, skills, and MCP servers",
       "version": "1.1.0",
       "author": {
