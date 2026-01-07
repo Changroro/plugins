@@ -7,14 +7,14 @@
     "url": "https://github.com/Bae-ChangHyun"
   },
   "agents": [
-    "./agents/product-advisor.md",
-    "./agents/stack-updater.md",
-    "./agents/senior-code-reviewer.md"
+    "../agents/product-advisor.md",
+    "../agents/stack-updater.md",
+    "../agents/senior-code-reviewer.md"
   ],
   "commands": [
-    "./commands/review.md",
-    "./commands/advisor.md",
-    "./commands/update-stack.md"
+    "../commands/review.md",
+    "../commands/advisor.md",
+    "../commands/update-stack.md"
   ],
   "mcpServers": "./.mcp.json",
   "keywords": [

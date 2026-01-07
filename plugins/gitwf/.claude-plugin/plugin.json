@@ -2,11 +2,11 @@
   "name": "gitwf",
   "description": "Git/GitHub 워크플로우 자동화 - 커밋, PR 생성/병합/리뷰\n\n📌 Skills:\n  /gitwf:git-commit - Conventional Commits 형식 커밋 생성\n  /gitwf:github-pr-creation - PR 생성 (검증 + 라벨 제안)\n  /gitwf:github-pr-merge - PR 병합 (pre-merge 체크리스트)\n  /gitwf:github-pr-review - PR 리뷰 코멘트 해결",
   "version": "1.0.0",
-  "commands": [
-    "./skills/git-commit/SKILL.md",
-    "./skills/github-pr-creation/SKILL.md",
-    "./skills/github-pr-merge/SKILL.md",
-    "./skills/github-pr-review/SKILL.md"
+  "skills": [
+    "../skills/git-commit/SKILL.md",
+    "../skills/github-pr-creation/SKILL.md",
+    "../skills/github-pr-merge/SKILL.md",
+    "../skills/github-pr-review/SKILL.md"
   ],
   "keywords": [
     "git",

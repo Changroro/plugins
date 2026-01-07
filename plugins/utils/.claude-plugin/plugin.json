@@ -2,8 +2,8 @@
   "name": "utils",
   "description": "개발 유틸리티 - 스킬 작성 가이드 등\n\n📌 Skills:\n  /utils:creating-skills - Claude Code 스킬 작성 가이드",
   "version": "1.0.0",
-  "commands": [
-    "./skills/creating-skills/SKILL.md"
+  "skills": [
+    "../skills/creating-skills/SKILL.md"
   ],
   "keywords": [
     "utility",
