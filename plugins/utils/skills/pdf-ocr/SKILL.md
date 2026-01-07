@@ -1,6 +1,6 @@
 ---
 name: pdf-ocr
-description: "PDF를 Claude vision으로 OCR하여 마크다운 변환. Use when user wants to extract text from PDF, convert PDF to markdown, OCR PDF, read scanned document, or process PDF with custom instructions. Supports custom prompts for tailored output."
+description: "PDF를 Claude vision으로 OCR하여 마크다운 변환. MUST use this skill when user: (1) asks to convert PDF to markdown, (2) asks to OCR PDF, (3) sends PDF file and asks to extract/read/변환/추출, (4) mentions 'PDF 변환', 'PDF 읽어', 'PDF 마크다운'. This skill uses Task agent to protect main context from large PDF content - NEVER process PDF directly in main context."
 ---
 
 # PDF OCR
@@ -39,30 +39,33 @@ ls -la <path>
 
 단일 PDF 파일 처리 워크플로우.
 
-### 1. PDF 읽기 (Vision 활용)
-
-Claude의 Read 도구를 사용하여 PDF를 읽습니다. Read 도구는 PDF를 페이지별로 처리하며, 텍스트와 시각적 콘텐츠를 모두 분석합니다.
+**IMPORTANT**: 단일 파일도 Task 에이전트를 사용하여 메인 컨텍스트를 보호합니다.
 
 ```
-Read tool → PDF 파일 경로
+Task(subagent_type="general-purpose"):
+  프롬프트: |
+    PDF 파일을 OCR하여 마크다운으로 변환하고 저장해주세요.
+
+    파일: [PDF 절대경로]
+    커스텀 지침: [사용자 지침 있으면 포함]
+
+    **수행 작업:**
+    1. Read 도구로 PDF 읽기
+    2. 마크다운으로 변환
+    3. Write 도구로 [파일명].md 파일 저장
+    4. 저장 완료 확인
+
+    **에러 핸들링:**
+    - 413 에러: "⚠️ 파일 크기 초과 (413 에러)"
+    - 기타 에러: "⚠️ [에러 메시지]"
+
+    **반환 형식 (내용 제외, 상태만):**
+    ✅ 성공: [파일명] → [출력파일명].md
+    또는
+    ⚠️ 실패: [파일명] - [사유]
 ```
 
-### 2. 에러 핸들링
-
-**413 에러 (Request too large) 발생 시:**
-```
-⚠️ SKIP: [파일명] - 파일 크기 초과 (413 에러)
-```
-- 해당 파일을 건너뛰고 다음 파일로 진행
-- 최종 결과에 skip된 파일 목록 포함
-
-**기타 API 에러 발생 시:**
-```
-⚠️ SKIP: [파일명] - [에러 메시지]
-```
-- 에러를 기록하고 나머지 파일 계속 처리
-
-### 3. 마크다운 변환
+### 마크다운 변환 가이드라인
 
 PDF 내용을 분석하여 다음 형식으로 마크다운 변환:
 
@@ -126,18 +129,27 @@ Task(subagent_type="general-purpose"):
     커스텀 지침: [사용자 지침 있으면 포함]
     출력 폴더: [원본과 동일 폴더]
 
-    각 파일에 대해:
+    **CRITICAL - 각 파일에 대해 에이전트 내에서 완료:**
     1. Read 도구로 PDF 읽기
     2. 에러 발생 시 skip하고 다음 파일로 (413 에러 등)
     3. 마크다운으로 변환
-    4. [파일명].md로 저장
+    4. **Write 도구로 [파일명].md 파일 저장** (반드시 에이전트 내에서!)
+    5. 저장 완료 확인
 
-    처리 결과를 다음 형식으로 보고:
-    ✅ 성공: [파일명]
+    **IMPORTANT**:
+    - 변환된 마크다운 내용을 메인으로 반환하지 마세요
+    - 파일 저장까지 에이전트 내에서 완료해야 합니다
+    - 메인에는 처리 결과 상태만 반환합니다
+
+    처리 결과를 다음 형식으로만 보고 (내용 제외):
+    ✅ 성공: [파일명] → [출력파일명].md
     ⚠️ SKIP: [파일명] - [사유]
 ```
 
-**IMPORTANT**: 모든 그룹의 Task를 **동시에** 호출하여 병렬 실행
+**IMPORTANT**:
+- 모든 그룹의 Task를 **동시에** 호출하여 병렬 실행
+- 에이전트는 **Read + Write 모두 완료** 후 상태만 반환
+- 메인 컨텍스트에 PDF 내용이 로드되지 않도록 함
 
 ### 4. 결과 집계
 
@@ -200,6 +212,12 @@ Task(subagent_type="general-purpose"):
 
 ## Important Rules
 
+### Context 보호 (핵심)
+- **ALWAYS** Task 에이전트 내에서 Read + Write 모두 완료
+- **ALWAYS** 에이전트는 처리 상태만 반환 (변환된 내용 반환 금지)
+- **NEVER** 메인 컨텍스트에 PDF 내용을 로드하지 않음
+
+### 처리 방식
 - **ALWAYS** Read 도구를 사용하여 PDF 읽기 (라이브러리 사용 금지)
 - **ALWAYS** 원본 문서의 구조를 최대한 보존
 - **ALWAYS** 사용자 커스텀 지침이 있으면 우선 적용
