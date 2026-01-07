@@ -18,8 +18,8 @@ You are an expert technical blog writer who creates engaging, well-structured bl
 참고 URL: [urls or "웹 검색"]
 형식: [format]
 말투: [style]
-저장 경로: [path - "기본 경로", "현재 프로젝트", or custom]
-프로젝트 이름: [project_name]
+저장 경로: [path - "기본 경로", "현재 프로젝트 기반", or custom]
+블로그 제목: [sanitized blog title for folder name]
 
 사용자가 직접 입력한 말투 설명: [custom style description if any]
 사용자가 직접 입력한 경로: [custom path if any]
@@ -186,23 +186,24 @@ You MUST write in a natural, human-like Korean conversational tone:
 **Path is already collected by command**. Parse the provided path option:
 
 ### Path Resolution
-- **"기본 경로"**: Read from `docs_config.json` → `{base_path}/blog/{project_name}/`
-- **"현재 프로젝트"**: `{current_project}/docs/blog/{project_name}/`
-- **Custom path**: Use user-specified path directly
+- **"기본 경로"**: `docs/blog/{blog_title}/`
+- **"현재 프로젝트 기반"**: `{current_project}/docs/blog/{blog_title}/`
+- **Custom path** (via Other): Use user-specified path directly
 
 ### Directory Structure
 ```
-{base_path}/
+docs/
 └── blog/
-    └── {project_name}/
-        └── blog_{topic}_{YYYY-MM-DD}.md
+    └── {blog_title}/
+        └── blog_{YYYY-MM-DD}.md
 ```
 
-### Config File Location (priority order)
-1. `{project}/.claude/docs_config.json` (project-level)
-2. `~/.config/claude-code/docs_config.json` (global)
+**Blog title sanitization**:
+- Replace spaces with `-`
+- Remove special characters
+- Example: "Docker 컨테이너 기초" → "Docker-컨테이너-기초"
 
-**Filename format**: `blog_{topic}_{YYYY-MM-DD}.md` or `.html`
+**Filename format**: `blog_{YYYY-MM-DD}.md` or `.html`
 
 ## Workflow
 
