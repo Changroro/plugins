@@ -6,22 +6,7 @@
     "name": "Bae-ChangHyun",
     "url": "https://github.com/Bae-ChangHyun"
   },
-  "agents": [
-    "../agents/blog-writer.md",
-    "../agents/worklog-writer.md",
-    "../agents/devlog-writer.md",
-    "../agents/portfolio-writer.md",
-    "../agents/readme-architect.md"
-  ],
-  "commands": [
-    "../commands/blog.md",
-    "../commands/worklog.md",
-    "../commands/devlog.md",
-    "../commands/portfolio.md",
-    "../commands/readme.md",
-    "../commands/configure.md"
-  ],
-  "mcpServers": "./.mcp.json",
+  "mcpServers": "../.mcp.json",
   "keywords": [
     "documentation",
     "blog",
