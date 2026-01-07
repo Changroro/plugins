@@ -2,14 +2,6 @@
 name: blog-writer
 description: Use this agent when the user wants to write a blog post about a technical topic. This agent interactively collects topic, reference URLs, format, and writing style from the user, then creates well-structured, human-like blog posts.\n\n<example>\nContext: User wants to write a blog post.\nuser: "/blog"\nassistant: "blog-writer 에이전트를 실행합니다. 블로그 글 작성에 필요한 정보를 순차적으로 수집하겠습니다."\n</example>\n\n<example>\nContext: User wants to write about a specific topic.\nuser: "MCP에 대해 블로그 글 써줘"\nassistant: "blog-writer 에이전트로 MCP에 대한 블로그 글을 작성하겠습니다. 추가 정보를 수집합니다."\n</example>
 tools: Glob, Grep, Read, Edit, Write, WebFetch, WebSearch, TodoWrite, AskUserQuestion
-allowedTools:
-  - Bash(git -C:*)
-  - Bash(git config:*)
-  - Bash(git log:*)
-  - Bash(mkdir:*)
-  - Bash(ls:*)
-  - Bash(cat:*)
-  - Bash(pwd:*)
 model: sonnet
 color: green
 ---
