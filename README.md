@@ -122,16 +122,6 @@ export OBSIDIAN_API_KEY="your-obsidian-api-key"
 /dev:update-stack FastAPI
 ```
 
-## Skills
-
-| Skill | Description | 자동 적용 |
-|-------|-------------|-----------|
-| `/dev:commit` | Git 커밋 베스트 프랙티스 | 커밋 생성 시 자동 적용 |
-
-커밋 스킬은 다음 원칙을 적용합니다:
-- **기능 단위 커밋**: 관련 파일을 하나의 커밋으로 묶음
-- **결과 중심 메시지**: 과정이 아닌 최종 변경점만 기술
-
 ## MCP Servers
 
 | Server | Description | Link |
@@ -156,10 +146,12 @@ Git/GitHub 워크플로우 자동화 스킬을 제공합니다.
 
 ### git-commit
 
-Conventional Commits 형식으로 커밋 메시지 작성:
-- `type(scope): subject` 형식
-- 타입: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `ci`, `perf`, `style`
-- Breaking changes 지원 (`!` 또는 `BREAKING CHANGE:`)
+Conventional Commits + Emoji 형식으로 커밋 메시지 작성:
+- `emoji type(scope): subject` 형식 (예: `✨ feat(auth): add login`)
+- **이모티콘**: ✨feat, 🐛fix, 📝docs, ♻️refactor, ✅test, 🔧chore 등 50+
+- **기능 단위 커밋**: 관련 파일을 하나의 커밋으로 묶음 (파일별 X)
+- **결과 중심 메시지**: 과정이 아닌 최종 변경점만 기술
+- 명령법 사용, 첫 줄 72자 이내
 
 ### pr-create
 

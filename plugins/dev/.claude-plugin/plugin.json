@@ -16,13 +16,10 @@
     "./commands/advisor.md",
     "./commands/update-stack.md"
   ],
-  "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "keywords": [
     "code-review",
     "development",
-    "productivity",
-    "git",
-    "commit"
+    "productivity"
   ]
 }
