@@ -1,6 +1,6 @@
 ---
 description: Launch readme-architect agent to create/improve README.md
-allowedTools:
+allowed-tools:
   - Read
   - Write
   - Bash(git -C:*)

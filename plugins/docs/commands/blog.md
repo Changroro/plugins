@@ -1,6 +1,6 @@
 ---
 description: Launch blog-writer agent to create a technical blog post with interactive input collection
-allowedTools:
+allowed-tools:
   - Read
   - Write
   - Bash(git -C:*)

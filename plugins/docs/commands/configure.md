@@ -1,6 +1,6 @@
 ---
 description: Configure docs plugin settings (base path, folder names for each document type)
-allowedTools:
+allowed-tools:
   - Read
   - Write
   - Bash(mkdir:*)

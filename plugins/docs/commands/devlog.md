@@ -1,6 +1,6 @@
 ---
 description: Launch daily-work-details-writer agent for detailed technical logs with interactive input collection
-allowedTools:
+allowed-tools:
   - Read
   - Write
   - Bash(git -C:*)

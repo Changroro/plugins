@@ -1,6 +1,6 @@
 ---
 description: Launch daily-work-writer agent to generate work logs with interactive input collection
-allowedTools:
+allowed-tools:
   - Read
   - Write
   - Bash(git -C:*)

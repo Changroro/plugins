@@ -1,6 +1,6 @@
 ---
 description: Launch portfolio-writer agent to create/update project portfolio with interactive input collection
-allowedTools:
+allowed-tools:
   - Read
   - Write
   - Bash(git -C:*)
