@@ -81,17 +81,20 @@ multiSelect: false
 Use AskUserQuestion:
 
 ```
-Question: "어떤 말투로 작성할까요?"
+Question: "말투 예시 혹은 참고 URL을 입력해주세요"
 Header: "말투"
 Options:
-  - label: "참고 URL 스타일", description: "참고 URL의 말투를 분석하여 유사하게 작성 (URL 필요)"
-  - label: "기술블로그 스타일 (권장)", description: "~한다/~된다 체, 자연스럽고 친근한 개발자 블로그"
+  - label: "기술블로그 스타일", description: "~한다/~된다 체, 자연스럽고 친근한 개발자 블로그"
+  - label: "요약 스타일", description: "간결하고 핵심만 전달하는 문서형 스타일"
 multiSelect: false
 ```
 
 **NOTE**:
-- "참고 URL 스타일" 선택 시: Step 2에서 URL을 제공했어야 함. URL의 말투를 분석하여 유사하지만 완전히 동일하지 않게 작성
-- "기술블로그 스타일" 선택 시: 기본 ~한다/~된다 체로 작성
+- "기술블로그 스타일": 기본 ~한다/~된다 체, 친근한 톤
+- "요약 스타일": 간결한 문장, 핵심 위주, ~이다 체
+- Other (직접 입력): 참고 URL이나 원하는 말투 스타일 직접 기술
+  - URL 입력 시: 해당 URL의 말투를 분석하여 유사하게 작성
+  - 텍스트 입력 시: 입력된 스타일대로 작성
 
 ## Step 5: Select Output Path (저장 경로)
 
