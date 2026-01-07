@@ -17,9 +17,19 @@ allowedTools:
 주제는 **반드시** 입력받아야 합니다.
 
 - If $ARGUMENTS contains a topic → Use it directly
-- If $ARGUMENTS is empty → Ask user to input topic (사용자가 직접 입력)
+- If $ARGUMENTS is empty → Use AskUserQuestion (Other로 필수 입력)
 
-**Do NOT use AskUserQuestion for topic** - just prompt the user to type it.
+Use AskUserQuestion:
+
+```
+Question: "어떤 주제로 블로그 글을 작성할까요? (필수)"
+Header: "주제"
+Options:
+  - label: "최근 작업 기반", description: "최근 git commit이나 프로젝트 기반으로 주제 추천"
+multiSelect: false
+```
+
+**NOTE**: 사용자가 Other로 직접 주제를 입력하면 그대로 사용. "최근 작업 기반" 선택 시 git log 분석 후 주제 추천.
 
 ## Step 2: Collect Reference URLs (참고 URL) - OPTIONAL
 
@@ -68,12 +78,12 @@ Use AskUserQuestion:
 Question: "블로그 글을 어디에 저장할까요?"
 Header: "저장 경로"
 Options:
-  - label: "기본 경로 (권장)", description: "docs/blog/{블로그제목}/ 폴더"
-  - label: "현재 프로젝트 기반", description: "현재 프로젝트의 docs/blog/{블로그제목}/ 폴더"
+  - label: "기본 경로 (권장)", description: "docs/blog/ 폴더"
+  - label: "현재 프로젝트 기반", description: "현재 프로젝트의 docs/blog/ 폴더"
 multiSelect: false
 ```
 
-**Default Path Structure**: `docs/blog/{blog_title}/blog_{date}.md`
+**Default Path Structure**: `docs/blog/{blog_title}_{date}.md`
 
 ## Step 6: Launch Agent
 
@@ -93,8 +103,8 @@ After collecting all inputs, use the Task tool with subagent_type='blog-writer':
 ```
 
 **Path Resolution:**
-- "기본 경로" → `docs/blog/{blog_title}/`
-- "현재 프로젝트 기반" → `{current_project}/docs/blog/{blog_title}/`
+- "기본 경로" → `docs/blog/{blog_title}_{date}.md`
+- "현재 프로젝트 기반" → `{current_project}/docs/blog/{blog_title}_{date}.md`
 - Custom (via Other) → User's specified path
 
 ## Quick Mode
@@ -109,8 +119,8 @@ In this case, parse the arguments and proceed directly to agent launch.
 **Interactive mode:**
 ```
 User: /blog
-Assistant: "어떤 주제로 블로그 글을 작성할까요? 주제를 입력해주세요."
-User: "Docker 컨테이너 기초"
+→ AskUserQuestion: 주제? (필수)
+   User: Other → "Docker 컨테이너 기초"
 → AskUserQuestion: 참고 URL?
 → AskUserQuestion: 형식?
 → AskUserQuestion: 말투?
@@ -121,5 +131,5 @@ User: "Docker 컨테이너 기초"
 **Quick mode:**
 ```
 User: /blog Docker 입문 https://docs.docker.com
-→ Task: blog-writer (주제: Docker 입문, URL: https://docs.docker.com, 형식: markdown, 말투: ~한다체, 경로: docs/blog/Docker-입문/)
+→ Task: blog-writer (주제: Docker 입문, URL: https://docs.docker.com, 형식: markdown, 말투: ~한다체, 경로: docs/blog/Docker-입문_2025-01-07.md)
 ```

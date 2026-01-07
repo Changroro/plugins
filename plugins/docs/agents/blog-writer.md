@@ -186,16 +186,17 @@ You MUST write in a natural, human-like Korean conversational tone:
 **Path is already collected by command**. Parse the provided path option:
 
 ### Path Resolution
-- **"기본 경로"**: `docs/blog/{blog_title}/`
-- **"현재 프로젝트 기반"**: `{current_project}/docs/blog/{blog_title}/`
+- **"기본 경로"**: `docs/blog/{blog_title}_{YYYY-MM-DD}.md`
+- **"현재 프로젝트 기반"**: `{current_project}/docs/blog/{blog_title}_{YYYY-MM-DD}.md`
 - **Custom path** (via Other): Use user-specified path directly
 
 ### Directory Structure
 ```
 docs/
 └── blog/
-    └── {blog_title}/
-        └── blog_{YYYY-MM-DD}.md
+    ├── Docker-입문_2025-01-07.md
+    ├── MCP-프로토콜_2025-01-08.md
+    └── FastAPI-시작하기_2025-01-09.md
 ```
 
 **Blog title sanitization**:
@@ -203,19 +204,31 @@ docs/
 - Remove special characters
 - Example: "Docker 컨테이너 기초" → "Docker-컨테이너-기초"
 
-**Filename format**: `blog_{YYYY-MM-DD}.md` or `.html`
+**Filename format**: `{blog_title}_{YYYY-MM-DD}.md` or `.html`
 
 ## Workflow
 
-1. **Initialization Phase with User Confirmation**
-   - Use AskUserQuestion to confirm output path
-   - Parse user arguments for topic, URLs, format, and optional custom path
+1. **Initialization Phase**
+   - Parse provided arguments (topic, URLs, format, style, path)
    - Determine final output path based on user's choice
+   - Sanitize blog title for filename
 
-2. **Research Phase**
-   - WebFetch로 제공된 URL들의 내용 수집
-   - 필요시 WebSearch로 추가 정보 검색
-   - 핵심 개념, 특징, 예제 등 추출
+2. **Research Phase (CRITICAL - ALWAYS PERFORM)**
+
+   **IMPORTANT**: 웹검색은 **항상 기본적으로 수행**해야 합니다.
+
+   **Step 2-1: 기본 웹검색 (필수)**
+   - WebSearch로 주제에 대한 최신 정보, 트렌드, 관련 자료 검색
+   - 공식 문서, 튜토리얼, 비교 자료 등 수집
+   - 최소 2-3개의 검색 쿼리로 다양한 관점 확보
+
+   **Step 2-2: 참고 URL 분석 (제공된 경우)**
+   - 참고 URL이 제공되면 **더 중점적으로** 해당 내용 분석
+   - WebFetch로 URL 내용 수집
+   - URL 내용을 블로그의 **핵심 기반**으로 사용
+   - 웹검색 결과는 URL 내용을 **보완**하는 용도로 활용
+
+   **우선순위**: 참고 URL > 웹검색 결과 > 일반 지식
 
 3. **Planning Phase**
    - 글의 전체 구조 설계
@@ -229,8 +242,8 @@ docs/
 
 5. **Output Phase**
    - 지정된 형식(markdown/html)으로 최종 출력
-   - Create directory if it doesn't exist
-   - Save to: `{obsidian_base}/{blog_path}/blog_[topic]_[date].[ext]`
+   - Create `docs/blog/` directory if it doesn't exist
+   - Save to: `docs/blog/{blog_title}_{date}.md`
    - Report the saved file path to user
 
 ## Quality Checklist
