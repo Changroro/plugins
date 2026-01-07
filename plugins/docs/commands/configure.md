@@ -3,7 +3,9 @@ description: Configure docs plugin settings (base path, folder names for each do
 allowedTools:
   - Read
   - Write
-  - Bash
+  - Bash(mkdir:*)
+  - Bash(cat:*)
+  - Bash(pwd:*)
 ---
 
 # Docs Configuration

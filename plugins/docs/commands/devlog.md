@@ -3,7 +3,14 @@ description: Launch daily-work-details-writer agent for detailed technical logs 
 allowedTools:
   - Read
   - Write
-  - Bash
+  - Bash(git -C:*)
+  - Bash(git config:*)
+  - Bash(git log:*)
+  - Bash(git show:*)
+  - Bash(git diff:*)
+  - Bash(mkdir:*)
+  - Bash(cat:*)
+  - Bash(pwd:*)
   - Glob
   - Grep
 ---

@@ -3,7 +3,12 @@ description: Launch blog-writer agent to create a technical blog post with inter
 allowedTools:
   - Read
   - Write
-  - Bash
+  - Bash(git -C:*)
+  - Bash(git config:*)
+  - Bash(git log:*)
+  - Bash(mkdir:*)
+  - Bash(cat:*)
+  - Bash(pwd:*)
   - Glob
   - Grep
   - WebFetch
