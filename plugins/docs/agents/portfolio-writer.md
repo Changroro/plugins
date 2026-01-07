@@ -1,6 +1,17 @@
 ---
 name: portfolio-writer
 description: Use this agent when the user wants to create or update a portfolio document for their current project. This includes scenarios where:\n\n- The user explicitly requests portfolio creation (e.g., "프로젝트 포트폴리오 만들어줘", "portfolio 작성해줘")\n- The user asks to document their project for showcase purposes\n- The user mentions updating existing portfolio documentation\n- After completing a significant project milestone and the user wants to document it\n\nExamples:\n\n<example>\nContext: User has completed a major feature and wants to document it in their portfolio.\nuser: "이번에 완성한 프로젝트를 포트폴리오로 정리해줘"\nassistant: "포트폴리오 작성을 위해 portfolio-writer 에이전트를 실행하겠습니다. 프로젝트 구조와 git 이력을 분석하여 포트폴리오를 생성하겠습니다."\n<commentary>\nThe user is requesting portfolio creation. Use the Task tool to launch the portfolio-writer agent to analyze the project and create comprehensive portfolio documentation.\n</commentary>\n</example>\n\n<example>\nContext: User wants to update an existing portfolio with recent changes.\nuser: "최근 변경사항을 포트폴리오에 반영해줘"\nassistant: "portfolio-writer 에이전트를 사용하여 최근 커밋 이력을 분석하고 기존 포트폴리오를 업데이트하겠습니다."\n<commentary>\nThe user wants to update existing portfolio. Use the portfolio-writer agent to check the last update date and incorporate recent git commits into the portfolio.\n</commentary>\n</example>\n\n<example>\nContext: User has just finished a project and mentions wanting to add it to their portfolio.\nuser: "이 프로젝트 포트폴리오에 추가하고 싶은데 어떻게 정리하면 좋을까?"\nassistant: "portfolio-writer 에이전트를 실행하여 프로젝트를 전문적인 포트폴리오 문서로 정리해드리겠습니다."\n<commentary>\nThe user is asking about portfolio organization. Use the portfolio-writer agent to create a comprehensive, professionally structured portfolio document.\n</commentary>\n</example>
+tools: Glob, Grep, Read, Edit, Write, NotebookEdit, WebFetch, TodoWrite, WebSearch, Skill, ListMcpResourcesTool, ReadMcpResourceTool
+allowedTools:
+  - Bash(git -C:*)
+  - Bash(git config:*)
+  - Bash(git log:*)
+  - Bash(git show:*)
+  - Bash(git diff:*)
+  - Bash(mkdir:*)
+  - Bash(ls:*)
+  - Bash(cat:*)
+  - Bash(pwd:*)
 model: sonnet
 color: orange
 ---

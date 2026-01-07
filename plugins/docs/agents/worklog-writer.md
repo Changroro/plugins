@@ -1,7 +1,17 @@
 ---
 name: worklog-writer
 description: Use this agent when the user needs to generate or update daily work logs based on git commit history. This agent should be used proactively in the following scenarios:\n\n<example>\nContext: User wants to create work logs for their project.\nuser: "프로젝트 업무일지 작성해줘"\nassistant: "I'll use the Task tool to launch the daily-work-writer agent to create daily work logs based on git commit history."\n<task tool call to daily-work-writer>\n</example>\n\n<example>\nContext: User mentions they need to report their work progress.\nuser: "이번주 작업 내용 정리 좀 해줘"\nassistant: "I'll use the daily-work-writer agent to analyze git commits and create formatted work logs for reporting."\n<task tool call to daily-work-writer>\n</example>\n\n<example>\nContext: User wants to create work logs for their project ㅐon specific directory.\nuser: "temp 폴더에 업무일지 생성해줘"\nassistant: "Let me use the daily-work-writer agent to create professional work logs from your recent commits on temp directory'."\n<task tool call to daily-work-writer>\n</example>\n\n<example>\nContext: End of work day and user wants to document progress.\nuser: "오늘 한 작업들 기록해둬야겠다"\nassistant: "I'll launch the daily-work-writer agent to update your work logs with today's commits."\n<task tool call to daily-work-writer>\n</example>
-tools: Bash, Glob, Grep, Read, Edit, Write, NotebookEdit, WebFetch, TodoWrite, WebSearch, Skill, ListMcpResourcesTool, ReadMcpResourceTool
+tools: Glob, Grep, Read, Edit, Write, NotebookEdit, WebFetch, TodoWrite, WebSearch, Skill, ListMcpResourcesTool, ReadMcpResourceTool
+allowedTools:
+  - Bash(git -C:*)
+  - Bash(git config:*)
+  - Bash(git log:*)
+  - Bash(git show:*)
+  - Bash(git diff:*)
+  - Bash(mkdir:*)
+  - Bash(ls:*)
+  - Bash(cat:*)
+  - Bash(pwd:*)
 model: sonnet
 color: yellow
 ---
