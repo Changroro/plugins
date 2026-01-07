@@ -19,7 +19,6 @@
     "./commands/devlog.md",
     "./commands/portfolio.md",
     "./commands/readme.md",
-    "./commands/docs.md",
     "./commands/configure.md"
   ],
   "mcpServers": "./.mcp.json",
