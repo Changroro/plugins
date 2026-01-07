@@ -6,7 +6,7 @@
     "name": "Bae-ChangHyun",
     "url": "https://github.com/Bae-ChangHyun"
   },
-  "mcpServers": "../.mcp.json",
+  "mcpServers": "./../.mcp.json",
   "keywords": [
     "documentation",
     "blog",
