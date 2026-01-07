@@ -10,31 +10,57 @@ PDF 파일을 Claude의 vision 기능으로 읽어 마크다운으로 변환합�
 ## Quick Start
 
 ```bash
-# 기본 사용
+# 단일 파일
 /pdf-ocr /path/to/document.pdf
 
 # 커스텀 지침과 함께
 /pdf-ocr /path/to/document.pdf "표만 추출해줘"
+
+# 폴더 내 모든 PDF (병렬 처리)
+/pdf-ocr /path/to/folder/
 ```
 
 ## Core Workflow
 
-### 1. PDF 경로 확인
-
-사용자가 제공한 PDF 경로가 유효한지 확인합니다.
+### Step 1: 경로 타입 확인
 
 ```bash
-# 파일 존재 확인
-ls -la <pdf_path>
+# 파일인지 폴더인지 확인
+ls -la <path>
 ```
 
-### 2. PDF 읽기 (Vision 활용)
+**분기 처리:**
+- **단일 파일** (.pdf) → [Single File Mode](#single-file-mode)로 진행
+- **폴더** → [Batch Mode](#batch-mode-폴더-처리)로 진행
+
+---
+
+## Single File Mode
+
+단일 PDF 파일 처리 워크플로우.
+
+### 1. PDF 읽기 (Vision 활용)
 
 Claude의 Read 도구를 사용하여 PDF를 읽습니다. Read 도구는 PDF를 페이지별로 처리하며, 텍스트와 시각적 콘텐츠를 모두 분석합니다.
 
 ```
 Read tool → PDF 파일 경로
 ```
+
+### 2. 에러 핸들링
+
+**413 에러 (Request too large) 발생 시:**
+```
+⚠️ SKIP: [파일명] - 파일 크기 초과 (413 에러)
+```
+- 해당 파일을 건너뛰고 다음 파일로 진행
+- 최종 결과에 skip된 파일 목록 포함
+
+**기타 API 에러 발생 시:**
+```
+⚠️ SKIP: [파일명] - [에러 메시지]
+```
+- 에러를 기록하고 나머지 파일 계속 처리
 
 ### 3. 마크다운 변환
 
@@ -62,6 +88,77 @@ PDF 내용을 분석하여 다음 형식으로 마크다운 변환:
 - "요약해줘" → 핵심 내용만 요약
 - "영어로 번역" → 번역된 결과물
 - "코드만 추출" → 코드 블록만 추출
+
+---
+
+## Batch Mode (폴더 처리)
+
+폴더 내 여러 PDF를 병렬로 처리.
+
+### 1. PDF 파일 목록 수집
+
+```bash
+# 폴더 내 PDF 파일 목록
+ls <folder_path>/*.pdf
+```
+
+### 2. 배치 분할 (3개 단위)
+
+PDF 파일들을 **3개씩 그룹**으로 나눕니다:
+- 그룹 1: file1.pdf, file2.pdf, file3.pdf
+- 그룹 2: file4.pdf, file5.pdf, file6.pdf
+- ...
+
+### 3. 병렬 에이전트 실행
+
+각 그룹에 대해 **Task 도구**로 병렬 에이전트 실행:
+
+```
+Task(subagent_type="general-purpose"):
+  프롬프트: |
+    다음 PDF 파일들을 OCR하여 마크다운으로 변환해주세요.
+
+    파일 목록:
+    - [file1.pdf 절대경로]
+    - [file2.pdf 절대경로]
+    - [file3.pdf 절대경로]
+
+    커스텀 지침: [사용자 지침 있으면 포함]
+    출력 폴더: [원본과 동일 폴더]
+
+    각 파일에 대해:
+    1. Read 도구로 PDF 읽기
+    2. 에러 발생 시 skip하고 다음 파일로 (413 에러 등)
+    3. 마크다운으로 변환
+    4. [파일명].md로 저장
+
+    처리 결과를 다음 형식으로 보고:
+    ✅ 성공: [파일명]
+    ⚠️ SKIP: [파일명] - [사유]
+```
+
+**IMPORTANT**: 모든 그룹의 Task를 **동시에** 호출하여 병렬 실행
+
+### 4. 결과 집계
+
+모든 에이전트 완료 후 결과 집계:
+
+```markdown
+## 📊 PDF OCR 처리 결과
+
+### ✅ 성공 ([N]개)
+- document1.pdf → document1.md
+- document2.pdf → document2.md
+
+### ⚠️ Skip ([M]개)
+- large_file.pdf - 파일 크기 초과 (413 에러)
+- corrupted.pdf - 읽기 실패
+
+### 📁 출력 위치
+[folder_path]/
+```
+
+---
 
 ## Output Format
 
@@ -106,5 +203,8 @@ PDF 내용을 분석하여 다음 형식으로 마크다운 변환:
 - **ALWAYS** Read 도구를 사용하여 PDF 읽기 (라이브러리 사용 금지)
 - **ALWAYS** 원본 문서의 구조를 최대한 보존
 - **ALWAYS** 사용자 커스텀 지침이 있으면 우선 적용
+- **ALWAYS** 에러 발생 시 해당 파일 skip하고 나머지 계속 처리
+- **ALWAYS** 폴더 처리 시 3개 단위로 병렬 에이전트 실행
 - **NEVER** PDF 라이브러리(PyPDF, pdfplumber 등) 사용하지 않음
 - **NEVER** 읽을 수 없는 부분을 추측으로 채우지 않음 (불명확시 [불명확] 표시)
+- **NEVER** 하나의 context에서 모든 PDF를 처리하지 않음 (메모리 초과 방지)
