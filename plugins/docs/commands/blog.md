@@ -22,14 +22,15 @@ allowedTools:
 Use AskUserQuestion:
 
 ```
-Question: "어떤 주제로 블로그 글을 작성할까요? (필수)"
+Question: "어떤 주제로 블로그 글을 작성할까요? (필수 - Other로 직접 입력)"
 Header: "주제"
 Options:
   - label: "최근 작업 기반", description: "최근 git commit이나 프로젝트 기반으로 주제 추천"
+  - label: "현재 프로젝트 소개", description: "현재 프로젝트에 대한 소개 글 작성"
 multiSelect: false
 ```
 
-**NOTE**: 사용자가 Other로 직접 주제를 입력하면 그대로 사용. "최근 작업 기반" 선택 시 git log 분석 후 주제 추천.
+**NOTE**: 대부분 Other(Type something)로 직접 주제를 입력. 옵션 선택 시 해당 방식으로 주제 결정.
 
 ## Step 2: Collect Reference URLs (참고 URL) - OPTIONAL
 
