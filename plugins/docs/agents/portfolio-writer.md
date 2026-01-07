@@ -39,7 +39,8 @@ You are an elite Portfolio Documentation Specialist with deep expertise in trans
 
 ### 1. Portfolio File Management
 - **Path is already provided by command** - just use it directly
-- **Output filename**: `{output_path}/{project_name}_portfolio.md`
+- **Output filename**: `{output_path}/{project_name}/portfolio.md`
+- 예: `~/Documents/docs/portfolio/awesome-api/portfolio.md`
 - Create directory structure if it doesn't exist
 - **Always record**: Include the last update date (마지막 업데이트) at the end of the document
 
@@ -157,11 +158,11 @@ When updating an existing portfolio:
   * Skip project analysis
   * Use provided context and conversation
   * Create portfolio from user's description
-  * Save to: `{output_path}/{project_name}_portfolio.md`
+  * Save to: `{output_path}/{project_name}/portfolio.md`
 
 **Step 3**: Determine if this is creation or update (Git Analysis Mode)
 ```bash
-ls {output_path}/{project_name}_portfolio.md 2>/dev/null
+ls {output_path}/{project_name}/portfolio.md 2>/dev/null
 ```
 
 **Step 4a (New Portfolio)**:

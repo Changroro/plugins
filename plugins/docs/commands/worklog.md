@@ -83,7 +83,8 @@ After collecting all inputs, use the Task tool with subagent_type='worklog-write
 **Path Resolution:**
 - 프로젝트 경로가 지정된 경우 → 해당 경로에서 git log 분석
 - "대화 기반" 선택 시 → git 분석 없이 대화 내용으로 작성
-- 출력 파일명: `{output_path}/{project_name}_{YYYY-MM-DD}.md`
+- 출력 경로: `{output_path}/{project_name}/YYYY-MM-DD.md`
+  - 예: `~/Documents/docs/daily_work/myproject/2025-01-07.md`
 
 ## Examples
 
@@ -103,7 +104,7 @@ User: /worklog
 → Task: worklog-writer
    프로젝트 경로: /home/user/myproject
    프로젝트 이름: myproject
-   출력 경로: ~/Documents/docs/daily_work/myproject_2025-01-07.md
+   출력 경로: ~/Documents/docs/daily_work/myproject/2025-01-07.md
 ```
 
 **Conversation-based:**
@@ -119,6 +120,6 @@ User: /worklog 오늘 회의 내용 정리
 → Task: worklog-writer
    프로젝트 경로: 대화 기반
    프로젝트 이름: general
-   출력 경로: ~/Documents/docs/daily_work/general_2025-01-07.md
+   출력 경로: ~/Documents/docs/daily_work/general/2025-01-07.md
    추가 컨텍스트: 오늘 회의 내용 정리
 ```

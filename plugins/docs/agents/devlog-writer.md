@@ -40,7 +40,8 @@ You are a technical documentation specialist for developers. Your primary respon
 
 1. **Directory Management**
    - **Path is already provided by command** - just use it directly
-   - Output filename: `{output_path}/{project_name}_{YYYY-MM-DD}.md`
+   - Output filename: `{output_path}/{project_name}/YYYY-MM-DD.md`
+   - 예: `~/Documents/docs/daily_work_details/myproject/2025-01-07.md`
    - Create the directory structure if it doesn't exist
 
 2. **Project Path Handling**
@@ -86,9 +87,9 @@ You are a technical documentation specialist for developers. Your primary respon
    - Identify technical patterns and architectural decisions
 
 5. **Work Log Generation**
-   - Create one markdown file per date: `{project_name}_{yyyy-mm-dd}.md`
+   - Create one markdown file per date: `{project_name}/YYYY-MM-DD.md`
    - Only create logs for dates that have commits (when using git analysis)
-   - File naming format: `{project_name}_2024-01-15.md` (zero-padded date)
+   - File naming format: `{output_path}/{project_name}/2024-01-15.md` (zero-padded date)
    - Include today's work if there are commits today
 
 ## Work Log Format Structure
@@ -248,7 +249,7 @@ You are a technical documentation specialist for developers. Your primary respon
      * Skip git analysis
      * Use provided context and conversation history
      * Generate technical log based on user's description
-     * Save to: `{output_path}/{project_name}_{today}.md`
+     * Save to: `{output_path}/{project_name}/{today}.md`
 
 3. **Existing Log Check** (Git Analysis Mode only)
    - List all .md files in output directory
@@ -290,7 +291,7 @@ You are a technical documentation specialist for developers. Your primary respon
        * Format as future-oriented tasks: "~구현 예정", "~작업 예정"
        * This creates a retrospective view where each day's TODO reflects what actually happened the next day
      - Generate markdown following the detailed technical format
-     - Write to `yyyy-mm-dd.md` in the daily_work_details directory
+     - Write to `{output_path}/{project_name}/YYYY-MM-DD.md`
 
 7. **Verification**
    - Confirm all files were created successfully

@@ -83,7 +83,8 @@ After collecting all inputs, use the Task tool with subagent_type='portfolio-wri
 **Path Resolution:**
 - 프로젝트 경로가 지정된 경우 → 해당 경로에서 코드/README/git 분석
 - "대화 기반" 선택 시 → 프로젝트 분석 없이 대화 내용으로 작성
-- 출력 파일명: `{output_path}/{project_name}_portfolio.md`
+- 출력 경로: `{output_path}/{project_name}/portfolio.md`
+  - 예: `~/Documents/docs/portfolio/awesome-api/portfolio.md`
 
 ## Examples
 
@@ -103,7 +104,7 @@ User: /portfolio
 → Task: portfolio-writer
    프로젝트 경로: /home/user/awesome-api
    프로젝트 이름: awesome-api
-   출력 경로: ~/Documents/docs/portfolio/awesome-api_portfolio.md
+   출력 경로: ~/Documents/docs/portfolio/awesome-api/portfolio.md
 ```
 
 **Different project path:**
@@ -119,7 +120,7 @@ User: /portfolio
 → Task: portfolio-writer
    프로젝트 경로: /home/user/old-project
    프로젝트 이름: old-project
-   출력 경로: /home/user/current/docs/portfolio/old-project_portfolio.md
+   출력 경로: /home/user/current/docs/portfolio/old-project/portfolio.md
 ```
 
 **Conversation-based:**
@@ -135,6 +136,6 @@ User: /portfolio 사이드 프로젝트 정리
 → Task: portfolio-writer
    프로젝트 경로: 대화 기반
    프로젝트 이름: side-project
-   출력 경로: ~/Documents/docs/portfolio/side-project_portfolio.md
+   출력 경로: ~/Documents/docs/portfolio/side-project/portfolio.md
    추가 컨텍스트: 사이드 프로젝트 정리
 ```
