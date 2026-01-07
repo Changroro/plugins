@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description: Creates commits following Conventional Commits format with type/scope/subject. Use when user wants to commit changes, create commit, or save work. Analyzes staged changes, generates proper commit message, validates format.
+description: Creates commits following Conventional Commits format with emoji + type/scope/subject. Use when user wants to commit changes, create commit, or save work. ALWAYS starts with emoji (✨ feat, 🐛 fix, ♻️ refactor, etc).
 ---
 
 # Git Commit Guide
@@ -141,12 +141,12 @@ Format: `emoji type(scope): subject`
 - **Principle:** If you modified `main.py`, `utils.py`, `config.yaml` to develop Feature A, these 3 files **MUST be in a single commit**.
 - **Reason:** When reverting to a specific commit, that feature should work completely.
 
-**❌ Bad Example**
+**❌ Bad Example** (파일별로 분리 커밋 - 기능 단위가 아님)
 ```bash
 git add search.py
-git commit -m "feat: create search module"
+git commit -m "✨ feat: create search module"
 git add api.py
-git commit -m "fix: fix api connection"
+git commit -m "🐛 fix: fix api connection"
 ```
 
 **✅ Good Example**
@@ -195,7 +195,8 @@ Identify:
 ### 4. Create Commit
 
 ```bash
-git commit -m "type(scope): subject"
+git commit -m "emoji type(scope): subject"
+# Example: git commit -m "✨ feat(auth): add login validation"
 ```
 
 ### 5. Add Body (if needed)
@@ -204,7 +205,7 @@ For complex changes:
 
 ```bash
 git commit -m "$(cat <<'EOF'
-type(scope): subject
+✨ feat(scope): subject
 
 Body explaining WHY and HOW.
 Wrap at 72 characters.
@@ -219,14 +220,14 @@ EOF
 Use `!` after type/scope:
 
 ```bash
-git commit -m "feat(api)!: change response format"
+git commit -m "💥 feat(api)!: change response format"
 ```
 
 Or use footer:
 
 ```bash
 git commit -m "$(cat <<'EOF'
-feat(api): change response format
+💥 feat(api): change response format
 
 BREAKING CHANGE: Response now returns array instead of object.
 EOF
@@ -247,7 +248,7 @@ When addressing PR review comments:
 
 ```bash
 git commit -m "$(cat <<'EOF'
-fix(scope): address review comment #ID
+🐛 fix(scope): address review comment #ID
 
 Brief explanation of what was wrong and how it's fixed.
 Addresses review comment #123456789.
