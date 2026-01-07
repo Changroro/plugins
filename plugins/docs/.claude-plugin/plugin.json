@@ -8,8 +8,8 @@
   },
   "agents": [
     "./agents/blog-writer.md",
-    "./agents/daily-work-writer.md",
-    "./agents/daily-work-details-writer.md",
+    "./agents/worklog-writer.md",
+    "./agents/devlog-writer.md",
     "./agents/portfolio-writer.md",
     "./agents/readme-architect.md"
   ],
@@ -19,7 +19,8 @@
     "./commands/devlog.md",
     "./commands/portfolio.md",
     "./commands/readme.md",
-    "./commands/docs.md"
+    "./commands/docs.md",
+    "./commands/configure.md"
   ],
   "mcpServers": "./.mcp.json",
   "keywords": [
