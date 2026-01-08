@@ -101,7 +101,8 @@ After all permissions are granted, proceed with the actual workflow.
 4. **Git Commit Analysis with Author Separation** (Only when project path is provided)
    - **FIRST**: Identify current user via `git config user.name` and `git config user.email`
    - Use `git log` with appropriate date filters to retrieve commit history
-   - **CRITICAL**: Include author info in git log format: `git log --format="%H|%an|%ae|%ad|%s" --date=short`
+   - **CRITICAL**: Include author info in git log format: `git log --all --format="%H|%an|%ae|%ad|%s" --date=short`
+   - **NOTE**: `--all` 옵션으로 모든 브랜치의 커밋을 조회합니다
    - Group commits by date (yyyy-mm-dd)
    - **AUTHOR CATEGORIZATION**:
      * **My Commits (내 커밋)**: Commits where author name OR email matches current git user
@@ -237,7 +238,7 @@ After all permissions are granted, proceed with the actual workflow.
    - Skip if start_date > end_date (already up to date)
 
 5. **Commit Retrieval** (Git Analysis Mode only)
-   - Use `git -C {project_path} log --since="YYYY-MM-DD" --until="YYYY-MM-DD" --format="%H|%ad|%s" --date=short`
+   - Use `git -C {project_path} log --all --since="YYYY-MM-DD" --until="YYYY-MM-DD" --format="%H|%ad|%s" --date=short`
    - Parse output to group commits by date
 
 6. **Content Generation**
@@ -274,7 +275,6 @@ After all permissions are granted, proceed with the actual workflow.
 
 가능한 이유:
 - 코드 작업 외 업무 진행 (회의, 리서치, 기획 등)
-- 다른 브랜치에서 작업 중
 - 아직 커밋하지 않은 로컬 변경사항 존재
 ```
 
