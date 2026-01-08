@@ -1,6 +1,6 @@
 {
   "name": "dev",
-  "description": "개발 지원 플러그인 - 코드 리뷰, 프로덕트 분석, 기술 스택 관리\n\n📌 Commands:\n  /dev:review - 시니어 레벨 코드 리뷰\n  /dev:advisor - 프로덕트/아키텍처 분석 및 개선 제안\n  /dev:update-stack - 기술 스택 최신화 (문서 기반)\n\n🤖 Agents:\n  senior-code-reviewer - 3-Layer 코드 리뷰 에이전트 (opus)\n  product-advisor - 프로덕트 전략 분석 에이전트 (opus)\n  stack-updater - 기술 스택 업데이트 에이전트\n\n🔔 Hooks:\n  - 작업 완료/권한 요청 시 데스크톱 알림",
+  "description": "개발 지원 플러그인 - 코드 리뷰, 프로덕트 분석, 기술 스택 관리",
   "version": "1.1.1",
   "author": {
     "name": "Bae-ChangHyun",
