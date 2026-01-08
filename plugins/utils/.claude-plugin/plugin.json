@@ -1,7 +1,7 @@
 {
   "name": "utils",
   "description": "개발 유틸리티 - 스킬 작성 가이드, PDF OCR, 리눅스 알림 등\n\n📌 Skills:\n  /utils:creating-skills - Claude Code 스킬 작성 가이드\n  /utils:pdf-ocr - PDF를 vision OCR로 마크다운 변환\n\n🔔 Hooks:\n  - 작업 완료 시 데스크톱 알림\n  - 권한 요청 시 데스크톱 알림",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "keywords": [
     "utility",
     "skills",
