@@ -89,6 +89,42 @@
 - **🧠 컨텍스트 인식**: Git 커밋 분석, 프로젝트 구조 파악, 코드베이스 이해
 - **🌐 멀티 소스 참조**: 웹 검색, URL 크롤링, 최신 문서 자동 조회 (Context7 MCP 연동)
 - **✅ 결과물 품질 보장**: 기술 블로그는 실제 블로거 톤 학습, 커밋은 Conventional Commits 준수
+- **🔔 데스크톱 알림**: 작업 완료/권한 요청 시 리눅스 데스크톱 알림 (모든 플러그인 포함)
+
+---
+
+## 🔔 데스크톱 알림 (Hooks)
+
+모든 플러그인에 **리눅스 데스크톱 알림**이 포함되어 있습니다.
+
+### 알림 트리거
+
+| 이벤트 | 알림 내용 | Urgency |
+|--------|----------|---------|
+| **권한 요청** | "권한 승인이 필요합니다" | critical (빨간색) |
+| **입력 대기** | "입력을 기다리고 있습니다" | normal |
+| **작업 완료** | "작업이 완료되었습니다" | normal |
+
+### 요구사항
+
+```bash
+# 리눅스: notify-send (대부분 기본 설치됨)
+sudo apt install libnotify-bin  # Ubuntu/Debian
+
+# macOS: osascript 자동 사용 (별도 설치 불필요)
+```
+
+### 작동 방식
+
+플러그인 설치 시 `hooks/hooks.json`이 자동으로 로드되어, Claude Code의 특정 이벤트에서 알림 스크립트가 실행됩니다.
+
+```
+plugins/*/
+├── hooks/
+│   └── hooks.json      # Hook 설정 (자동 로드)
+└── scripts/
+    └── notify.sh       # 알림 스크립트
+```
 
 ---
 
@@ -641,6 +677,10 @@ cc-plugins-bch/
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json   # 플러그인 설정
 │   │   ├── .mcp.json         # MCP 서버 설정
+│   │   ├── hooks/            # 데스크톱 알림 Hook
+│   │   │   └── hooks.json
+│   │   ├── scripts/
+│   │   │   └── notify.sh
 │   │   ├── agents/           # 에이전트 정의
 │   │   │   ├── blog-writer.md
 │   │   │   ├── worklog-writer.md
@@ -658,6 +698,10 @@ cc-plugins-bch/
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json
 │   │   ├── .mcp.json
+│   │   ├── hooks/            # 데스크톱 알림 Hook
+│   │   │   └── hooks.json
+│   │   ├── scripts/
+│   │   │   └── notify.sh
 │   │   ├── agents/
 │   │   │   ├── product-advisor.md
 │   │   │   ├── stack-updater.md
@@ -669,6 +713,10 @@ cc-plugins-bch/
 │   ├── gitwf/                # Git 워크플로우 플러그인
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json
+│   │   ├── hooks/            # 데스크톱 알림 Hook
+│   │   │   └── hooks.json
+│   │   ├── scripts/
+│   │   │   └── notify.sh
 │   │   └── skills/           # 스킬 정의
 │   │       ├── git-commit/
 │   │       │   └── SKILL.md
@@ -681,6 +729,10 @@ cc-plugins-bch/
 │   └── utils/                # 유틸리티 플러그인
 │       ├── .claude-plugin/
 │       │   └── plugin.json
+│       ├── hooks/            # 데스크톱 알림 Hook
+│       │   └── hooks.json
+│       ├── scripts/
+│       │   └── notify.sh
 │       └── skills/
 │           ├── creating-skills/
 │           │   └── SKILL.md
