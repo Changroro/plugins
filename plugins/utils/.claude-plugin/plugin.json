@@ -12,5 +12,4 @@
     "notification",
     "hooks"
   ],
-  "hooks": "./hooks/hooks.json"
 }

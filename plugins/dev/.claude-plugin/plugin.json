@@ -13,5 +13,4 @@
     "productivity",
     "notification"
   ],
-  "hooks": "./hooks/hooks.json"
 }

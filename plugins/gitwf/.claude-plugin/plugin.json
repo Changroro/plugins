@@ -10,5 +10,4 @@
     "workflow",
     "notification"
   ],
-  "hooks": "./hooks/hooks.json"
 }
