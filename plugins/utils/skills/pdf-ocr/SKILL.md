@@ -1,6 +1,8 @@
 ---
 name: pdf-ocr
 description: "PDF를 Claude vision으로 OCR하여 마크다운 변환. MUST use this skill when user: (1) asks to convert PDF to markdown, (2) asks to OCR PDF, (3) sends PDF file and asks to extract/read/변환/추출, (4) mentions 'PDF 변환', 'PDF 읽어', 'PDF 마크다운'. This skill uses Task agent to protect main context from large PDF content - NEVER process PDF directly in main context."
+context: fork
+agent: general-purpose
 ---
 
 # PDF OCR

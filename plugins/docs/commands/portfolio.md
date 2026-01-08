@@ -3,14 +3,10 @@ description: Launch portfolio-writer agent to create/update project portfolio wi
 allowed-tools:
   - Read
   - Write
-  - Bash(git -C:*)
-  - Bash(git config:*)
-  - Bash(git log:*)
-  - Bash(git show:*)
-  - Bash(git diff:*)
-  - Bash(mkdir:*)
-  - Bash(cat:*)
-  - Bash(pwd:*)
+  - Bash(git *)
+  - Bash(mkdir *)
+  - Bash(cat *)
+  - Bash(pwd)
   - Glob
   - Grep
 ---

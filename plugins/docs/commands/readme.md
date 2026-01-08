@@ -3,12 +3,10 @@ description: Launch readme-architect agent to create/improve README.md
 allowed-tools:
   - Read
   - Write
-  - Bash(git -C:*)
-  - Bash(git config:*)
-  - Bash(git log:*)
-  - Bash(mkdir:*)
-  - Bash(cat:*)
-  - Bash(pwd:*)
+  - Bash(git *)
+  - Bash(mkdir *)
+  - Bash(cat *)
+  - Bash(pwd)
   - Glob
   - Grep
   - AskUserQuestion

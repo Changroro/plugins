@@ -49,6 +49,22 @@ description: <desc>       # CRITICAL for discovery (max 1024 chars)
 ---
 ```
 
+### Frontmatter (OPTIONAL - New in v2.1.0)
+
+```yaml
+---
+name: skill-name
+description: <desc>
+context: fork             # Run in forked context (protects main context)
+agent: general-purpose    # Execute as specific agent type
+---
+```
+
+| Field | Purpose | Use Case |
+|-------|---------|----------|
+| `context: fork` | Run skill in isolated forked context | Large content processing (PDF, images) that could bloat main context |
+| `agent` | Specify agent type for execution | `general-purpose`, `Explore`, `Plan` etc. |
+
 ### Description Formula
 
 ```
@@ -211,6 +227,36 @@ Before finalizing a skill:
 - [ ] **Scripts**: only value-add, no wrappers
 - [ ] **Rules**: critical constraints marked with bold
 - [ ] **Test**: skill triggers on expected phrases
+- [ ] **Context protection**: Use `context: fork` for large content processing
+- [ ] **Bash permissions**: Use wildcard patterns (`Bash(git *)`) instead of verbose
+
+## Bash Wildcard Permission Patterns (v2.1.0)
+
+For commands that use `allowed-tools`, use wildcard patterns for cleaner permissions:
+
+```yaml
+# Old (verbose)
+allowed-tools:
+  - Bash(git -C:*)
+  - Bash(git config:*)
+  - Bash(git log:*)
+  - Bash(git show:*)
+
+# New (concise with wildcards)
+allowed-tools:
+  - Bash(git *)      # All git commands
+  - Bash(npm *)      # All npm commands
+  - Bash(mkdir *)    # mkdir with any args
+  - Bash(pwd)        # Exact match (no args)
+```
+
+**Pattern Types:**
+| Pattern | Matches | Example |
+|---------|---------|---------|
+| `Bash(git *)` | git + anything | `git log`, `git diff --stat` |
+| `Bash(* install)` | anything + install | `npm install`, `pip install` |
+| `Bash(git * main)` | git ... main | `git checkout main` |
+| `Bash(pwd)` | Exact match only | `pwd` (no args) |
 
 ## Anti-Patterns to Avoid
 
@@ -221,6 +267,7 @@ Before finalizing a skill:
 | Multiple workflows | Confusing | One clear path |
 | Verbose examples | Token waste | Minimal examples |
 | Custom systems | Non-standard | Use official patterns |
+| Verbose Bash permissions | Repetitive | Use `Bash(git *)` wildcard |
 
 ## Important Rules
 
