@@ -1,7 +1,7 @@
 {
   "name": "docs",
   "description": "문서 작성 플러그인 - 블로그, 업무일지, 포트폴리오, README 등\n\n📌 Commands:\n  /docs:blog - 기술 블로그 작성\n  /docs:worklog - 업무일지 생성 (git 기반)\n  /docs:devlog - 개발일지 생성 (상세 기술 기록)\n  /docs:portfolio - 프로젝트 포트폴리오 작성\n  /docs:readme - README.md 생성/개선\n  /docs:configure - 문서 저장 경로 설정\n\n🤖 Agents:\n  blog-writer - 기술 블로그 작성 에이전트\n  worklog-writer - 업무일지 작성 에이전트\n  devlog-writer - 개발일지 작성 에이전트\n  portfolio-writer - 포트폴리오 작성 에이전트\n  readme-architect - README 작성 에이전트\n\n🔔 Hooks:\n  - 작업 완료/권한 요청 시 데스크톱 알림",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "author": {
     "name": "Bae-ChangHyun",
     "url": "https://github.com/Bae-ChangHyun"

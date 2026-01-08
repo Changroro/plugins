@@ -64,46 +64,191 @@ multiSelect: false
 - 두번째 옵션: 현재 프로젝트 디렉토리의 docs/daily_work_details/
 - Other: 사용자가 직접 경로 입력
 
-## Step 3: Launch Agent
+## Step 3: Select Date Range (날짜 범위 선택)
 
-After collecting all inputs, use the Task tool with subagent_type='devlog-writer':
+**SKIP this step if "대화 기반" was selected in Step 1.**
+
+First, analyze the project to determine date options:
+
+```bash
+# Get the most recent log date from output directory
+ls -1 {output_path}/{project_name}/*.md 2>/dev/null | sort -r | head -1
+
+# Get the first commit date
+git -C {project_path} log --all --reverse --format="%ad" --date=short | head -1
+
+# Get total commit count from last log date to today (for distribution decision)
+git -C {project_path} log --all --since="{last_log_date}" --until="today" --oneline | wc -l
+```
+
+Store these values:
+- `{last_log_date}`: Date from most recent log file (or "없음" if no logs exist)
+- `{first_commit_date}`: Date of the first commit in the repository
+- `{commit_count}`: Total commits in the potential date range
+
+Use AskUserQuestion:
+
+```
+Question: "어느 기간의 개발일지를 작성할까요?"
+Header: "날짜 범위"
+Options:
+  - label: "오늘만", description: "오늘 날짜의 커밋만 분석하여 개발일지 작성"
+  - label: "마지막 이후", description: "마지막 로그({last_log_date}) 이후부터 오늘까지 (Recommended)"
+  - label: "전체", description: "첫 커밋({first_commit_date})부터 오늘까지 전체 기록 생성"
+multiSelect: false
+```
+
+**NOTE**:
+- "오늘만": 오늘 날짜(today)의 커밋만 분석
+- "마지막 이후": 기존 로그가 있으면 그 다음 날부터, 없으면 첫 커밋부터
+- "전체": 모든 기록을 처음부터 다시 생성 (기존 파일 덮어쓰기)
+- Other: 사용자가 직접 날짜 범위 입력 (예: "2025-01-01 ~ 2025-01-07")
+
+### Date Range Resolution
+
+Based on selection:
+- **"오늘만"**: `start_date` = today, `end_date` = today
+- **"마지막 이후"**: `start_date` = day after last_log_date (or first_commit_date if no logs), `end_date` = today
+- **"전체"**: `start_date` = first_commit_date, `end_date` = today
+- **Other (custom)**: Parse user input for start and end dates
+
+## Step 4: Analyze and Distribute Work
+
+**After determining date range, check if distribution is needed:**
+
+```bash
+# Count commits in the selected date range
+git -C {project_path} log --all --since="{start_date}" --until="{end_date}" --oneline | wc -l
+
+# Count unique dates with commits
+git -C {project_path} log --all --since="{start_date}" --until="{end_date}" --format="%ad" --date=short | sort -u | wc -l
+```
+
+### Distribution Logic
+
+**THRESHOLD: 30 commits or 5+ unique dates → Distribute to multiple agents**
+
+(devlog has lower threshold than worklog because it requires deeper code analysis per commit)
+
+If distribution is needed:
+1. Split the date range into chunks (max 5 days per agent, or ~20 commits per agent)
+2. Launch multiple agents in parallel, each handling a specific date range
+3. Add 1-day padding on each side for context (e.g., if processing Jan 5-10, include Jan 4 and Jan 11 commits for "다음 작업 계획" section)
+
+**Example distribution for 20 days of commits:**
+- Agent 1: Jan 1-5 (with padding: Dec 31 - Jan 6)
+- Agent 2: Jan 6-10 (with padding: Jan 5 - Jan 11)
+- Agent 3: Jan 11-15 (with padding: Jan 10 - Jan 16)
+- Agent 4: Jan 16-20 (with padding: Jan 15 - Jan 21)
+
+## Step 5: Launch Agent(s)
+
+After collecting all inputs, use the Task tool with subagent_type='devlog-writer'.
+
+### Single Agent (No Distribution)
 
 **Prompt format for agent:**
 ```
 프로젝트 경로: [selected_project_path or "대화 기반"]
 프로젝트 이름: [project_name]
 출력 경로: [selected_output_path]
+날짜 범위: [start_date] ~ [end_date]
+패딩 범위: [padding_start] ~ [padding_end]
 추가 컨텍스트: $ARGUMENTS
 ```
 
+### Multiple Agents (Distribution Mode)
+
+When distributing work, launch multiple Task tools **in parallel** (in a single message):
+
+```
+# Agent 1
+프로젝트 경로: /home/user/myproject
+프로젝트 이름: myproject
+출력 경로: ~/Documents/docs/daily_work_details/
+날짜 범위: 2025-01-01 ~ 2025-01-05
+패딩 범위: 2024-12-31 ~ 2025-01-06
+추가 컨텍스트: [context]
+
+# Agent 2
+프로젝트 경로: /home/user/myproject
+프로젝트 이름: myproject
+출력 경로: ~/Documents/docs/daily_work_details/
+날짜 범위: 2025-01-06 ~ 2025-01-10
+패딩 범위: 2025-01-05 ~ 2025-01-11
+추가 컨텍스트: [context]
+```
+
+**IMPORTANT**: Launch all agents in parallel using multiple Task tool calls in a single response message.
+
 **Path Resolution:**
 - 프로젝트 경로가 지정된 경우 → 해당 경로에서 git log + 코드 분석
-- "대화 기반" 선택 시 → git 분석 없이 대화 내용으로 작성
+- "대화 기반" 선택 시 → git 분석 없이 대화 내용으로 작성 (날짜 범위 무시)
 - 출력 경로: `{output_path}/{project_name}/YYYY-MM-DD.md`
   - 예: `~/Documents/docs/daily_work_details/myproject/2025-01-07.md`
 
 ## Examples
 
-**Current directory project:**
+**Example 1: Today only**
 ```
 User: /devlog
 
 → Pre-check: config 읽기, pwd 확인 (/home/user/myproject)
 → AskUserQuestion: 프로젝트?
-   Options: [/home/user/myproject, 대화 기반]
    User: /home/user/myproject
 
 → AskUserQuestion: 출력 경로?
-   Options: [~/Documents/docs/daily_work_details/, /home/user/myproject/docs/daily_work_details/]
    User: 현재 프로젝트 내 docs 폴더
+
+→ Analyze: 마지막 로그 2025-01-05, 첫 커밋 2024-12-01
+→ AskUserQuestion: 날짜 범위?
+   User: 오늘만
 
 → Task: devlog-writer
    프로젝트 경로: /home/user/myproject
    프로젝트 이름: myproject
-   출력 경로: /home/user/myproject/docs/daily_work_details/myproject/2025-01-07.md
+   출력 경로: /home/user/myproject/docs/daily_work_details/
+   날짜 범위: 2025-01-08 ~ 2025-01-08
+   패딩 범위: 2025-01-07 ~ 2025-01-09
 ```
 
-**Conversation-based with context:**
+**Example 2: Since last log (small)**
+```
+User: /devlog
+
+→ AskUserQuestion: 프로젝트? → /home/user/myproject
+→ AskUserQuestion: 출력 경로? → 기본 경로
+→ Analyze: 마지막 로그 2025-01-05, 커밋 수 10개
+→ AskUserQuestion: 날짜 범위?
+   User: 마지막 이후
+
+→ Single Task (10 commits < 30 threshold)
+   날짜 범위: 2025-01-06 ~ 2025-01-08
+   패딩 범위: 2025-01-05 ~ 2025-01-09
+```
+
+**Example 3: Full history (large - needs distribution)**
+```
+User: /devlog
+
+→ AskUserQuestion: 프로젝트? → /home/user/myproject
+→ AskUserQuestion: 출력 경로? → 기본 경로
+→ Analyze: 첫 커밋 2024-12-01, 커밋 수 80개, 20일
+→ AskUserQuestion: 날짜 범위?
+   User: 전체
+
+→ Distribution needed (80 commits > 30 threshold)
+→ Split into 4 agents (5 days each):
+
+→ Task 1: devlog-writer (Dec 1-5, padding: Nov 30 - Dec 6)
+→ Task 2: devlog-writer (Dec 6-10, padding: Dec 5 - Dec 11)
+→ Task 3: devlog-writer (Dec 11-15, padding: Dec 10 - Dec 16)
+→ Task 4: devlog-writer (Dec 16-20, padding: Dec 15 - Dec 21)
+
+(All 4 agents launched in parallel)
+```
+
+**Example 4: Conversation-based (날짜 범위 선택 생략)**
 ```
 User: /devlog API 리팩토링 작업 기록
 
@@ -113,9 +258,21 @@ User: /devlog API 리팩토링 작업 기록
 → AskUserQuestion: 출력 경로?
    User: Other → "/home/user/notes/dev/"
 
-→ Task: devlog-writer
+→ Task: devlog-writer (날짜 범위 선택 SKIP)
    프로젝트 경로: 대화 기반
    프로젝트 이름: general
-   출력 경로: /home/user/notes/dev/general/2025-01-07.md
+   출력 경로: /home/user/notes/dev/
    추가 컨텍스트: API 리팩토링 작업 기록
+```
+
+**Example 5: Custom date range**
+```
+User: /devlog
+
+→ AskUserQuestion: 날짜 범위?
+   User: Other → "2025-01-01 ~ 2025-01-03"
+
+→ Task: devlog-writer
+   날짜 범위: 2025-01-01 ~ 2025-01-03
+   패딩 범위: 2024-12-31 ~ 2025-01-04
 ```

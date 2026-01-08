@@ -51,6 +51,8 @@ After all permissions are granted, proceed with the actual workflow.
 프로젝트 경로: [project_path or "대화 기반"]
 프로젝트 이름: [project_name]
 출력 경로: [output_path]
+날짜 범위: [start_date] ~ [end_date] (optional)
+패딩 범위: [padding_start] ~ [padding_end] (optional)
 추가 컨텍스트: [additional context if any]
 ```
 
@@ -67,7 +69,18 @@ After all permissions are granted, proceed with the actual workflow.
    - Use provided path directly
    - Create directory if it doesn't exist: `mkdir -p {output_path}`
 
-4. **Extract Additional Context (추가 컨텍스트)**:
+4. **Extract Date Range (날짜 범위)** - NEW:
+   - If provided → Use ONLY this date range for log generation
+   - Format: `YYYY-MM-DD ~ YYYY-MM-DD`
+   - If not provided → Fall back to automatic date range calculation (see Historical Analysis)
+
+5. **Extract Padding Range (패딩 범위)** - NEW:
+   - If provided → Use this extended range for git log queries (for "다음 계획" section)
+   - Format: `YYYY-MM-DD ~ YYYY-MM-DD`
+   - Typically 1 day before start_date and 1 day after end_date
+   - If not provided → Use same as date range
+
+6. **Extract Additional Context (추가 컨텍스트)**:
    - If provided, incorporate into the work log content
 
 ## Core Responsibilities
@@ -87,10 +100,18 @@ After all permissions are granted, proceed with the actual workflow.
      * Ask user via AskUserQuestion what work they want to document
 
 3. **Historical Analysis** (Only when project path is provided)
+
+   **If 날짜 범위 is provided in input:**
+   - Use the provided date range directly: `start_date` ~ `end_date`
+   - Use 패딩 범위 for git log queries if provided
+   - Skip the automatic date calculation below
+   - Create logs ONLY for dates within the specified range
+
+   **If 날짜 범위 is NOT provided (automatic mode):**
    - **CRITICAL OPTIMIZATION**: First check the output directory to find the most recent log date
    - List all existing `.md` files and extract dates from filenames (e.g., `2025-12-17.md` → December 17)
    - If NO existing logs: Analyze ALL commits from the project's first commit to today
-   - If existing logs found: 
+   - If existing logs found:
      * Identify the most recent log date (e.g., 17일)
      * Start analyzing from the commit of the **DAY BEFORE** that date (e.g., 16일)
      * This prevents context waste by not re-reading old commits already documented
@@ -215,7 +236,7 @@ After all permissions are granted, proceed with the actual workflow.
 ## Workflow Process
 
 1. **Initialization (Parse Command Input)**
-   - Parse the provided prompt to extract: 프로젝트 경로, 프로젝트 이름, 출력 경로, 추가 컨텍스트
+   - Parse the provided prompt to extract: 프로젝트 경로, 프로젝트 이름, 출력 경로, 날짜 범위, 패딩 범위, 추가 컨텍스트
    - Create output directory if it doesn't exist: `mkdir -p {output_path}`
    - If "대화 기반": Ask user what work to document using AskUserQuestion
 
@@ -227,19 +248,30 @@ After all permissions are granted, proceed with the actual workflow.
      * Generate log based on user's description
      * Save to: `{output_path}/{project_name}/{today}.md`
 
-3. **Existing Log Check** (Git Analysis Mode only)
-   - List all .md files in daily_work directory
+3. **Date Range Determination** (Git Analysis Mode only)
+
+   **If 날짜 범위 is provided in input:**
+   - Use the provided `start_date` and `end_date` directly
+   - Use `패딩 범위` for git log queries (includes context for "다음 계획")
+   - **SKIP step 4 entirely** - no need to check existing logs
+
+   **If 날짜 범위 is NOT provided:**
+   - List all .md files in output directory
    - Sort by filename to find most recent date
    - Extract date from filename (yyyy-mm-dd.md)
+   - Proceed to step 4
 
-4. **Date Range Calculation** (Git Analysis Mode only)
+4. **Automatic Date Range Calculation** (Only if 날짜 범위 NOT provided)
    - If no logs exist: start_date = first commit date, end_date = today
    - If logs exist: start_date = day after most recent log, end_date = today
    - Skip if start_date > end_date (already up to date)
+   - Calculate padding: padding_start = start_date - 1 day, padding_end = end_date + 1 day
 
 5. **Commit Retrieval** (Git Analysis Mode only)
-   - Use `git -C {project_path} log --all --since="YYYY-MM-DD" --until="YYYY-MM-DD" --format="%H|%ad|%s" --date=short`
+   - Use padding range for git log query (to include context for "다음 계획"):
+     `git -C {project_path} log --all --since="{padding_start}" --until="{padding_end}" --format="%H|%ad|%s" --date=short`
    - Parse output to group commits by date
+   - **IMPORTANT**: Only generate log files for dates within the actual date range (not padding)
 
 6. **Content Generation**
    - **CRITICAL**: Do NOT simply copy commit messages verbatim
