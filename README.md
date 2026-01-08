@@ -79,7 +79,7 @@
 | **📝 docs** | 문서 작성 자동화 | 블로그, 일지, README 생성 |
 | **🛠️ dev** | 개발 지원 | 코드 리뷰, 기술 스택 업데이트 |
 | **🔀 gitwf** | Git 워크플로우 | Conventional Commits, PR 관리 |
-| **🔧 utils** | 개발 도구 | 스킬 작성 가이드, PDF OCR |
+| **🔧 utils** | 개발 도구 | 스킬 작성 가이드, OCR (PDF/이미지) |
 
 </div>
 
@@ -512,7 +512,7 @@ Labels: enhancement, auth
 | Skill | 설명 | 트리거 키워드 |
 |-------|------|---------------|
 | `creating-skills` | Claude Code 스킬 작성 가이드 | "스킬 만들어줘", "SKILL.md" |
-| `pdf-ocr` | PDF를 Vision OCR로 마크다운 변환 | "PDF 변환해줘", "OCR" |
+| `ocr` | PDF/이미지를 Vision OCR로 마크다운 변환 | "OCR", "PDF 변환", "이미지 변환" |
 
 #### 📝 creating-skills 주요 특징
 
@@ -562,31 +562,41 @@ trigger:
 
 </details>
 
-#### 📄 pdf-ocr 주요 특징
+#### 📄 ocr 주요 특징
 
-**PDF 파일을 Vision OCR로 마크다운 변환:**
+**PDF 및 이미지 파일을 Vision OCR로 마크다운 변환:**
 
-- PDF 페이지별 이미지 추출
+- **지원 형식**: PDF (`.pdf`), 이미지 (`.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`, `.tiff`)
 - Claude Vision API로 텍스트 인식
 - 마크다운 포맷으로 변환
-- 배치 처리 지원
+- 자동 파일 타입 감지
+- PDF/이미지 혼합 폴더 일괄 처리
+- PDF 저장 방식 선택: 통합 저장 / 페이지별 저장
 
 <details>
-<summary><strong>🔍 PDF OCR 예시</strong></summary>
+<summary><strong>🔍 OCR 예시</strong></summary>
 
 ```bash
-# 단일 PDF 변환
-PDF 변환해줘 document.pdf
+# 단일 파일 변환 (PDF 또는 이미지)
+/ocr document.pdf
+/ocr screenshot.png
 
-→ PDF → 이미지 변환
 → Vision OCR 실행
 → 마크다운 출력
-→ 결과: document.md
+→ 결과: document.md / screenshot.md
 
-# 여러 PDF 배치 처리
-PDF 변환해줘 docs/*.pdf
+# PDF 저장 방식 선택 (PDF만 해당)
+/ocr document.pdf
 
-→ 모든 PDF 순차 처리
+→ "저장 방식" 질문
+→ 통합 저장: document.md
+→ 페이지별 저장: document_p1.md, document_p2.md, ...
+
+# 폴더 내 모든 파일 배치 처리 (PDF + 이미지 혼합 가능)
+/ocr docs/
+
+→ PDF, 이미지 자동 분류
+→ 3개 단위 병렬 처리
 → 각 파일별 마크다운 생성
 ```
 
@@ -736,7 +746,7 @@ cc-plugins-bch/
 │       └── skills/
 │           ├── creating-skills/
 │           │   └── SKILL.md
-│           └── pdf-ocr/
+│           └── ocr/
 │               └── SKILL.md
 ├── .gitignore
 └── README.md
