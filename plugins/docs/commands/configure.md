@@ -25,10 +25,34 @@ pwd
 ```
 
 Store these values:
-- `{current_config_path}`: From config file or "미설정"
+- `{current_config}`: Parsed config object or null
 - `{current_directory}`: Current working directory
 
-## Step 1: Base Path (기본 경로)
+## Step 1: Select What to Configure (설정 항목 선택)
+
+**IMPORTANT**: Use AskUserQuestion with `multiSelect: true` to let user choose which settings to configure.
+
+```
+Question: "어떤 항목을 설정하시겠습니까? (복수 선택 가능)"
+Header: "설정 항목"
+Options:
+  - label: "기본 경로", description: "문서 저장 위치 설정"
+  - label: "폴더명", description: "문서 타입별 폴더명 설정 (업무일지, 개발일지, 포트폴리오, 블로그)"
+  - label: "블로그 말투", description: "블로그 글 작성 시 사용할 말투 스타일"
+multiSelect: true
+```
+
+**NOTE**:
+- 사용자가 선택한 항목만 이후 단계에서 질문합니다
+- 선택하지 않은 항목은 기존 설정 유지 (설정이 없으면 기본값 사용)
+
+---
+
+## Step 2: Configure Selected Items Only
+
+**선택한 항목에 해당하는 질문만 진행합니다.**
+
+### 2-A. Base Path (기본 경로 선택 시)
 
 Use AskUserQuestion:
 
@@ -36,97 +60,98 @@ Use AskUserQuestion:
 Question: "문서를 저장할 기본 경로를 설정해주세요 (Other로 직접 입력 가능)"
 Header: "기본 경로"
 Options:
-  - label: "{current_config_path}", description: "현재 설정된 경로 유지"
+  - label: "{current_config.base_path 또는 ~/Documents/docs}", description: "현재 설정된 경로 유지"
   - label: "{current_directory}", description: "현재 작업 디렉토리 사용"
 multiSelect: false
 ```
 
-**NOTE**:
-- 첫번째 옵션은 현재 설정 파일에 저장된 경로 (없으면 "~/Documents/docs")
-- 두번째 옵션은 현재 pwd 결과
+### 2-B. Folder Names (폴더명 선택 시)
 
-## Step 2: Document Type Folder Names
-
-Use AskUserQuestion:
+먼저 프리셋 또는 개별 설정 선택:
 
 ```
-Question: "각 문서 타입별 폴더명을 설정할까요?"
+Question: "폴더명을 어떻게 설정할까요?"
 Header: "폴더 설정"
 Options:
-  - label: "기본값 유지", description: "daily_work, daily_work_details, portfolio, blog"
-  - label: "영문 간결하게", description: "work, dev, portfolio, blog"
+  - label: "기본값", description: "daily_work, daily_work_details, portfolio, blog"
+  - label: "간결하게", description: "work, dev, portfolio, blog"
+  - label: "개별 설정", description: "각 폴더명을 하나씩 직접 선택"
 multiSelect: false
 ```
 
-If user selects via Other (커스텀), ask for each type:
+**If "개별 설정" selected**, ask each type:
 
-### 2-1. Worklog folder (업무일지)
+#### Worklog folder (업무일지)
 ```
 Question: "업무일지 폴더명을 선택해주세요"
 Header: "업무일지"
 Options:
   - label: "daily_work", description: "기본값 - 명확한 네이밍"
-  - label: "work", description: "추천 - 간결한 네이밍"
+  - label: "work", description: "간결한 네이밍"
 multiSelect: false
 ```
 
-### 2-2. Devlog folder (개발일지)
+#### Devlog folder (개발일지)
 ```
 Question: "개발일지 폴더명을 선택해주세요"
 Header: "개발일지"
 Options:
   - label: "daily_work_details", description: "기본값 - 업무일지와 연관성 표현"
-  - label: "dev", description: "추천 - 개발자 친화적 네이밍"
+  - label: "dev", description: "개발자 친화적 네이밍"
 multiSelect: false
 ```
 
-### 2-3. Portfolio folder
+#### Portfolio folder
 ```
 Question: "포트폴리오 폴더명을 선택해주세요"
 Header: "포트폴리오"
 Options:
   - label: "portfolio", description: "기본값 - 직관적인 이름"
-  - label: "projects", description: "추천 - 프로젝트 중심 네이밍"
+  - label: "projects", description: "프로젝트 중심 네이밍"
 multiSelect: false
 ```
 
-### 2-4. Blog folder
+#### Blog folder
 ```
 Question: "블로그 폴더명을 선택해주세요"
 Header: "블로그"
 Options:
   - label: "blog", description: "기본값 - 간결한 이름"
-  - label: "posts", description: "추천 - 블로그 포스트 중심 네이밍"
+  - label: "posts", description: "블로그 포스트 중심 네이밍"
 multiSelect: false
 ```
 
-### 2-5. Blog Writing Style Prompt (블로그 말투 프롬프트)
+### 2-C. Blog Writing Style (블로그 말투 선택 시)
 
 ```
-Question: "블로그 글 작성 시 사용할 말투 프롬프트 파일 경로를 설정해주세요"
-Header: "말투 프롬프트"
+Question: "블로그 글 작성 시 사용할 말투 스타일을 설정해주세요"
+Header: "말투 스타일"
 Options:
-  - label: "기본 스타일 (창빵맨)", description: "플러그인 내장 기본 말투 프롬프트 사용"
-  - label: "프롬프트 파일 경로 입력", description: "Other로 커스텀 프롬프트 파일 경로 입력"
+  - label: "기본 스타일", description: "플러그인 내장 기본 말투 사용"
+  - label: "커스텀 파일", description: "Other로 직접 프롬프트 파일 경로 입력"
 multiSelect: false
 ```
 
 **NOTE**:
 - "기본 스타일": 플러그인에 내장된 `assets/blog-style-default.md` 사용
-- Other (직접 입력): 사용자 정의 프롬프트 파일의 절대 경로 입력
+- "커스텀 파일" 또는 Other: 사용자 정의 프롬프트 파일의 절대 경로 입력
   - 예: `~/Documents/my-blog-style.md`
-  - 예: `/home/user/prompts/tech-blog-style.md`
 
 ## Step 3: Save Configuration
 
-Save the collected settings to `docs_config.json`:
+**IMPORTANT**: Merge selected settings with existing config. Only update fields that user chose to configure.
 
 **Config file location**: `~/.config/claude-code/docs_config.json`
 
-**Config format**:
+**Merge logic**:
+1. Read existing config (or use defaults if none exists)
+2. Update only the fields that user selected in Step 1
+3. Write merged config back to file
+
+**Default config (used when no existing config)**:
 ```json
 {
-  "base_path": "/path/to/your/docs",
+  "base_path": "~/Documents/docs",
   "folders": {
     "worklog": "daily_work",
     "devlog": "daily_work_details",
@@ -140,68 +165,81 @@ Save the collected settings to `docs_config.json`:
 
 ## Step 4: Confirm and Display
 
-After saving, display the configuration:
+After saving, display what was changed:
 
 ```
 ✅ Docs 설정이 저장되었습니다!
 
-📁 기본 경로: /path/to/your/docs
-📂 폴더 구조:
-  - 업무일지: {base_path}/daily_work/{project_name}/
-  - 개발일지: {base_path}/daily_work_details/{project_name}/
-  - 포트폴리오: {base_path}/portfolio/{project_name}/
-  - 블로그: {base_path}/blog/{project_name}/
-✍️ 블로그 말투: {blog_style_prompt} (default 또는 커스텀 경로)
+📝 변경된 항목:
+  - 기본 경로: /path/to/docs (변경됨 or 기존 유지됨 표시)
+  - 폴더명: work, dev, portfolio, blog (변경 시에만 표시)
+  - 블로그 말투: default (변경 시에만 표시)
+
+📁 현재 전체 설정:
+  - 기본 경로: {base_path}
+  - 업무일지: {folders.worklog}
+  - 개발일지: {folders.devlog}
+  - 포트폴리오: {folders.portfolio}
+  - 블로그: {folders.blog}
+  - 블로그 말투: {blog_style_prompt}
 
 설정 파일: ~/.config/claude-code/docs_config.json
 ```
-
-**blog_style_prompt 값**:
-- `"default"`: 플러그인 내장 기본 스타일 사용
-- `"/path/to/custom-style.md"`: 사용자 정의 프롬프트 파일 경로
 
 ## Implementation
 
 Use Bash tool to:
 1. Create config directory if not exists: `mkdir -p ~/.config/claude-code`
-2. Write config file using Write tool
-3. Verify the file was created successfully
+2. Read existing config (if exists)
+3. Merge with new settings
+4. Write config file using Write tool
 
 ## Examples
 
-**First-time setup:**
-```
-User: /docs:configure
-
-→ Pre-check: 현재 설정 읽기 (NO_CONFIG), pwd 확인
-→ AskUserQuestion: 기본 경로?
-   Options: [~/Documents/docs (미설정), /home/user/project (현재 디렉토리)]
-   User: Other → "/home/user/Documents/dev-docs"
-
-→ AskUserQuestion: 폴더 설정?
-   User: 기본값 유지
-
-→ Save to ~/.config/claude-code/docs_config.json
-→ Display confirmation
-```
-
-**Custom folder names:**
+**Example 1: Only change base path**
 ```
 User: /docs:configure
 
 → Pre-check: 현재 설정 읽기, pwd 확인
+→ AskUserQuestion (multiSelect): 어떤 항목을 설정하시겠습니까?
+   User selects: [기본 경로] ✓
+
 → AskUserQuestion: 기본 경로?
-   Options: [/home/user/docs (현재 설정), /home/user/project (현재 디렉토리)]
-   User: 현재 설정 유지
+   User: Other → "/home/user/my-docs"
 
-→ AskUserQuestion: 폴더 설정?
-   User: Other → 개별 설정
+→ Merge: base_path만 업데이트, 나머지는 기존 설정 유지
+→ Save & Display
+```
 
-→ AskUserQuestion: 업무일지 폴더명?
-   Options: [daily_work, work]
-   User: Other → "worklog"
+**Example 2: Change folders only**
+```
+User: /docs:configure
 
-→ ... (각 타입별 질문)
+→ Pre-check: 현재 설정 읽기, pwd 확인
+→ AskUserQuestion (multiSelect): 어떤 항목을 설정하시겠습니까?
+   User selects: [폴더명] ✓
 
-→ Save config with custom folder names
+→ AskUserQuestion: 폴더명 설정 방식?
+   User: "간결하게"
+
+→ Merge: folders만 업데이트 (work, dev, portfolio, blog)
+→ Save & Display
+```
+
+**Example 3: Configure multiple items**
+```
+User: /docs:configure
+
+→ Pre-check: 현재 설정 읽기, pwd 확인
+→ AskUserQuestion (multiSelect): 어떤 항목을 설정하시겠습니까?
+   User selects: [기본 경로, 블로그 말투] ✓✓
+
+→ AskUserQuestion: 기본 경로?
+   User: 현재 디렉토리 사용
+
+→ AskUserQuestion: 블로그 말투?
+   User: Other → "~/my-prompts/casual-style.md"
+
+→ Merge: base_path, blog_style_prompt만 업데이트
+→ Save & Display
 ```
