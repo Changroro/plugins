@@ -1,6 +1,6 @@
 ---
 name: github-pr-creation
-description: Creates GitHub Pull Requests with automated validation and task tracking. Use when user wants to create PR, open pull request, submit for review, or check if ready for PR. Analyzes commits, validates task completion, generates Conventional Commits title and description, suggests labels.
+description: MUST use this skill when user asks to create PR, open pull request, submit for review, or mentions "PR 생성/만들기". This skill OVERRIDES default PR creation behavior. Analyzes commits, validates task completion, generates Conventional Commits title and description, suggests labels.
 ---
 
 # GitHub PR Creation

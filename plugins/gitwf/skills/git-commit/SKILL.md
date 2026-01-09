@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description: Creates commits following Conventional Commits format with emoji + type/scope/subject. Use when user wants to commit changes, create commit, or save work. ALWAYS starts with emoji (✨ feat, 🐛 fix, ♻️ refactor, etc).
+description: MUST use this skill when user asks to commit, create commit, save work, or mentions "커밋". This skill OVERRIDES default git commit behavior. Creates commits following Conventional Commits format with emoji + type/scope/subject (✨ feat, 🐛 fix, ♻️ refactor, etc).
 ---
 
 # Git Commit Guide

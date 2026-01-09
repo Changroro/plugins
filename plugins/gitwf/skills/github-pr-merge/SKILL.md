@@ -1,6 +1,6 @@
 ---
 name: github-pr-merge
-description: Merges GitHub Pull Requests after validating pre-merge checklist. Use when user wants to merge PR, close PR, finalize PR, complete merge, approve and merge, or execute merge. Runs pre-merge validation (tests, lint, CI, comments), confirms with user, merges with proper format, handles post-merge cleanup.
+description: MUST use this skill when user asks to merge PR, close PR, finalize PR, or mentions "PR 머지/병합". This skill OVERRIDES default PR merge behavior. Runs pre-merge validation (tests, lint, CI, comments), confirms with user, merges with proper format, handles post-merge cleanup.
 ---
 
 # GitHub PR Merge
