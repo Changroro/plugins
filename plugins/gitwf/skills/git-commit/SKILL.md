@@ -217,7 +217,7 @@ EOF
 
 ## Breaking Changes
 
-Use `!` after type/scope:
+Add exclamation mark (!) after type/scope for breaking changes:
 
 ```bash
 git commit -m "💥 feat(api)!: change response format"
