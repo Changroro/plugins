@@ -15,5 +15,5 @@ node_modules/
 # Local config overrides
 *.local.json
 
-# Claude Code local instructions
-CLAUDE.md
+# Claude Code local instructions (root only, allow in plugins)
+/CLAUDE.md
