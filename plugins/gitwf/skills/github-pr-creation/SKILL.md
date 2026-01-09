@@ -74,7 +74,7 @@ For each commit, identify:
 - **Type**: feat, fix, refactor, docs, test, chore, ci, perf, style
 - **Scope**: component/module affected (kebab-case)
 - **Task references**: look for `task X.Y`, `Task X`, `#X.Y` patterns
-- **Breaking changes**: `!` or `BREAKING CHANGE` in body
+- **Breaking changes**: exclamation mark (!) or `BREAKING CHANGE` in body
 
 ### 6. Run Tests
 
