@@ -81,23 +81,34 @@ multiSelect: false
 
 ## Step 4: Select Writing Style (말투)
 
+First, check if a custom style prompt is configured:
+```bash
+# Check config for blog_style_prompt
+cat ~/.config/claude-code/docs_config.json 2>/dev/null | grep -o '"blog_style_prompt"[^,}]*' || echo "NO_STYLE_CONFIG"
+```
+
+Store `{config_style_prompt}`: From config file or "default"
+
 Use AskUserQuestion:
 
 ```
-Question: "말투 예시 혹은 참고 URL을 입력해주세요"
+Question: "말투 스타일을 선택해주세요 (Other로 프롬프트 파일 경로, 참고 URL, 직접 설명 입력 가능)"
 Header: "말투"
 Options:
-  - label: "기술블로그 스타일", description: "~한다/~된다 체, 자연스럽고 친근한 개발자 블로그"
-  - label: "요약 스타일", description: "간결하고 핵심만 전달하는 문서형 스타일"
+  - label: "기본 프롬프트 ({config_style_prompt})", description: "configure에서 설정한 말투 프롬프트 파일 사용 (기본: 창빵맨 스타일)"
+  - label: "요약 스타일", description: "간결하고 핵심만 전달하는 문서형 스타일 (~이다 체)"
 multiSelect: false
 ```
 
-**NOTE**:
-- "기술블로그 스타일": 기본 ~한다/~된다 체, 친근한 톤
-- "요약 스타일": 간결한 문장, 핵심 위주, ~이다 체
-- Other (직접 입력): 참고 URL이나 원하는 말투 스타일 직접 기술
-  - URL 입력 시: 해당 URL의 말투를 분석하여 유사하게 작성
-  - 텍스트 입력 시: 입력된 스타일대로 작성
+**NOTE - 선택지별 처리**:
+- "기본 프롬프트": config의 `blog_style_prompt` 값 전달
+  - `default` → `prompt_file:default`
+  - 커스텀 경로 → `prompt_file:/path/to/file.md`
+- "요약 스타일" → `style:summary`
+- Other (직접 입력) → 입력값 그대로 전달 (agent가 해석)
+  - 파일 경로 (~/로 시작하거나 /로 시작) → agent가 파일 읽기
+  - URL (http로 시작) → agent가 URL 분석
+  - 텍스트 → agent가 스타일 설명으로 해석
 
 ## Step 5: Select Output Path (저장 경로)
 
@@ -129,13 +140,18 @@ After collecting all inputs, use the Task tool with subagent_type='blog-writer':
 주제: [collected_topic or "프로젝트 분석"]
 참고 URL: [collected_urls or "웹 검색"]
 형식: [collected_format]
-말투: [collected_style]
+말투: [style_value - see below]
 저장 경로: [collected_path]
 블로그 제목: [sanitized blog title for filename]
-
-사용자가 직접 입력한 말투 설명: [if custom style was provided via Other]
-사용자가 직접 입력한 경로: [if custom path was provided via Other]
 ```
+
+**말투 값 형식 (agent가 해석)**:
+- `prompt_file:default` → 플러그인 내장 기본 프롬프트 (agent가 읽음)
+- `prompt_file:/path/to/file.md` → 해당 경로의 프롬프트 파일 (agent가 읽음)
+- `style:summary` → 요약 스타일 (내장 규칙 적용)
+- `~/my-style.md` 또는 `/path/to/style.md` → 파일 경로 (agent가 읽음)
+- `https://example.com/blog` → URL (agent가 분석)
+- 기타 텍스트 → 말투 설명 (agent가 해석)
 
 **Path Resolution:**
 - 설정된 기본 경로 → `{config_base_path}/blog/{blog_title}_{date}.md`

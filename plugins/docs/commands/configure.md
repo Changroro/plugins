@@ -100,6 +100,23 @@ Options:
 multiSelect: false
 ```
 
+### 2-5. Blog Writing Style Prompt (블로그 말투 프롬프트)
+
+```
+Question: "블로그 글 작성 시 사용할 말투 프롬프트 파일 경로를 설정해주세요"
+Header: "말투 프롬프트"
+Options:
+  - label: "기본 스타일 (창빵맨)", description: "플러그인 내장 기본 말투 프롬프트 사용"
+  - label: "프롬프트 파일 경로 입력", description: "Other로 커스텀 프롬프트 파일 경로 입력"
+multiSelect: false
+```
+
+**NOTE**:
+- "기본 스타일": 플러그인에 내장된 `assets/blog-style-default.md` 사용
+- Other (직접 입력): 사용자 정의 프롬프트 파일의 절대 경로 입력
+  - 예: `~/Documents/my-blog-style.md`
+  - 예: `/home/user/prompts/tech-blog-style.md`
+
 ## Step 3: Save Configuration
 
 Save the collected settings to `docs_config.json`:
@@ -116,6 +133,7 @@ Save the collected settings to `docs_config.json`:
     "portfolio": "portfolio",
     "blog": "blog"
   },
+  "blog_style_prompt": "default",
   "path_structure": "{base}/{type}/{project}/"
 }
 ```
@@ -133,9 +151,14 @@ After saving, display the configuration:
   - 개발일지: {base_path}/daily_work_details/{project_name}/
   - 포트폴리오: {base_path}/portfolio/{project_name}/
   - 블로그: {base_path}/blog/{project_name}/
+✍️ 블로그 말투: {blog_style_prompt} (default 또는 커스텀 경로)
 
 설정 파일: ~/.config/claude-code/docs_config.json
 ```
+
+**blog_style_prompt 값**:
+- `"default"`: 플러그인 내장 기본 스타일 사용
+- `"/path/to/custom-style.md"`: 사용자 정의 프롬프트 파일 경로
 
 ## Implementation
 

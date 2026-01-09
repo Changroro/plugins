@@ -39,7 +39,7 @@ If the prompt is just a topic or general request like:
 주제: [topic or "프로젝트 분석"]
 참고 URL: [urls or "웹 검색" or "프로젝트 README 참고"]
 형식: [format]
-말투: [style]
+말투: [style_value - 다양한 형식 가능, 아래 참조]
 저장 경로: [output_path]
 블로그 제목: [sanitized title]
 ```
@@ -63,11 +63,24 @@ If the prompt is just a topic or general request like:
    - "Markdown" → Output as .md
    - "HTML" → Output as .html
 
-5. **Extract Writing Style (말투)**:
-   - "기술블로그 스타일" → ~한다/~된다 체, 친근한 톤
-   - "요약 스타일" → 간결한 문장, 핵심 위주, ~이다 체
-   - URL (http로 시작) → Fetch URL and analyze its writing style
-   - Other text → Parse as custom style description
+5. **Extract Writing Style (말투)** - CRITICAL, agent가 직접 처리:
+
+   말투 값을 파싱하여 적절한 방식으로 스타일 규칙을 로드:
+
+   | 말투 값 형식 | 처리 방법 |
+   |-------------|----------|
+   | `prompt_file:default` | 플러그인 내장 기본 프롬프트 파일 읽기 |
+   | `prompt_file:/path/to/file.md` | 해당 경로의 프롬프트 파일 읽기 |
+   | `style:summary` | 내장 요약 스타일 규칙 적용 |
+   | `~/path/to/style.md` 또는 `/absolute/path.md` | 해당 파일 경로 읽기 |
+   | `https://...` 또는 `http://...` | WebFetch로 URL 분석하여 말투 추출 |
+   | 기타 텍스트 | 말투 설명으로 해석하여 적용 |
+
+   **처리 순서**:
+   1. 말투 값 형식 판별
+   2. 파일/URL인 경우 → Read 또는 WebFetch로 내용 로드
+   3. 로드된 내용에서 스타일 규칙 추출
+   4. 글 작성 시 해당 규칙 적용
 
 6. **Extract Output Path (저장 경로)**: Use directly
 
@@ -97,12 +110,17 @@ Options:
 
 ### Step 3: Writing Style
 ```
-Question: "말투 예시 혹은 참고 URL을 입력해주세요"
+Question: "말투 스타일을 선택해주세요 (Other로 프롬프트 파일 경로, 참고 URL, 직접 설명 입력 가능)"
 Header: "말투"
 Options:
-  - label: "기술블로그 스타일", description: "~한다/~된다 체, 친근한 톤"
-  - label: "요약 스타일", description: "간결하고 핵심만 전달"
+  - label: "기본 프롬프트 (창빵맨 스타일)", description: "플러그인 내장 기본 말투 프롬프트 사용"
+  - label: "요약 스타일", description: "간결하고 핵심만 전달 (~이다 체)"
 ```
+
+**Other 입력 시 처리**:
+- 파일 경로 입력 → 해당 파일 읽어서 스타일 적용
+- URL 입력 → 해당 URL 분석하여 말투 추출
+- 텍스트 입력 → 말투 설명으로 해석
 
 ### Step 4: Output Path
 ```
@@ -115,29 +133,74 @@ Options:
 
 ---
 
-## Writing Style Processing (말투 처리)
+## Writing Style Processing (말투 처리) - CRITICAL
 
-### 기술블로그 스타일
-- ~한다/~된다 체 사용
-- 친근하고 자연스러운 톤
-- 개인적인 의견과 반응 포함
-- 예: "오늘은 ~에 대해 알아보겠다", "꽤 괜찮은 기능이다"
+**말투 값에 따라 agent가 직접 스타일 규칙을 로드하고 적용해야 함**
 
-### 요약 스타일
+### Step 1: 말투 값 형식 판별 및 로드
+
+```
+말투 값 → 형식 판별 → 적절한 방식으로 로드
+```
+
+#### Case 1: `prompt_file:default`
+플러그인 내장 기본 프롬프트 사용 (창빵맨 스타일)
+
+```bash
+# 플러그인 assets 폴더에서 기본 프롬프트 읽기
+# 경로: {plugin_path}/assets/blog-style-default.md
+```
+
+→ Read tool로 파일 읽고 스타일 규칙 적용
+
+#### Case 2: `prompt_file:/path/to/file.md`
+사용자가 configure에서 설정한 커스텀 프롬프트 파일
+
+→ Read tool로 해당 경로 파일 읽고 스타일 규칙 적용
+
+#### Case 3: `style:summary`
+내장 요약 스타일 규칙 적용 (파일 읽기 불필요):
 - ~이다 체 사용
 - 간결하고 명확한 문장
-- 핵심 정보 위주
-- 불필요한 감정 표현 최소화
+- 핵심 정보 위주, 불필요한 감정 표현 최소화
 - 예: "~는 ~을 위한 도구이다", "주요 특징은 다음과 같다"
 
-### URL 참고 스타일 (Other에 URL 입력 시)
-1. WebFetch로 URL 내용 가져오기
-2. 문장 종결 패턴 분석 (~다, ~요, ~임 등)
-3. 어조 파악 (친근함, 전문적, 캐주얼)
-4. 유사하지만 동일하지 않게 적용
+#### Case 4: 파일 경로 (`~/...` 또는 `/...`)
+사용자가 직접 입력한 프롬프트 파일 경로
 
-### 커스텀 스타일 (Other에 텍스트 입력 시)
-입력된 설명을 파싱하여 스타일 규칙 생성
+```
+~/my-blog-style.md → /home/user/my-blog-style.md
+/absolute/path/style.md → 그대로 사용
+```
+
+→ Read tool로 파일 읽고 스타일 규칙 적용
+
+#### Case 5: URL (`http://...` 또는 `https://...`)
+참고할 블로그/웹사이트 URL
+
+→ WebFetch로 URL 내용 분석:
+1. 문장 종결 패턴 분석 (~다, ~요, ~임 등)
+2. 어조 파악 (친근함, 전문적, 캐주얼)
+3. 특징적인 표현 추출
+4. 유사한 스타일로 글 작성
+
+#### Case 6: 기타 텍스트
+사용자가 직접 입력한 말투 설명
+
+```
+예: "유머러스하게, ~임 ~ㅋㅋ 같은 인터넷 말투로"
+```
+
+→ 입력된 설명을 스타일 규칙으로 해석하여 적용
+
+### Step 2: 스타일 규칙 적용
+
+로드된 스타일 규칙을 글 전체에 일관되게 적용:
+- 문장 종결 패턴
+- 도입부/본론/마무리 패턴
+- 연결 표현
+- 강조 방식
+- 피해야 할 표현
 
 **Example:**
 ```
@@ -299,6 +362,10 @@ docs/
    - Parse provided arguments (topic, URLs, format, style, path)
    - Determine final output path based on user's choice
    - Sanitize blog title for filename
+   - **Process Writing Style (말투)** - CRITICAL:
+     1. 말투 값 형식 판별 (prompt_file:, style:, 파일경로, URL, 텍스트)
+     2. 파일/URL인 경우 → Read 또는 WebFetch로 내용 로드
+     3. 스타일 규칙 추출 및 저장 (Writing Phase에서 사용)
 
 2. **Research Phase (CRITICAL - ALWAYS PERFORM)**
 
