@@ -309,8 +309,27 @@ Before creating a commit, ask yourself:
 ♿️ feat: improve form accessibility for screen readers
 ```
 
+## Language Rule
+
+**MUST FOLLOW:** The commit message language should match the repository's existing commit history.
+
+Before writing a commit message:
+1. Run `git log --oneline -5` to check recent commit messages
+2. Use the same language as the existing commits
+3. If commits are in Korean, write in Korean. If in English, write in English.
+
+```bash
+# Check recent commit language
+git log --oneline -5
+```
+
+**Examples:**
+- If recent commits are `"✨ feat: 로그인 기능 추가"` → Write in Korean
+- If recent commits are `"✨ feat: add login feature"` → Write in English
+
 ## Important Rules
 
+- **ALWAYS** check recent commit history to determine commit message language
 - **ALWAYS** check project conventions (CLAUDE.md) before committing
 - **ALWAYS** review staged changes before committing
 - **ALWAYS** commit per feature unit, not per file
