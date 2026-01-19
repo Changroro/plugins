@@ -69,19 +69,26 @@ After all permissions are granted, proceed with the actual workflow.
    - Use provided path directly
    - Create directory if it doesn't exist: `mkdir -p {output_path}`
 
-4. **Extract Date Range (날짜 범위)** - NEW:
-   - If provided → Use ONLY this date range for log generation
-   - Format: `YYYY-MM-DD ~ YYYY-MM-DD`
-   - If not provided → Fall back to automatic date range calculation (see Historical Analysis)
+4. **Extract Date Range (날짜 범위)** - CRITICAL:
+   - Parse format: `YYYY-MM-DD ~ YYYY-MM-DD`
+   - **VALIDATE IMMEDIATELY**: If start_date != end_date, this is an error
+   - **EXPECTED**: start_date MUST equal end_date (single date per agent)
+   - Store as `{target_date}` - the ONLY date this agent will process
+   - Example: "2025-01-05 ~ 2025-01-05" → target_date = "2025-01-05"
 
-5. **Extract Padding Range (패딩 범위)** - NEW:
-   - If provided → Use this extended range for git log queries (for "다음 계획" section)
-   - Format: `YYYY-MM-DD ~ YYYY-MM-DD`
-   - Typically 1 day before start_date and 1 day after end_date
-   - If not provided → Use same as date range
+5. **Extract Padding Range (패딩 범위)**:
+   - Parse format: `YYYY-MM-DD ~ YYYY-MM-DD`
+   - This is for "다음 계획" section ONLY, not for main content
+   - Typically target_date ± 1 day
+   - Example: "2025-01-04 ~ 2025-01-06" for target_date = "2025-01-05"
 
 6. **Extract Additional Context (추가 컨텍스트)**:
    - If provided, incorporate into the work log content
+
+7. **CRITICAL VALIDATION**:
+   - Verify target_date is a valid date format (YYYY-MM-DD)
+   - Immediately output to user: "Processing work log for date: {target_date}"
+   - This ensures transparency and catches date errors early
 
 ## Core Responsibilities
 
@@ -146,6 +153,22 @@ After all permissions are granted, proceed with the actual workflow.
 
 ## Work Log Format Structure
 
+**CRITICAL**: Before generating any work log, you MUST read the template file first.
+
+1. **Read the template file** using the Read tool:
+   - Template location: `~/.claude/plugins/cc-plugins-bch/plugins/docs/templates/worklog_template.md`
+   - This template defines the structure and format for all work logs
+
+2. **Use the template** to generate work logs by:
+   - Replacing placeholders like `{YEAR}`, `{MONTH}`, `{DAY}` with actual dates
+   - Replacing `{MY_COMMIT_COUNT}`, `{TEAM_COMMIT_COUNT}` with actual counts
+   - Replacing `{MY_WORK_SUMMARY}`, `{TEAM_WORK_SUMMARY}` with actual summaries
+   - Filling in the sections with analyzed commit data
+
+3. **Preserve the template structure** - do not modify the format, only fill in the content
+
+**If template file cannot be found**, fall back to this default structure:
+
 ```markdown
 # 업무일지 - YYYY년 MM월 DD일
 
@@ -158,31 +181,12 @@ After all permissions are granted, proceed with the actual workflow.
 - 기술적 세부사항은 최소화하되, 핵심 용어는 유지
 - 비즈니스 임팩트나 목적을 우선적으로 서술
 
-### [기능/영역명]
-- 관련된 여러 커밋을 하나의 논리적 작업으로 그룹화
-- 모든 항목은 명사형으로 종결할 것 (예: '~ 구현', '~ 개선', '~ 수정')
-
-### 기술적 개선
-- 리팩토링, 성능 개선, 코드 품질 향상 등
-- 개선의 목적과 결과 중심으로 작성
-
-### 버그 수정
-- 발견된 문제와 해결 방법 간략히 서술
-- 사용자 영향도가 있었다면 명시
-
 ---
 
 ## 팀원 작업 내용
 
-> 같은 기간 동안 팀원들이 진행한 작업을 요약합니다. 협업 및 코드 리뷰 시 참고용입니다.
-
-### [팀원 이름 1]
-- 작업 내용 요약 (비즈니스 관점)
-- 관련 기능 및 영향 범위
-
-### [팀원 이름 2]
+### [팀원 이름]
 - 작업 내용 요약
-- (팀원별로 그룹화하여 작성)
 
 ---
 
@@ -196,9 +200,7 @@ After all permissions are granted, proceed with the actual workflow.
 ---
 
 ## 다음 계획
-- **다음 날짜의 commit을 분석하여 작성**: 현재 날짜+1일의 commit 내역을 조회하여, 그 날 실제로 수행된 작업을 바탕으로 "예정 사항"으로 역산하여 기록
-- 다음 날짜에 commit이 없으면 이 섹션은 생략
-- 예: 12월 18일 로그 작성 시 → 12월 19일 commit 조회 → "사용자 인증 API 개발 예정", "데이터베이스 스키마 설계 예정" 등으로 작성
+- 다음 날짜의 commit을 분석하여 작성
 ```
 
 ## Writing Guidelines
@@ -268,42 +270,103 @@ After all permissions are granted, proceed with the actual workflow.
    - Calculate padding: padding_start = start_date - 1 day, padding_end = end_date + 1 day
 
 5. **Commit Retrieval** (Git Analysis Mode only)
-   - Use padding range for git log query (to include context for "다음 계획"):
-     `git -C {project_path} log --all --since="{padding_start}" --until="{padding_end}" --format="%H|%ad|%s" --date=short`
-   - Parse output to group commits by date
-   - **IMPORTANT**: Only generate log files for dates within the actual date range (not padding)
+
+   **CRITICAL - ACCURATE DATE FILTERING**:
+
+   a. **Get commits for TARGET date ONLY** (for main content):
+   ```bash
+   git -C {project_path} log --all \
+     --since="{target_date} 00:00:00" \
+     --until="{target_date} 23:59:59" \
+     --format="%H|%an|%ae|%ad|%s" \
+     --date=format:%Y-%m-%d
+   ```
+
+   b. **Get commits for NEXT day** (for "다음 계획" section only):
+   ```bash
+   # Calculate next_date = target_date + 1 day
+   git -C {project_path} log --all \
+     --since="{next_date} 00:00:00" \
+     --until="{next_date} 23:59:59" \
+     --format="%H|%an|%ae|%ad|%s" \
+     --date=format:%Y-%m-%d
+   ```
+
+   c. **VALIDATE commits**:
+   - Parse each commit line: hash|author_name|author_email|date|subject
+   - **VERIFY**: date field MUST equal target_date (for main commits)
+   - **DISCARD** any commit where date != target_date
+   - Count total commits: if 0, create "no commits" log file
+
+   d. **Group commits by author**:
+   - Identify current user: `git config user.name` and `git config user.email`
+   - Separate "my commits" vs "team commits" based on author match
 
 6. **Content Generation**
-   - **CRITICAL**: Do NOT simply copy commit messages verbatim
-   - For each date with commits:
-     - Retrieve the actual file changes using `git show <commit-hash>` or `git diff <commit-hash>^..<commit-hash>`
-     - Analyze BOTH the commit message AND the actual code changes
-     - Reason: Commit messages may be brief, unclear, or incomplete
-     - Synthesize what was ACTUALLY done by examining:
-       * Which files were modified/added/deleted
-       * The nature and scope of code changes
-       * Patterns across multiple related commits
-     - Group related changes by feature/area based on actual work done
-     - **Next Day Planning (다음 계획)**: 
-       * Query commits from (current_date + 1 day)
-       * If next day has commits, analyze them and write as "planned work" in current day's log
-       * Format as future-oriented tasks: "~예정", "~계획"
-       * This creates a retrospective view where each day's TODO reflects what actually happened the next day
-     - Generate markdown following the format structure with accurate descriptions
-     - Write to `{output_path}/{project_name}/YYYY-MM-DD.md`
 
-7. **Verification**
-   - Confirm all files were created successfully
-   - Report summary: "Generated X work logs from [start_date] to [end_date]"
-   - Display the output file path(s) to user
+   **CRITICAL - STRICT DATE ENFORCEMENT**:
+
+   a. **Before starting**:
+   - Re-confirm: "Generating work log for {target_date}"
+   - Verify commit list is not empty
+
+   b. **For the TARGET date**:
+   - **DO NOT simply copy commit messages verbatim**
+   - For each commit in target_date commits:
+     * Retrieve actual file changes: `git show {commit-hash}`
+     * Analyze BOTH commit message AND actual code changes
+     * Examine: files modified/added/deleted, nature of changes
+     * Group related changes by feature/area
+
+   c. **Generate "다음 계획" section**:
+   - Use next_date commits (from step 5b)
+   - Analyze what was actually done on next_date
+   - Write as "planned work" in retrospective format
+   - Format: "~예정", "~계획"
+   - If next_date has no commits, omit this section
+
+   d. **Write output file**:
+   - Filename: `{output_path}/{project_name}/{target_date}.md`
+   - **CRITICAL**: Use target_date for filename, not any other date
+   - File header MUST show: "# 업무일지 - {YEAR}년 {MONTH}월 {DAY}일"
+     where YEAR, MONTH, DAY are parsed from target_date
+
+   e. **Final verification**:
+   - Confirm filename matches target_date
+   - Confirm file header shows target_date
+   - Confirm all commits in content are from target_date
+
+7. **Verification and Reporting**
+   - Confirm file was created: `{output_path}/{project_name}/{target_date}.md`
+   - Report to user:
+     ```
+     ✅ Work log generated for {target_date}
+     📄 File: {output_path}/{project_name}/{target_date}.md
+     📊 Commits processed: {my_commit_count} (내 작업) + {team_commit_count} (팀원 작업)
+     ```
+   - If any date mismatch was detected during processing, WARN the user immediately
 
 ## Edge Cases
 
-### No Commits Found (해당 기간에 커밋 없음)
+### No Commits Found (해당 날짜에 커밋 없음)
+
+**CRITICAL**: If target_date has no commits, you should NOT have been invoked for this date. The skill should have filtered it out. If you receive a date with no commits, report this as an error:
+
+```
+⚠️ ERROR: No commits found for {target_date}
+This agent should only be invoked for dates that have commits.
+Possible causes:
+- Skill did not filter dates correctly
+- Git query failed
+- Timezone mismatch
+```
+
+However, if you must create a file, use:
+
 ```markdown
 # 업무일지 - YYYY년 MM월 DD일
 
-해당 기간에 커밋 내역이 없습니다.
+{target_date}에 커밋 내역이 없습니다.
 
 가능한 이유:
 - 코드 작업 외 업무 진행 (회의, 리서치, 기획 등)

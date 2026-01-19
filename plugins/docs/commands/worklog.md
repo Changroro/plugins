@@ -112,72 +112,69 @@ Based on selection:
 - **"전체"**: `start_date` = first_commit_date, `end_date` = today
 - **Other (custom)**: Parse user input for start and end dates
 
-## Step 4: Analyze and Distribute Work
+## Step 4: Get Dates with Commits
 
-**After determining date range, check if distribution is needed:**
+**After determining date range, identify all dates that have commits:**
 
 ```bash
-# Count commits in the selected date range
-git -C {project_path} log --all --since="{start_date}" --until="{end_date}" --oneline | wc -l
-
-# Count unique dates with commits
-git -C {project_path} log --all --since="{start_date}" --until="{end_date}" --format="%ad" --date=short | sort -u | wc -l
+# Get all unique dates with commits in the selected date range
+git -C {project_path} log --all --since="{start_date}" --until="{end_date}" --format="%ad" --date=short | sort -u
 ```
 
-### Distribution Logic
+This will return a list of dates (e.g., 2025-01-05, 2025-01-07, 2025-01-08).
 
-**THRESHOLD: 50 commits or 7+ unique dates → Distribute to multiple agents**
+Store these as `{dates_with_commits}` - an array of date strings.
 
-If distribution is needed:
-1. Split the date range into chunks (max 7 days per agent, or ~30 commits per agent)
-2. Launch multiple agents in parallel, each handling a specific date range
-3. Add 1-day padding on each side for context (e.g., if processing Jan 5-10, include Jan 4 and Jan 11 commits for "다음 계획" section)
+**CRITICAL**: You will launch **ONE agent per date** that has commits. All agents will run in parallel.
 
-**Example distribution for 30 days of commits:**
-- Agent 1: Jan 1-7 (with padding: Dec 31 - Jan 8)
-- Agent 2: Jan 8-14 (with padding: Jan 7 - Jan 15)
-- Agent 3: Jan 15-21 (with padding: Jan 14 - Jan 22)
-- Agent 4: Jan 22-30 (with padding: Jan 21 - Jan 31)
+## Step 5: Launch One Agent Per Date
 
-## Step 5: Launch Agent(s)
+**CRITICAL**: Launch **ONE agent per date** that has commits. All agents run in parallel.
 
-After collecting all inputs, use the Task tool with subagent_type='worklog-writer'.
+For each date in `{dates_with_commits}`, launch a Task tool with subagent_type='worklog-writer':
 
-### Single Agent (No Distribution)
-
-**Prompt format for agent:**
+**Prompt format for EACH agent:**
 ```
 프로젝트 경로: [selected_project_path or "대화 기반"]
 프로젝트 이름: [project_name]
 출력 경로: [selected_output_path]
-날짜 범위: [start_date] ~ [end_date]
-패딩 범위: [padding_start] ~ [padding_end]
+날짜 범위: [SINGLE_DATE] ~ [SINGLE_DATE]
+패딩 범위: [SINGLE_DATE-1] ~ [SINGLE_DATE+1]
 추가 컨텍스트: $ARGUMENTS
 ```
 
-### Multiple Agents (Distribution Mode)
-
-When distributing work, launch multiple Task tools **in parallel** (in a single message):
+**Example**: If dates_with_commits = [2025-01-05, 2025-01-07, 2025-01-08], launch 3 agents in parallel:
 
 ```
-# Agent 1
+# Agent 1 (for 2025-01-05)
 프로젝트 경로: /home/user/myproject
 프로젝트 이름: myproject
 출력 경로: ~/Documents/docs/daily_work/
-날짜 범위: 2025-01-01 ~ 2025-01-07
-패딩 범위: 2024-12-31 ~ 2025-01-08
+날짜 범위: 2025-01-05 ~ 2025-01-05
+패딩 범위: 2025-01-04 ~ 2025-01-06
 추가 컨텍스트: [context]
 
-# Agent 2
+# Agent 2 (for 2025-01-07)
 프로젝트 경로: /home/user/myproject
 프로젝트 이름: myproject
 출력 경로: ~/Documents/docs/daily_work/
-날짜 범위: 2025-01-08 ~ 2025-01-14
-패딩 범위: 2025-01-07 ~ 2025-01-15
+날짜 범위: 2025-01-07 ~ 2025-01-07
+패딩 범위: 2025-01-06 ~ 2025-01-08
+추가 컨텍스트: [context]
+
+# Agent 3 (for 2025-01-08)
+프로젝트 경로: /home/user/myproject
+프로젝트 이름: myproject
+출력 경로: ~/Documents/docs/daily_work/
+날짜 범위: 2025-01-08 ~ 2025-01-08
+패딩 범위: 2025-01-07 ~ 2025-01-09
 추가 컨텍스트: [context]
 ```
 
-**IMPORTANT**: Launch all agents in parallel using multiple Task tool calls in a single response message.
+**IMPORTANT**:
+- Launch all agents in parallel using multiple Task tool calls in a single response message
+- Each agent handles exactly ONE date
+- Padding (날짜±1) is used for "다음 계획" section context
 
 **Path Resolution:**
 - 프로젝트 경로가 지정된 경우 → 해당 경로에서 git log 분석
