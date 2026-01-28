@@ -232,10 +232,41 @@ fi
 
 모든 파라미터 수집 후 Task 에이전트를 실행하여 실제 마이그레이션을 수행합니다.
 
+**IMPORTANT**: Task 실행 시 반드시 `allowedPrompts`를 포함하여 사용자 권한 요청을 최소화해야 합니다.
+
+### Allowed Prompts (모든 모드 공통)
+
+```typescript
+allowedPrompts: [
+  { tool: "Bash", prompt: "프로젝트 경로를 폴더명으로 변환" },
+  { tool: "Bash", prompt: "소스/목적지 폴더 경로 계산" },
+  { tool: "Bash", prompt: "세션 파일 목록 조회" },
+  { tool: "Bash", prompt: "세션 파일 복사" },
+  { tool: "Bash", prompt: "목적지 폴더 생성" },
+  { tool: "Bash", prompt: "기존 세션 삭제" },
+  { tool: "Bash", prompt: "파일 내 경로 변경" },
+  { tool: "Bash", prompt: "파일 메타데이터 확인" },
+  { tool: "Bash", prompt: "세션 ID 추출" },
+  { tool: "Bash", prompt: "변수 설정 및 조건 확인" }
+]
+```
+
 ### Recent Mode (최근 세션 N개)
 
 ```
 Task(subagent_type="general-purpose"):
+  allowedPrompts: [
+    { tool: "Bash", prompt: "프로젝트 경로를 폴더명으로 변환" },
+    { tool: "Bash", prompt: "소스/목적지 폴더 경로 계산" },
+    { tool: "Bash", prompt: "세션 파일 목록 조회" },
+    { tool: "Bash", prompt: "세션 파일 복사" },
+    { tool: "Bash", prompt: "목적지 폴더 생성" },
+    { tool: "Bash", prompt: "기존 세션 삭제" },
+    { tool: "Bash", prompt: "파일 내 경로 변경" },
+    { tool: "Bash", prompt: "파일 메타데이터 확인" },
+    { tool: "Bash", prompt: "세션 ID 추출" },
+    { tool: "Bash", prompt: "변수 설정 및 조건 확인" }
+  ]
   프롬프트: |
     Claude Code 세션을 마이그레이션해주세요.
 
@@ -351,6 +382,18 @@ Task(subagent_type="general-purpose"):
 
 ```
 Task(subagent_type="general-purpose"):
+  allowedPrompts: [
+    { tool: "Bash", prompt: "프로젝트 경로를 폴더명으로 변환" },
+    { tool: "Bash", prompt: "소스/목적지 폴더 경로 계산" },
+    { tool: "Bash", prompt: "세션 파일 목록 조회" },
+    { tool: "Bash", prompt: "세션 파일 복사" },
+    { tool: "Bash", prompt: "목적지 폴더 생성" },
+    { tool: "Bash", prompt: "기존 세션 삭제" },
+    { tool: "Bash", prompt: "파일 내 경로 변경" },
+    { tool: "Bash", prompt: "파일 메타데이터 확인" },
+    { tool: "Bash", prompt: "세션 ID 추출" },
+    { tool: "Bash", prompt: "변수 설정 및 조건 확인" }
+  ]
   프롬프트: |
     Claude Code의 모든 세션을 마이그레이션해주세요.
 
@@ -428,6 +471,18 @@ Task(subagent_type="general-purpose"):
 
 ```
 Task(subagent_type="general-purpose"):
+  allowedPrompts: [
+    { tool: "Bash", prompt: "프로젝트 경로를 폴더명으로 변환" },
+    { tool: "Bash", prompt: "소스/목적지 폴더 경로 계산" },
+    { tool: "Bash", prompt: "세션 파일 목록 조회" },
+    { tool: "Bash", prompt: "세션 파일 복사" },
+    { tool: "Bash", prompt: "목적지 폴더 생성" },
+    { tool: "Bash", prompt: "기존 세션 삭제" },
+    { tool: "Bash", prompt: "파일 내 경로 변경" },
+    { tool: "Bash", prompt: "파일 메타데이터 확인" },
+    { tool: "Bash", prompt: "세션 ID 추출" },
+    { tool: "Bash", prompt: "변수 설정 및 조건 확인" }
+  ]
   프롬프트: |
     Claude Code 세션을 검색하여 마이그레이션해주세요.
 
