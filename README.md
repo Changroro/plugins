@@ -79,7 +79,7 @@
 | **📝 docs** | 문서 작성 자동화 | 블로그, 일지, README 생성 |
 | **🛠️ dev** | 개발 지원 | 코드 리뷰, 기술 스택 업데이트 |
 | **🔀 gitwf** | Git 워크플로우 | Conventional Commits, PR 관리 |
-| **🔧 utils** | 개발 도구 | 스킬 작성 가이드, OCR (PDF/이미지) |
+| **🔧 utils** | 개발 도구 | 스킬 가이드, OCR, 세션 마이그레이션 |
 
 </div>
 
@@ -197,86 +197,33 @@ MCP 서버 설정은 `.mcp.json` 파일에서 관리됩니다.
 
 ### 1️⃣ docs 플러그인
 
-문서 작성 관련 에이전트와 커맨드를 제공합니다.
+**문서 작성 자동화** - 블로그, 일지, README, 포트폴리오를 AI가 자동 생성합니다.
+
+<details>
+<summary><strong>📖 제공 기능</strong></summary>
 
 #### 🤖 Agents
 
-| Agent | 설명 | 주요 기능 |
-|-------|------|-----------|
-| `blog-writer` | 기술 블로그 글 작성 | URL 참조, 웹 검색, 마크다운/HTML 출력 |
-| `worklog-writer` | 업무일지 생성 (보고용) | git 커밋 분석, 경영진 보고 형식 |
-| `devlog-writer` | 상세 개발일지 생성 | git 커밋 분석, 기술적 세부사항 기록 |
-| `portfolio-writer` | 포트폴리오 작성/업데이트 | 프로젝트 분석, 기술 스택 정리 |
-| `readme-architect` | README.md 작성/개선 | 오픈소스 베스트 프랙티스 적용 |
+- **blog-writer**: 기술 블로그 글 작성 (URL 참조, 웹 검색)
+- **worklog-writer**: 업무일지 생성 (경영진 보고용)
+- **devlog-writer**: 상세 개발일지 생성 (기술 상세)
+- **portfolio-writer**: 포트폴리오 작성/업데이트
+- **readme-architect**: README.md 작성/개선
 
 #### ⚡ Commands
 
-| Command | 설명 | 사용 예시 |
-|---------|------|-----------|
-| `/docs:blog` | 기술 블로그 글 작성 | `/docs:blog "MCP 프로토콜" https://example.com markdown` |
-| `/docs:worklog` | 업무일지 생성 | `/docs:worklog` (인터랙티브 모드) |
-| `/docs:devlog` | 상세 개발일지 생성 | `/docs:devlog` |
-| `/docs:portfolio` | 포트폴리오 작성 | `/docs:portfolio` |
-| `/docs:readme` | README 작성/개선 | `/docs:readme` |
-| `/docs:configure` | 문서 저장 경로 설정 | `/docs:configure` |
+- `/docs:blog` - 기술 블로그 글 작성
+- `/docs:worklog` - 업무일지 생성
+- `/docs:devlog` - 상세 개발일지 생성
+- `/docs:portfolio` - 포트폴리오 작성
+- `/docs:readme` - README 작성/개선
+- `/docs:configure` - 문서 저장 경로 설정
 
 #### 🔌 필요한 MCP Servers
 
-| Server | 용도 | 설치 |
-|--------|------|------|
-| **playwright** | 웹 페이지 크롤링 | `npx @playwright/mcp@latest` |
-| **context7** | 최신 라이브러리 문서 조회 | `npx -y @upstash/context7-mcp` |
-| **mcp-obsidian** | Obsidian 노트 연동 (선택) | `npx -y mcp-obsidian` |
-
-<details>
-<summary><strong>📖 블로그 작성 예시</strong></summary>
-
-```bash
-# 인터랙티브 모드 (질문 기반)
-/docs:blog
-→ 주제: FastAPI 시작하기
-→ 참고 URL: https://fastapi.tiangolo.com
-→ 형식: Markdown
-→ 말투: 기술블로그 스타일
-→ 저장 경로: docs/blog/
-
-# Quick 모드 (인자 직접 전달)
-/docs:blog "Docker 입문" https://docs.docker.com markdown
-
-# 현재 프로젝트 기반 블로그 생성
-/docs:blog
-→ 주제 선택: "현재 프로젝트 기반" 선택
-→ 프로젝트를 분석하여 자동으로 블로그 주제 및 내용 생성
-```
-
-**생성 결과 예시:**
-```
-📁 docs/blog/FastAPI_시작하기_2026-01-08.md
-- 목차 자동 생성
-- 코드 예제 포함
-- 이미지 플레이스홀더 삽입
-- SEO 메타데이터 포함
-```
-
-</details>
-
-<details>
-<summary><strong>📊 업무일지/개발일지 예시</strong></summary>
-
-```bash
-# 업무일지 생성 (경영진 보고용)
-/docs:worklog
-→ 날짜 범위 선택: "지난 1주일"
-→ git log 분석 (커밋 메시지, 변경 파일)
-→ 경영진 보고용 포맷으로 정리
-→ 결과: docs/worklog/2026-01-01_to_2026-01-08.md
-
-# 개발일지 생성 (기술 상세)
-/docs:devlog
-→ git 커밋 분석
-→ 기술적 세부사항 자동 추출
-→ 결과: docs/devlog/2026-01-08_devlog.md
-```
+- **playwright**: 웹 페이지 크롤링
+- **context7**: 최신 라이브러리 문서 조회
+- **mcp-obsidian**: Obsidian 노트 연동 (선택)
 
 </details>
 
@@ -284,96 +231,27 @@ MCP 서버 설정은 `.mcp.json` 파일에서 관리됩니다.
 
 ### 2️⃣ dev 플러그인
 
-개발 지원 관련 에이전트와 커맨드를 제공합니다.
+**개발 지원** - 코드 리뷰, 프로젝트 전략 분석, 기술 스택 최신화를 자동으로 수행합니다.
+
+<details>
+<summary><strong>🛠️ 제공 기능</strong></summary>
 
 #### 🤖 Agents
 
-| Agent | 설명 | 주요 기능 |
-|-------|------|-----------|
-| `product-advisor` | 프로젝트 전략 분석 | 개선점 제안, 기능 추천 |
-| `stack-updater` | 기술 스택 최신화 | 최신 문서 조회, 베스트 프랙티스 적용 |
-| `senior-code-reviewer` | 종합 코드 리뷰 | 아키텍처, 기능, 비즈니스 관점 |
+- **product-advisor**: 프로젝트 전략 분석 (개선점 제안, 기능 추천)
+- **stack-updater**: 기술 스택 최신화 (최신 문서 조회, 베스트 프랙티스 적용)
+- **senior-code-reviewer**: 종합 코드 리뷰 (아키텍처, 기능, 비즈니스 관점)
 
 #### ⚡ Commands
 
-| Command | 설명 | 사용 예시 |
-|---------|------|-----------|
-| `/dev:review` | 종합 코드 리뷰 | `/dev:review src/auth 모듈 보안 점검` |
-| `/dev:advisor` | 프로덕트 어드바이저 | `/dev:advisor 현재 MVP 기능 검토` |
-| `/dev:update-stack` | 기술 스택 업데이트 | `/dev:update-stack FastAPI` |
+- `/dev:review` - 종합 코드 리뷰
+- `/dev:advisor` - 프로덕트 어드바이저
+- `/dev:update-stack` - 기술 스택 업데이트
 
 #### 🔌 필요한 MCP Servers
 
-| Server | 용도 |
-|--------|------|
-| **playwright** | 웹 페이지 조작 |
-| **context7** | 최신 라이브러리 문서 조회 |
-
-<details>
-<summary><strong>🔍 코드 리뷰 예시</strong></summary>
-
-```bash
-# 전체 프로젝트 리뷰
-/dev:review
-
-→ Layer 1: 기능 검증 (코드 동작 확인)
-→ Layer 2: 코드 품질 (가독성, 유지보수성)
-→ Layer 3: 아키텍처 & 비즈니스 (설계 패턴, 확장성)
-
-# 특정 모듈 리뷰
-/dev:review src/auth 모듈 보안 점검
-
-→ 보안 취약점 검사
-→ 인증/인가 로직 검증
-→ 개선 제안 및 코드 예시 제공
-```
-
-**리뷰 결과 예시:**
-```markdown
-## 코드 리뷰 결과
-
-### Layer 1: 기능 검증
-- ✅ 모든 기능 정상 동작
-- ⚠️ 엣지 케이스 처리 누락 (빈 문자열 입력)
-
-### Layer 2: 코드 품질
-- 가독성: 8/10
-- 제안: 함수 분리 권장 (lines 45-120)
-
-### Layer 3: 아키텍처
-- 설계 패턴: Repository Pattern 적용 권장
-- 확장성: 캐싱 레이어 추가 고려
-```
-
-</details>
-
-<details>
-<summary><strong>📚 기술 스택 업데이트 예시</strong></summary>
-
-```bash
-# FastAPI 최신 버전 반영
-/dev:update-stack FastAPI
-
-→ Context7 MCP로 FastAPI 최신 공식 문서 조회
-→ deprecated API 탐지
-→ 새로운 기능 및 Best Practice 적용 제안
-→ 코드 수정 제안 (예: Pydantic v2 마이그레이션)
-```
-
-**업데이트 결과 예시:**
-```markdown
-## FastAPI 스택 업데이트 제안
-
-### Deprecated APIs
-- ❌ `JSONResponse(content=...)` → ✅ `Response(content=..., media_type="application/json")`
-
-### 새로운 기능
-- ✅ `BackgroundTasks` 활용 권장
-- ✅ Dependency Injection 패턴 개선
-
-### 코드 수정 예시
-[수정 전/후 diff 제공]
-```
+- **playwright**: 웹 페이지 조작
+- **context7**: 최신 라이브러리 문서 조회
 
 </details>
 
@@ -381,23 +259,22 @@ MCP 서버 설정은 `.mcp.json` 파일에서 관리됩니다.
 
 ### 3️⃣ gitwf 플러그인
 
-Git/GitHub 워크플로우 자동화 스킬을 제공합니다.
+**Git/GitHub 워크플로우 자동화** - Conventional Commits 커밋, PR 생성/병합/리뷰를 자동으로 처리합니다.
+
+<details>
+<summary><strong>🔀 제공 기능</strong></summary>
 
 #### 🎯 Skills
 
-| Skill | 설명 | 트리거 키워드 |
-|-------|------|---------------|
-| `git-commit` | Conventional Commits 형식 커밋 | "커밋해줘", "commit" |
-| `pr-create` | GitHub PR 생성 | "PR 만들어줘", "pull request" |
-| `pr-merge` | GitHub PR 병합 | "PR 머지해줘", "merge PR" |
-| `pr-review` | PR 리뷰 코멘트 처리 | "리뷰 반영해줘", "apply review" |
+- **git-commit**: Conventional Commits + Emoji 형식 자동 커밋 ("커밋해줘")
+- **pr-create**: GitHub PR 생성 ("PR 만들어줘")
+- **pr-merge**: GitHub PR 병합 ("PR 머지해줘")
+- **pr-review**: PR 리뷰 코멘트 처리 ("리뷰 반영해줘")
 
-#### ✨ git-commit 주요 특징
+#### ✨ 주요 특징
 
-**Conventional Commits + Emoji 형식 자동 작성:**
-
+**Conventional Commits + Emoji:**
 ```bash
-# 형식: emoji type(scope): subject
 ✨ feat(auth): add JWT login validation
 🐛 fix(api): resolve memory leak in parser
 📝 docs(readme): update installation guide
@@ -405,99 +282,9 @@ Git/GitHub 워크플로우 자동화 스킬을 제공합니다.
 ```
 
 **핵심 원칙:**
-
-- **기능 단위 커밋**: 관련 파일을 하나의 커밋으로 묶음 (파일별 커밋 X)
-- **결과 중심 메시지**: 개발 과정이 아닌 최종 변경점만 기술
-- **50+ 이모지 지원**: feat, fix, docs, refactor, test, chore 등
-
-<details>
-<summary><strong>🎨 커밋 타입 및 이모지 전체 목록</strong></summary>
-
-| Emoji | Type | 설명 |
-|-------|------|------|
-| ✨ | `feat` | 새로운 기능 |
-| 🐛 | `fix` | 버그 수정 |
-| 📝 | `docs` | 문서 |
-| 💄 | `style` | 포맷팅 (로직 변경 없음) |
-| ♻️ | `refactor` | 리팩토링 |
-| ⚡️ | `perf` | 성능 개선 |
-| ✅ | `test` | 테스트 추가/수정 |
-| 🔧 | `chore` | 도구, 설정 |
-| 🚀 | `ci` | CI/CD |
-| 🔒️ | `fix` | 보안 이슈 수정 |
-| 🚑️ | `fix` | 긴급 핫픽스 |
-| 🎨 | `refactor` | 구조/포맷 개선 |
-| 🏗️ | `refactor` | 아키텍처 변경 |
-
-[50+ 이모지 전체 목록 보기](https://github.com/Bae-ChangHyun/cc-plugins-bch/blob/main/plugins/gitwf/skills/git-commit/SKILL.md)
-
-</details>
-
-<details>
-<summary><strong>🔀 git-commit 실행 예시</strong></summary>
-
-```bash
-# 변경사항 추가
-git add .
-
-# 커밋 생성
-커밋해줘
-
-→ git diff 분석
-→ 기능 단위로 파일 그룹화
-→ Conventional Commits 형식으로 커밋 메시지 자동 생성
-→ 결과: ✨ feat(api): implement rate limiting with Redis
-```
-
-**여러 커밋으로 분리 예시:**
-```bash
-# Auth 모듈과 API 모듈을 동시에 수정한 경우
-→ Commit 1: ✨ feat(auth): add JWT refresh token logic
-→ Commit 2: 🐛 fix(api): resolve CORS issue in /users endpoint
-```
-
-</details>
-
-#### 🔀 pr-create 주요 특징
-
-- 커밋 분석 및 타입/스코프 자동 추출
-- 태스크 완료 검증 (tasks.md 체크)
-- 테스트 실행 후 PR 생성
-- 라벨 자동 제안
-
-<details>
-<summary><strong>🚀 PR 생성 예시</strong></summary>
-
-```bash
-# 1. 커밋 생성
-git add .
-커밋해줘
-→ ✨ feat(auth): implement JWT login with refresh token
-
-# 2. PR 생성
-PR 만들어줘
-
-→ 브랜치 분석, 커밋 히스토리 검토
-→ 테스트 실행
-→ PR 생성 (제목, 본문, 라벨 자동)
-```
-
-**생성된 PR 예시:**
-```markdown
-Title: ✨ feat(auth): implement JWT login with refresh token
-
-Body:
-## 변경 사항
-- JWT 기반 로그인 구현
-- Refresh token 메커니즘 추가
-- 토큰 만료 시간 설정
-
-## 테스트
-- ✅ 로그인 플로우 테스트 통과
-- ✅ 토큰 갱신 테스트 통과
-
-Labels: enhancement, auth
-```
+- 기능 단위 커밋 (관련 파일을 하나의 커밋으로 묶음)
+- 결과 중심 메시지 (최종 변경점만 기술)
+- 50+ 이모지 지원
 
 </details>
 
@@ -505,100 +292,35 @@ Labels: enhancement, auth
 
 ### 4️⃣ utils 플러그인
 
-개발 유틸리티 스킬을 제공합니다.
+**개발 유틸리티** - 스킬 작성 가이드, OCR, 세션 마이그레이션 등 편의 기능을 제공합니다.
+
+<details>
+<summary><strong>🔧 제공 기능</strong></summary>
 
 #### 🎯 Skills
 
-| Skill | 설명 | 트리거 키워드 |
-|-------|------|---------------|
-| `creating-skills` | Claude Code 스킬 작성 가이드 | "스킬 만들어줘", "SKILL.md" |
-| `ocr` | PDF/이미지를 Vision OCR로 마크다운 변환 | "OCR", "PDF 변환", "이미지 변환" |
+- **creating-skills**: Claude Code 스킬 작성 가이드 ("스킬 만들어줘")
+- **ocr**: PDF/이미지를 Vision OCR로 마크다운 변환 ("OCR", "PDF 변환")
+- **session-migrate**: Claude Code 세션을 다른 프로젝트로 마이그레이션 ("세션 옮겨줘")
 
-#### 📝 creating-skills 주요 특징
+#### 주요 특징
 
-**Claude Code 스킬 작성 공식 베스트 프랙티스:**
+**creating-skills:**
+- SKILL.md 템플릿 자동 생성
+- 네이밍 컨벤션 가이드
+- 베스트 프랙티스 적용
 
-- SKILL.md 구조 및 프론트매터
-- 네이밍 컨벤션 (lowercase-hyphen)
-- 토큰 예산 관리 (< 500 lines)
-- 헬퍼 스크립트 가이드라인
-- 품질 체크리스트
+**ocr:**
+- PDF, 이미지 지원 (`.pdf`, `.png`, `.jpg` 등)
+- Claude Vision API 사용
+- 배치 처리 (3개 단위 병렬)
+- PDF 저장 방식 선택 (통합/페이지별)
 
-<details>
-<summary><strong>🛠️ 스킬 작성 예시</strong></summary>
-
-```bash
-# 새로운 스킬 작성 가이드 실행
-스킬 만들어줘
-
-→ 스킬 이름 입력
-→ 스킬 설명 입력
-→ SKILL.md 템플릿 자동 생성
-→ 베스트 프랙티스 적용
-```
-
-**생성된 SKILL.md 예시:**
-```markdown
----
-name: my-skill
-trigger:
-  keywords:
-    - "my keyword"
-    - "trigger phrase"
----
-
-# My Skill
-
-[스킬 설명]
-
-## Instructions
-[실행 로직]
-
-## Quality Checklist
-- [ ] 명확한 트리거 키워드
-- [ ] 500줄 이하 토큰 예산
-- [ ] 에러 핸들링
-```
-
-</details>
-
-#### 📄 ocr 주요 특징
-
-**PDF 및 이미지 파일을 Vision OCR로 마크다운 변환:**
-
-- **지원 형식**: PDF (`.pdf`), 이미지 (`.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`, `.tiff`)
-- Claude Vision API로 텍스트 인식
-- 마크다운 포맷으로 변환
-- 자동 파일 타입 감지
-- PDF/이미지 혼합 폴더 일괄 처리
-- PDF 저장 방식 선택: 통합 저장 / 페이지별 저장
-
-<details>
-<summary><strong>🔍 OCR 예시</strong></summary>
-
-```bash
-# 단일 파일 변환 (PDF 또는 이미지)
-/ocr document.pdf
-/ocr screenshot.png
-
-→ Vision OCR 실행
-→ 마크다운 출력
-→ 결과: document.md / screenshot.md
-
-# PDF 저장 방식 선택 (PDF만 해당)
-/ocr document.pdf
-
-→ "저장 방식" 질문
-→ 통합 저장: document.md
-→ 페이지별 저장: document_p1.md, document_p2.md, ...
-
-# 폴더 내 모든 파일 배치 처리 (PDF + 이미지 혼합 가능)
-/ocr docs/
-
-→ PDF, 이미지 자동 분류
-→ 3개 단위 병렬 처리
-→ 각 파일별 마크다운 생성
-```
+**session-migrate:**
+- 세션 대화 기록 복사
+- 최근 N개 세션 선택
+- 경로 자동 변환
+- 기존 세션 추가/덮어쓰기 선택
 
 </details>
 

@@ -1,7 +1,7 @@
 {
   "name": "utils",
-  "description": "개발 유틸리티 - 스킬 작성 가이드, OCR 등",
-  "version": "1.2.3",
+  "description": "개발 유틸리티 - 스킬 작성 가이드, OCR, 세션 마이그레이션 등",
+  "version": "1.6.0",
   "keywords": [
     "utility",
     "skills",
@@ -11,6 +11,10 @@
     "ocr",
     "vision",
     "notification",
-    "hooks"
+    "hooks",
+    "session",
+    "migrate",
+    "transfer",
+    "copy"
   ]
 }
