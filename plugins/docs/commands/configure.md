@@ -37,7 +37,7 @@ Question: "어떤 항목을 설정하시겠습니까? (복수 선택 가능)"
 Header: "설정 항목"
 Options:
   - label: "기본 경로", description: "문서 저장 위치 설정"
-  - label: "폴더명", description: "문서 타입별 폴더명 설정 (업무일지, 개발일지, 포트폴리오, 블로그)"
+  - label: "폴더명", description: "문서 타입별 폴더명 설정 (업무일지, 개발일지, 포트폴리오, 블로그, 코테)"
   - label: "블로그 말투", description: "블로그 글 작성 시 사용할 말투 스타일"
 multiSelect: true
 ```
@@ -73,8 +73,8 @@ multiSelect: false
 Question: "폴더명을 어떻게 설정할까요?"
 Header: "폴더 설정"
 Options:
-  - label: "기본값", description: "daily_work, daily_work_details, portfolio, blog"
-  - label: "간결하게", description: "work, dev, portfolio, blog"
+  - label: "기본값", description: "daily_work, daily_work_details, portfolio, blog, cote"
+  - label: "간결하게", description: "work, dev, portfolio, blog, cote"
   - label: "개별 설정", description: "각 폴더명을 하나씩 직접 선택"
 multiSelect: false
 ```
@@ -121,6 +121,17 @@ Options:
 multiSelect: false
 ```
 
+#### Cote folder (코딩테스트)
+```
+Question: "코딩테스트 풀이 폴더명을 선택해주세요"
+Header: "코테"
+Options:
+  - label: "cote", description: "기본값 - 코딩테스트 약자"
+  - label: "algorithm", description: "알고리즘 중심 네이밍"
+  - label: "boj", description: "백준 온라인 저지 약자"
+multiSelect: false
+```
+
 ### 2-C. Blog Writing Style (블로그 말투 선택 시)
 
 ```
@@ -156,7 +167,8 @@ multiSelect: false
     "worklog": "daily_work",
     "devlog": "daily_work_details",
     "portfolio": "portfolio",
-    "blog": "blog"
+    "blog": "blog",
+    "cote": "cote"
   },
   "blog_style_prompt": "default",
   "path_structure": "{base}/{type}/{project}/"
@@ -181,6 +193,7 @@ After saving, display what was changed:
   - 개발일지: {folders.devlog}
   - 포트폴리오: {folders.portfolio}
   - 블로그: {folders.blog}
+  - 코테: {folders.cote}
   - 블로그 말투: {blog_style_prompt}
 
 설정 파일: ~/.config/claude-code/docs_config.json
