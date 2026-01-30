@@ -77,7 +77,7 @@ Resolve output path:
 
 ## Step 5: Launch Agent
 
-After collecting all info automatically, use the Task tool with subagent_type='cote-writer':
+After collecting all info automatically, use the Task tool with subagent_type='docs:cote-writer':
 
 **Prompt format for agent:**
 ```
