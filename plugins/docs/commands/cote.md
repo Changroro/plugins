@@ -34,6 +34,7 @@ Store these values:
 - `{current_directory}`: Current working directory
 - `{base_path}`: config.base_path or "~/Documents/docs"
 - `{cote_folder}`: config.folders.cote or "cote"
+- `{cote_template}`: config.cote_template or "default"
 
 ## Step 2: Find Most Recent Python File
 
@@ -86,6 +87,7 @@ py 파일 경로: {py_file_path}
 내 코드:
 {user_code}
 저장 경로: {output_path}
+템플릿: {cote_template}
 ```
 
 ## Quick Reference

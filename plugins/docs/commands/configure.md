@@ -39,6 +39,7 @@ Options:
   - label: "기본 경로", description: "문서 저장 위치 설정"
   - label: "폴더명", description: "문서 타입별 폴더명 설정 (업무일지, 개발일지, 포트폴리오, 블로그, 코테)"
   - label: "블로그 말투", description: "블로그 글 작성 시 사용할 말투 스타일"
+  - label: "코테 템플릿", description: "코딩테스트 문제 정리 시 사용할 템플릿 파일"
 multiSelect: true
 ```
 
@@ -79,57 +80,50 @@ Options:
 multiSelect: false
 ```
 
-**If "개별 설정" selected**, ask each type:
+**If "개별 설정" selected**, ask all folder names in a **single AskUserQuestion call** (최대 4개 질문 제한으로 2회에 나눠서):
 
-#### Worklog folder (업무일지)
+**첫 번째 AskUserQuestion** (4개 질문):
 ```
-Question: "업무일지 폴더명을 선택해주세요"
-Header: "업무일지"
-Options:
-  - label: "daily_work", description: "기본값 - 명확한 네이밍"
-  - label: "work", description: "간결한 네이밍"
-multiSelect: false
-```
+Questions:
+  - Question: "업무일지 폴더명을 선택해주세요"
+    Header: "업무일지"
+    Options:
+      - label: "daily_work", description: "기본값 - 명확한 네이밍"
+      - label: "work", description: "간결한 네이밍"
+    multiSelect: false
 
-#### Devlog folder (개발일지)
-```
-Question: "개발일지 폴더명을 선택해주세요"
-Header: "개발일지"
-Options:
-  - label: "daily_work_details", description: "기본값 - 업무일지와 연관성 표현"
-  - label: "dev", description: "개발자 친화적 네이밍"
-multiSelect: false
-```
+  - Question: "개발일지 폴더명을 선택해주세요"
+    Header: "개발일지"
+    Options:
+      - label: "daily_work_details", description: "기본값 - 업무일지와 연관성 표현"
+      - label: "dev", description: "개발자 친화적 네이밍"
+    multiSelect: false
 
-#### Portfolio folder
-```
-Question: "포트폴리오 폴더명을 선택해주세요"
-Header: "포트폴리오"
-Options:
-  - label: "portfolio", description: "기본값 - 직관적인 이름"
-  - label: "projects", description: "프로젝트 중심 네이밍"
-multiSelect: false
-```
+  - Question: "포트폴리오 폴더명을 선택해주세요"
+    Header: "포트폴리오"
+    Options:
+      - label: "portfolio", description: "기본값 - 직관적인 이름"
+      - label: "projects", description: "프로젝트 중심 네이밍"
+    multiSelect: false
 
-#### Blog folder
-```
-Question: "블로그 폴더명을 선택해주세요"
-Header: "블로그"
-Options:
-  - label: "blog", description: "기본값 - 간결한 이름"
-  - label: "posts", description: "블로그 포스트 중심 네이밍"
-multiSelect: false
+  - Question: "블로그 폴더명을 선택해주세요"
+    Header: "블로그"
+    Options:
+      - label: "blog", description: "기본값 - 간결한 이름"
+      - label: "posts", description: "블로그 포스트 중심 네이밍"
+    multiSelect: false
 ```
 
-#### Cote folder (코딩테스트)
+**두 번째 AskUserQuestion** (1개 질문):
 ```
-Question: "코딩테스트 풀이 폴더명을 선택해주세요"
-Header: "코테"
-Options:
-  - label: "cote", description: "기본값 - 코딩테스트 약자"
-  - label: "algorithm", description: "알고리즘 중심 네이밍"
-  - label: "boj", description: "백준 온라인 저지 약자"
-multiSelect: false
+Questions:
+  - Question: "코딩테스트 풀이 폴더명을 선택해주세요"
+    Header: "코테"
+    Options:
+      - label: "cote", description: "기본값 - 코딩테스트 약자"
+      - label: "algorithm", description: "알고리즘 중심 네이밍"
+      - label: "boj", description: "백준 온라인 저지 약자"
+    multiSelect: false
 ```
 
 ### 2-C. Blog Writing Style (블로그 말투 선택 시)
@@ -147,6 +141,23 @@ multiSelect: false
 - "기본 스타일": 플러그인에 내장된 `assets/blog-style-default.md` 사용
 - "커스텀 파일" 또는 Other: 사용자 정의 프롬프트 파일의 절대 경로 입력
   - 예: `~/Documents/my-blog-style.md`
+
+### 2-D. Cote Template (코테 템플릿 선택 시)
+
+```
+Question: "코딩테스트 문제 정리 시 사용할 템플릿을 설정해주세요"
+Header: "코테 템플릿"
+Options:
+  - label: "기본 템플릿", description: "플러그인 내장 기본 템플릿 사용"
+  - label: "커스텀 파일", description: "Other로 직접 템플릿 파일 경로 입력"
+multiSelect: false
+```
+
+**NOTE**:
+- "기본 템플릿": 플러그인에 내장된 `templates/cote_template.md` 사용
+- "커스텀 파일" 또는 Other: 사용자 정의 템플릿 파일의 절대 경로 입력
+  - 예: `~/Documents/my-cote-template.md`
+  - 템플릿 파일에서 사용 가능한 플레이스홀더: `{PROBLEM_NUMBER}`, `{PROBLEM_TITLE}`, `{PROBLEM_URL}`, `{PROBLEM_DESCRIPTION}`, `{PROBLEM_INPUT}`, `{PROBLEM_OUTPUT}`, `{PROBLEM_EXAMPLE}`, `{MY_ANSWER}`, `{ANOTHER_ANSWER}`, `{AI_ANSWER}`, `{USER_SOLUTION}`, `{AI_FEEDBACK}`
 
 ## Step 3: Save Configuration
 
@@ -171,6 +182,7 @@ multiSelect: false
     "cote": "cote"
   },
   "blog_style_prompt": "default",
+  "cote_template": "default",
   "path_structure": "{base}/{type}/{project}/"
 }
 ```
@@ -186,6 +198,7 @@ After saving, display what was changed:
   - 기본 경로: /path/to/docs (변경됨 or 기존 유지됨 표시)
   - 폴더명: work, dev, portfolio, blog (변경 시에만 표시)
   - 블로그 말투: default (변경 시에만 표시)
+  - 코테 템플릿: default (변경 시에만 표시)
 
 📁 현재 전체 설정:
   - 기본 경로: {base_path}
@@ -195,6 +208,7 @@ After saving, display what was changed:
   - 블로그: {folders.blog}
   - 코테: {folders.cote}
   - 블로그 말투: {blog_style_prompt}
+  - 코테 템플릿: {cote_template}
 
 설정 파일: ~/.config/claude-code/docs_config.json
 ```

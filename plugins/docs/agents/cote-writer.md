@@ -167,7 +167,12 @@ Analyze the user's code and provide comprehensive feedback:
 
 ### Phase 6: Assemble and Save
 
-1. Read the template file from plugin templates directory
+1. **Load template**:
+   - Read config: `cat ~/.config/claude-code/docs_config.json 2>/dev/null || echo "NO_CONFIG"`
+   - Check `cote_template` value:
+     - `"default"` or not set → Read plugin built-in template (`templates/cote_template.md`)
+     - File path (e.g., `~/my-template.md`) → Read that custom template file
+   - If template file not found → Fall back to plugin built-in template
 2. Fill in all placeholders:
    - `{PROBLEM_NUMBER}` → 문제 번호
    - `{PROBLEM_TITLE}` → 문제 제목
