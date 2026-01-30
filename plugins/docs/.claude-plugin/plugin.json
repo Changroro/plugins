@@ -1,7 +1,7 @@
 {
   "name": "docs",
   "description": "문서 작성 플러그인 - 블로그, 업무일지, 포트폴리오, README, 코딩테스트 등",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "author": {
     "name": "Bae-ChangHyun",
     "url": "https://github.com/Bae-ChangHyun"
