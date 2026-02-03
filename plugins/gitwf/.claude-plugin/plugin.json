@@ -1,7 +1,7 @@
 {
   "name": "gitwf",
   "description": "Git/GitHub 워크플로우 자동화 - 커밋, PR 생성/병합/리뷰",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "keywords": [
     "git",
     "github",

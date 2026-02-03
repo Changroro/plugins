@@ -55,7 +55,9 @@ else
   fi
 
   if command -v notify-send &> /dev/null; then
-    notify-send "$TITLE" "$MESSAGE" -u "$URGENCY" -i "$ICON" -t 10000
+    # DISPLAY 환경변수 설정 (hooks에서 실행 시 필요)
+    export DISPLAY="${DISPLAY:-:1}"
+    notify-send "$TITLE" "$MESSAGE" -u "$URGENCY" -i "$ICON" -t 2000
   fi
 fi
 

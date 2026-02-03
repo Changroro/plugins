@@ -40,7 +40,9 @@ fi
 
 # notify-send가 있는지 확인
 if command -v notify-send &> /dev/null; then
-  notify-send "$TITLE" "$MESSAGE" -u "$URGENCY" -i "$ICON" -t 10000
+  # DISPLAY 환경변수 설정 (hooks에서 실행 시 필요)
+  export DISPLAY="${DISPLAY:-:1}"
+  notify-send "$TITLE" "$MESSAGE" -u "$URGENCY" -i "$ICON" -t 2000
 # macOS의 경우 osascript 사용
 elif command -v osascript &> /dev/null; then
   osascript -e "display notification \"$MESSAGE\" with title \"$TITLE\""
