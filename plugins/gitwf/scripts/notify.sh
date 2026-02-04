@@ -14,7 +14,7 @@ CLAWD_ICON="$(realpath "${SCRIPT_DIR}/../assets/clawd.png" 2>/dev/null)"
 # 아이콘 및 urgency 설정
 case "$TYPE" in
   "permission")
-    URGENCY="critical"
+    URGENCY="normal"
     TITLE="Claude Code - 권한 요청"
     ;;
   "idle")
