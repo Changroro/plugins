@@ -1,5 +1,5 @@
 ---
-description: Launch cote-writer agent to create a Baekjoon problem write-up from Python solution files (single or batch mode)
+description: 백준 풀이 .py 파일을 분석하여 문제 정리 마크다운을 생성한다. 디렉토리 내 .py 파일이 여러 개면 배치/단일 선택을 묻고, 배치 선택 시 파일별 에이전트를 병렬 실행한다.
 allowed-tools:
   - Read
   - Write
@@ -14,48 +14,63 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-# Coding Test Problem Write-up Flow
+# 코딩테스트 문제 정리 커맨드
 
-## Step 1: Read Configuration and Environment
+이 커맨드는 현재 디렉토리의 `.py` 파일을 탐색하고, 각 파일에서 백준 문제 URL과 풀이 코드를 추출한 뒤, cote-writer 에이전트를 실행하여 구조화된 문제 정리 마크다운을 생성한다.
+
+파일이 여러 개일 경우 사용자에게 배치(전체) 또는 단일(최신) 처리를 선택받고, 배치 선택 시 파일별 에이전트를 병렬로 실행한다.
+
+---
+
+## 실행 흐름
+
+```
+config 읽기 → .py 파일 전체 탐색 → 파일 수에 따라 분기
+  1개: 바로 에이전트 실행
+  N개: AskUserQuestion → "전체 파일" 또는 "최신 파일만"
+    → 전체: 각 파일 URL 검증 → N개 에이전트 병렬 실행 → 요약 리포트
+    → 최신: 최신 파일 1개만 에이전트 실행
+```
+
+---
+
+## Step 1: 설정 및 환경 읽기
 
 ```bash
-# Check current config
 cat ~/.config/claude-code/docs_config.json 2>/dev/null || echo "NO_CONFIG"
-
-# Get current directory
 pwd
 ```
 
-Store these values:
-- `{config}`: Parsed config object or defaults
-- `{current_directory}`: Current working directory
-- `{base_path}`: config.base_path or "~/Documents/docs"
-- `{cote_folder}`: config.folders.cote or "cote"
-- `{cote_template}`: config.cote_template or "default"
+| 변수 | 값 |
+|------|-----|
+| `{config}` | 파싱된 config 또는 기본값 |
+| `{current_directory}` | 현재 작업 디렉토리 |
+| `{base_path}` | config.base_path 또는 `~/Documents/docs` |
+| `{cote_folder}` | config.folders.cote 또는 `cote` |
+| `{cote_template}` | config.cote_template 또는 `default` |
 
-## Step 2: Find ALL Python Files
+## Step 2: .py 파일 전체 탐색
 
-Find all `.py` files in the current directory and subdirectories:
+현재 디렉토리의 모든 `.py` 파일을 수정 시간순으로 조회한다.
 
 ```bash
 ls -t *.py 2>/dev/null
 ```
 
-If no `.py` file found in current directory, try `py/` subdirectory:
+결과가 없으면 `py/` 하위 디렉토리를 시도한다:
 ```bash
 ls -t py/*.py 2>/dev/null
 ```
 
-Store:
-- `{all_py_files}`: List of all found .py files (sorted by modification time, newest first)
-- `{py_file_count}`: Number of .py files found
-- If no .py file found → Output error and stop: "현재 디렉토리에서 .py 파일을 찾을 수 없습니다."
+- `{all_py_files}`: 발견된 전체 .py 파일 목록 (최신순)
+- `{py_file_count}`: 파일 개수
+- 파일이 0개면 → `"현재 디렉토리에서 .py 파일을 찾을 수 없습니다."` 출력 후 종료
 
-## Step 3: Select Mode (파일 선택)
+## Step 3: 처리 모드 결정
 
-**파일이 1개인 경우**: 질문 건너뛰고 바로 해당 파일로 진행 (단일 모드)
+**파일이 1개**: 질문 없이 해당 파일로 바로 진행한다.
 
-**파일이 2개 이상인 경우**: AskUserQuestion으로 선택
+**파일이 2개 이상**: 반드시 AskUserQuestion으로 사용자에게 묻는다.
 
 ```
 Question: "{py_file_count}개의 .py 파일을 발견했습니다. 어떻게 처리할까요?"
@@ -66,42 +81,35 @@ Options:
 multiSelect: false
 ```
 
-Store:
-- `{mode}`: "batch" or "single"
-- `{target_files}`: 처리할 파일 목록
+- "전체 파일" 선택 → `{target_files}` = 전체 파일 목록
+- "최신 파일만" 선택 → `{target_files}` = 최신 파일 1개
 
-## Step 4: Validate Files and Extract Info
+## Step 4: 파일별 URL 및 코드 추출
 
-각 대상 파일에 대해:
+`{target_files}`의 각 파일을 읽어 정보를 추출한다:
 
-1. **Read the file**
-2. **First line**: Extract Baekjoon URL
-   - Expected format: `# https://www.acmicpc.net/problem/{number}`
-   - URL이 없는 파일 → 스킵하고 경고 메시지 출력
-3. **Rest of file**: User's solution code
+1. 파일 첫 줄에서 백준 URL 추출: `# https://www.acmicpc.net/problem/{number}`
+2. 나머지 부분에서 사용자 풀이 코드 추출
+3. URL이 없는 파일은 스킵 목록에 추가하고 경고 출력
 
-Store per file:
-- `{py_file_path}`: Path to the .py file
-- `{problem_url}`: Full Baekjoon URL
-- `{problem_number}`: Extracted problem number
-- `{user_code}`: The solution code (without the URL comment line)
+파일별 저장값:
+- `{py_file_path}`: 파일 경로
+- `{problem_url}`: 백준 URL
+- `{problem_number}`: 문제 번호
+- `{user_code}`: URL 주석을 제외한 풀이 코드
 
-## Step 5: Determine Output Path
+## Step 5: 저장 경로 결정
 
-Resolve output path:
+| 조건 | 경로 |
+|------|------|
+| config에 base_path + folders.cote 있음 | `{base_path}/{cote_folder}/` |
+| 그 외 | `{current_directory}/docs/cote/` |
 
-1. If config has `base_path` and `folders.cote`:
-   - `{output_path}` = `{base_path}/{cote_folder}/`
-2. Else:
-   - `{output_path}` = `{current_directory}/docs/cote/`
+## Step 6: 에이전트 실행
 
-## Step 6: Launch Agent(s)
+URL 검증을 통과한 각 파일에 대해 Task tool로 cote-writer 에이전트를 실행한다.
 
-### Single Mode (파일 1개)
-
-Use the Task tool with subagent_type='docs:cote-writer':
-
-**Prompt format:**
+**에이전트 프롬프트 형식:**
 ```
 py 파일 경로: {py_file_path}
 문제 URL: {problem_url}
@@ -111,138 +119,42 @@ py 파일 경로: {py_file_path}
 템플릿: {cote_template}
 ```
 
-### Batch Mode (파일 여러 개)
+**단일 모드**: Task 1개 실행.
 
-**CRITICAL**: 각 파일별로 개별 Task 에이전트를 **병렬로** 실행한다.
-devlog 커맨드의 병렬 Task 패턴을 따른다.
+**배치 모드**: 파일 수만큼 Task를 **한 번의 응답에서 병렬로** 실행한다. devlog 커맨드의 병렬 Task 패턴과 동일하다.
 
-For each validated file, launch a Task tool with subagent_type='docs:cote-writer':
-
-**Prompt format for EACH agent:**
+배치 예시 (3개 파일):
 ```
-py 파일 경로: {py_file_path}
-문제 URL: {problem_url}
-내 코드:
-{user_code}
-저장 경로: {output_path}
-템플릿: {cote_template}
+Task 1: subagent_type='docs:cote-writer', prompt="py 파일 경로: .../17609.py\n문제 URL: .../17609\n..."
+Task 2: subagent_type='docs:cote-writer', prompt="py 파일 경로: .../1234.py\n문제 URL: .../1234\n..."
+Task 3: subagent_type='docs:cote-writer', prompt="py 파일 경로: .../5678.py\n문제 URL: .../5678\n..."
+→ 3개를 한 번의 응답에서 동시에 호출
 ```
 
-**Example**: 3개 파일이 있는 경우:
+## Step 7: 결과 리포트
 
-```
-Task 1:
-- subagent_type: 'docs:cote-writer'
-- prompt: "py 파일 경로: /home/user/py/17609.py\n문제 URL: https://www.acmicpc.net/problem/17609\n내 코드:\nimport sys...\n저장 경로: ~/Documents/docs/cote/\n템플릿: default"
-
-Task 2:
-- subagent_type: 'docs:cote-writer'
-- prompt: "py 파일 경로: /home/user/py/1234.py\n문제 URL: https://www.acmicpc.net/problem/1234\n내 코드:\nfrom collections...\n저장 경로: ~/Documents/docs/cote/\n템플릿: default"
-
-Task 3:
-- subagent_type: 'docs:cote-writer'
-- prompt: "py 파일 경로: /home/user/py/5678.py\n문제 URL: https://www.acmicpc.net/problem/5678\n내 코드:\nn = int(input())...\n저장 경로: ~/Documents/docs/cote/\n템플릿: default"
-```
-
-**IMPORTANT**: Launch all agents in parallel using multiple Task tool calls in a single response message.
-
-## Step 7: Summary Report (배치 모드 시)
-
-배치 모드 완료 후 요약 리포트를 출력한다:
+배치 모드일 경우 모든 에이전트 완료 후 요약을 출력한다:
 
 ```
 코딩테스트 문제 정리가 완료되었습니다.
 
 처리 결과:
-- ✅ {number}번 {title} → {file_path}
-- ✅ {number}번 {title} → {file_path}
-- ⚠️ {filename}: URL 없음 (스킵)
+- ✅ 17609번 회문 → ~/Documents/docs/cote/17609_회문.md
+- ✅ 1234번 정렬 → ~/Documents/docs/cote/1234_정렬.md
+- ⚠️ solution.py: URL 없음 (스킵)
 
-총 {success_count}/{total_count}개 파일 처리 완료
-저장 위치: {output_path}
+총 2/3개 파일 처리 완료
+저장 위치: ~/Documents/docs/cote/
 ```
 
-## Quick Reference
+단일 모드일 경우 에이전트가 자체 리포트를 출력하므로 추가 리포트 불필요.
 
-```
-/docs:cote 실행 흐름:
-1. config 읽기
-2. 전체 .py 파일 탐색
-3. 1개 → 바로 진행 / N개 → AskUserQuestion (전체/최신)
-4. URL + 코드 추출 (유효성 검증)
-5. 저장 경로 결정
-6. 에이전트 실행 (단일 또는 병렬)
-7. 배치 시 요약 리포트
-```
+---
 
-## Examples
+## 에러 처리
 
-**Normal execution (단일 파일):**
-```
-User: /docs:cote
-
-→ Config: base_path=~/Documents/docs, cote_folder=cote
-→ pwd: /home/user/algorithm
-→ ls -t py/*.py → py/17609.py (1개)
-→ 질문 생략, 바로 진행
-→ Read py/17609.py:
-    Line 1: # https://www.acmicpc.net/problem/17609
-    Rest: import sys ...
-→ Output path: ~/Documents/docs/cote/
-→ Task: cote-writer (1개)
-```
-
-**Batch execution (전체 파일):**
-```
-User: /docs:cote
-
-→ pwd: /home/user/algorithm
-→ ls -t py/*.py → py/17609.py py/1234.py py/5678.py (3개)
-→ AskUserQuestion: "3개의 .py 파일을 발견했습니다. 어떻게 처리할까요?"
-   User: "전체 파일"
-→ 각 파일 URL 검증 (17609, 1234 OK / 5678 URL 없음 → 스킵)
-→ Output path: ~/Documents/docs/cote/
-→ Task 1: cote-writer (17609.py) ─┐
-→ Task 2: cote-writer (1234.py)  ─┤ 병렬 실행
-→ 요약 리포트: 2/3 성공, 1 스킵
-```
-
-**Single file selection from batch:**
-```
-User: /docs:cote
-
-→ ls -t py/*.py → py/17609.py py/1234.py (2개)
-→ AskUserQuestion: "2개의 .py 파일을 발견했습니다."
-   User: "최신 파일만"
-→ py/17609.py만 처리
-→ Task: cote-writer (1개)
-```
-
-**No config (defaults):**
-```
-User: /docs:cote
-
-→ Config: NO_CONFIG → use defaults
-→ pwd: /home/user/algorithm
-→ ls -t *.py → 17609.py (1개)
-→ Output path: /home/user/algorithm/docs/cote/
-→ Task: cote-writer ...
-```
-
-**Error - no py file:**
-```
-User: /docs:cote
-
-→ ls -t *.py → (empty)
-→ ls -t py/*.py → (empty)
-→ Output: "현재 디렉토리에서 .py 파일을 찾을 수 없습니다."
-```
-
-**Error - no URL in file:**
-```
-User: /docs:cote
-
-→ ls -t *.py → solution.py (1개)
-→ Read solution.py → Line 1: import sys (no URL)
-→ Output: "py 파일 첫 줄에 백준 문제 URL을 # 주석으로 추가해주세요."
-```
+| 상황 | 대응 |
+|------|------|
+| .py 파일 없음 | `"현재 디렉토리에서 .py 파일을 찾을 수 없습니다."` |
+| URL 주석 없음 (단일 모드) | `"py 파일 첫 줄에 백준 문제 URL을 # 주석으로 추가해주세요."` |
+| URL 주석 없음 (배치 모드) | 해당 파일 스킵, 요약에서 경고 표시 |
