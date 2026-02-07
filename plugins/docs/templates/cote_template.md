@@ -15,6 +15,9 @@
 ### 예제
 {PROBLEM_EXAMPLE}
 
+### 알고리즘 분류
+{ALGORITHM_TAGS}
+
 ## **코드**
 
 ---
