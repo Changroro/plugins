@@ -26,28 +26,46 @@ Claude Code 세션 저장 구조:
 
 ### Step 1: 파라미터 결정
 
-사용자 메시지에서 소스/목적지 경로를 파싱합니다.
+먼저 현재 디렉토리와 상위 디렉토리를 확인합니다.
 
-**자동 결정 규칙:**
-- 소스 미지정 → 현재 작업 디렉토리 (`pwd`)
-- 목적지 미지정 → AskUserQuestion 1회로 질문
-
-AskUserQuestion이 필요한 경우 **1회만** 호출:
+사용자 메시지에서 소스/목적지 경로가 **둘 다 명시**되어 있으면 질문 없이 바로 Step 2로 진행합니다.
+명시되지 않은 항목이 있으면 **AskUserQuestion 1회**로 모든 미결정 항목을 한번에 질문합니다.
 
 ```
 AskUserQuestion:
   questions:
-    - question: "세션을 어디로 복사할까요? (절대 경로)"
+    - question: "소스 프로젝트 경로를 선택하세요"
+      header: "소스"
+      multiSelect: false
+      options:
+        - label: "$CURRENT_DIR (Recommended)"
+          description: "현재 디렉토리의 세션을 복사"
+        - label: "$PARENT_DIR"
+          description: "상위 디렉토리의 세션을 복사"
+
+    - question: "목적지 프로젝트 경로를 선택하세요"
       header: "목적지"
       multiSelect: false
       options:
         - label: "$PARENT_DIR (Recommended)"
-          description: "상위 디렉토리"
+          description: "상위 디렉토리로 복사"
         - label: "$CURRENT_DIR"
-          description: "현재 디렉토리"
+          description: "현재 디렉토리로 복사"
+
+    - question: "목적지에 기존 세션이 있으면 어떻게 할까요?"
+      header: "처리방식"
+      multiSelect: false
+      options:
+        - label: "추가 (Recommended)"
+          description: "기존 세션 유지, 새 세션만 추가 (중복 건너뜀)"
+        - label: "덮어쓰기"
+          description: "기존 세션 삭제 후 새로 복사"
 ```
 
-소스와 목적지가 결정되면 즉시 Step 2로 진행합니다. **추가 질문 없이 바로 실행합니다.**
+**규칙:**
+- 사용자가 이미 소스를 명시했으면 소스 질문 생략
+- 사용자가 이미 목적지를 명시했으면 목적지 질문 생략
+- 미결정 항목만 포함하여 AskUserQuestion **1회만** 호출
 
 ### Step 2: 마이그레이션 실행
 
@@ -59,6 +77,7 @@ set -e
 
 SOURCE_PATH="[소스 절대경로]"
 TARGET_PATH="[목적지 절대경로]"
+MERGE_MODE="[append 또는 overwrite]"
 
 # 경로 인코딩
 SOURCE_ENCODED=$(echo "$SOURCE_PATH" | sed 's|[^a-zA-Z0-9]|-|g')
@@ -79,9 +98,22 @@ if [ "$SESSION_COUNT" -eq 0 ]; then
   echo "ERROR: 소스에 세션 파일 없음"; exit 1
 fi
 
-# 목적지 생성 및 세션 복사 (기존 파일 보존)
+# 덮어쓰기 모드: 기존 세션 삭제
 mkdir -p "$TARGET_DIR"
-cp -n -- "$SOURCE_DIR"/*.jsonl "$TARGET_DIR/" 2>/dev/null || true
+if [ "$MERGE_MODE" = "overwrite" ]; then
+  rm -f "$TARGET_DIR"/*.jsonl 2>/dev/null || true
+  rm -f "$TARGET_DIR/sessions-index.json" 2>/dev/null || true
+  echo "MODE: overwrite (기존 세션 삭제됨)"
+else
+  echo "MODE: append (기존 세션 유지)"
+fi
+
+# 세션 복사 (append 모드: -n으로 중복 건너뜀, overwrite 모드: 그냥 복사)
+if [ "$MERGE_MODE" = "overwrite" ]; then
+  cp -- "$SOURCE_DIR"/*.jsonl "$TARGET_DIR/" 2>/dev/null || true
+else
+  cp -n -- "$SOURCE_DIR"/*.jsonl "$TARGET_DIR/" 2>/dev/null || true
+fi
 COPIED=$(ls -1 "$TARGET_DIR"/*.jsonl 2>/dev/null | wc -l)
 
 # 메모리 복사
@@ -92,9 +124,11 @@ else
   echo "MEMORY: none"
 fi
 
-# sessions-index.json 복사 (없을 때만)
-if [ -f "$SOURCE_DIR/sessions-index.json" ] && [ ! -f "$TARGET_DIR/sessions-index.json" ]; then
-  cp -- "$SOURCE_DIR/sessions-index.json" "$TARGET_DIR/sessions-index.json"
+# sessions-index.json 복사
+if [ -f "$SOURCE_DIR/sessions-index.json" ]; then
+  if [ "$MERGE_MODE" = "overwrite" ] || [ ! -f "$TARGET_DIR/sessions-index.json" ]; then
+    cp -- "$SOURCE_DIR/sessions-index.json" "$TARGET_DIR/sessions-index.json"
+  fi
 fi
 
 # 경로 업데이트 (소스 ≠ 목적지인 경우)
@@ -131,8 +165,10 @@ echo "DONE: $COPIED sessions migrated ($SOURCE_PATH → $TARGET_PATH)"
 
 ## Important Rules
 
-- **원본 보존**: 복사 기반 (이동 아님), `cp -n`으로 기존 파일 덮어쓰기 방지
-- **최소 질문**: 파라미터 수집은 AskUserQuestion 최대 1회
+- **원본 보존**: 복사 기반 (이동 아님)
+- **추가 모드**: `cp -n`으로 기존 파일 보존, 중복 건너뜀
+- **덮어쓰기 모드**: 기존 세션 삭제 후 새로 복사
+- **최소 질문**: AskUserQuestion **최대 1회** (미결정 항목만 질문)
 - **단일 실행**: 전체 마이그레이션을 1개 Bash 스크립트로 실행
 - **경로 인코딩**: `sed 's|[^a-zA-Z0-9]|-|g'`
 - **에러 시**: 유사 폴더 검색 결과 안내, 사용자에게 정확한 경로 확인 요청
