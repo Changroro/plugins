@@ -1,0 +1,13 @@
+{
+  "name": "jobs",
+  "description": "채용공고 스크랩 및 관리",
+  "version": "1.0.0",
+  "keywords": [
+    "job",
+    "scraper",
+    "zighang",
+    "bookmark",
+    "recruitment",
+    "채용공고"
+  ]
+}
