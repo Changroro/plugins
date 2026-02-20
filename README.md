@@ -190,39 +190,6 @@ sudo apt install libnotify-bin
 
 ---
 
-## 사용 예시
-
-### 블로그 자동 생성
-
-```bash
-/docs:blog
-→ 프로젝트 구조, README, 코드를 분석하여 기술 블로그 작성
-```
-
-### Conventional Commits 커밋
-
-```bash
-커밋해줘
-→ git diff 분석 → 기능 단위 그룹화 → 자동 커밋
-→ ✨ feat(api): implement rate limiting with Redis
-```
-
-### 기술 스택 업데이트
-
-```bash
-/dev:update-stack FastAPI
-→ Context7 MCP로 최신 문서 조회 → deprecated API 탐지 → 수정 제안
-```
-
-### 업무일지 생성
-
-```bash
-/docs:worklog
-→ git log 분석 → 경영진 보고용 포맷으로 정리
-```
-
----
-
 ## 업데이트
 
 ```bash
@@ -232,35 +199,6 @@ sudo apt install libnotify-bin
 /plugin update gitwf@cc-plugins-bch
 /plugin update utils@cc-plugins-bch
 /plugin update newsletter@cc-plugins-bch
-```
-
----
-
-## 프로젝트 구조
-
-```
-cc-plugins-bch/
-├── .claude-plugin/
-│   └── marketplace.json
-├── plugins/
-│   ├── docs/                 # 문서 작성
-│   │   ├── agents/           # blog-writer, worklog-writer 등
-│   │   ├── commands/         # /docs:blog, /docs:worklog 등
-│   │   ├── hooks/            # 데스크톱 알림
-│   │   └── .mcp.json
-│   ├── dev/                  # 개발 지원
-│   │   ├── agents/           # product-advisor, stack-updater 등
-│   │   ├── commands/         # /dev:review, /dev:advisor 등
-│   │   └── hooks/
-│   ├── gitwf/                # Git 워크플로우
-│   │   ├── skills/           # git-commit, pr-create 등
-│   │   └── hooks/
-│   ├── utils/                # 유틸리티
-│   │   ├── skills/           # creating-skills, ocr, session-migrate
-│   │   └── hooks/
-│   └── newsletter/           # 뉴스 수집
-│       └── skills/           # hn-news, reddit-news 등 7개
-└── README.md
 ```
 
 ---
