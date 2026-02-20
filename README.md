@@ -10,7 +10,7 @@
 [![Release](https://img.shields.io/github/v/release/Bae-ChangHyun/cc-plugins-bch?style=flat-square&color=blue)](https://github.com/Bae-ChangHyun/cc-plugins-bch/releases)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](#)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-4-green?style=flat-square)](#-플러그인-목록)
+[![Plugins](https://img.shields.io/badge/Plugins-5-green?style=flat-square)](#-플러그인-목록)
 
 [설치하기](#-설치) • [플러그인 목록](#-플러그인-목록) • [사용 예시](#-사용-예시)
 
@@ -19,7 +19,7 @@
 ---
 
 > **💡 이 프로젝트는 무엇인가요?**<br/>
-> Claude Code 공식 마켓플레이스에서 사용 가능한 개인용 플러그인 저장소입니다. 실무에서 반복되는 문서 작성, Git 관리, 코드 리뷰 등의 작업을 자동화하는 4개의 플러그인을 제공합니다.
+> Claude Code 공식 마켓플레이스에서 사용 가능한 개인용 플러그인 저장소입니다. 실무에서 반복되는 문서 작성, Git 관리, 코드 리뷰, 뉴스 수집 등의 작업을 자동화하는 5개의 플러그인을 제공합니다.
 
 ---
 
@@ -80,6 +80,7 @@
 | **🛠️ dev** | 개발 지원 | 코드 리뷰, 기술 스택 업데이트 |
 | **🔀 gitwf** | Git 워크플로우 | Conventional Commits, PR 관리 |
 | **🔧 utils** | 개발 도구 | 스킬 가이드, OCR, 세션 마이그레이션 |
+| **📰 newsletter** | 뉴스 수집 | HN, Reddit, GeekNews 등 7개 소스 |
 
 </div>
 
@@ -148,6 +149,7 @@ plugins/*/
 /plugin install dev@cc-plugins-bch     # 개발 지원
 /plugin install gitwf@cc-plugins-bch   # Git/GitHub 워크플로우
 /plugin install utils@cc-plugins-bch   # 개발 유틸리티
+/plugin install newsletter@cc-plugins-bch  # 뉴스 수집
 ```
 
 <details>
@@ -167,6 +169,9 @@ plugins/*/
 
 # 유틸리티만 필요한 경우
 /plugin install utils@cc-plugins-bch
+
+# 뉴스 수집만 필요한 경우
+/plugin install newsletter@cc-plugins-bch
 ```
 
 </details>
@@ -326,6 +331,36 @@ MCP 서버 설정은 `.mcp.json` 파일에서 관리됩니다.
 
 ---
 
+### 5️⃣ newsletter 플러그인
+
+**뉴스 수집 자동화** - AI/개발 관련 뉴스를 7개 소스에서 자동 수집하여 새 글만 전달합니다.
+
+<details>
+<summary><strong>📰 제공 기능</strong></summary>
+
+#### 🎯 Skills
+
+| 스킬 | 소스 | 설명 |
+|:---:|:---:|:---:|
+| **hn-news** | Hacker News | AI 관련 뉴스 필터링 (키워드 기반) |
+| **reddit-news** | Reddit | AI 서브레딧 모니터링 (11개 subreddit) |
+| **geeknews-news** | GeekNews | news.hada.io 새 글 수집 |
+| **devday-news** | DevDay | devday.kr AI 섹션 수집 |
+| **tldr-news** | TLDR | TLDR AI 뉴스레터 RSS 수집 |
+| **threads-news** | Threads | AI 인플루언서 글 수집 (RSSHub) |
+| **velopers-news** | Velopers | velopers.kr RSS 수집 |
+
+#### ✨ 주요 특징
+
+- **중복 제거**: JSONL 파일로 이미 본 글 추적, 새 글만 출력
+- **자동 정리**: 30일 이상 오래된 항목 자동 삭제
+- **외부 의존성 없음**: Python 표준 라이브러리만 사용 (urllib, json, xml)
+- **스코어 기반 정렬**: HN, Reddit, GeekNews는 점수 기반 정렬 지원
+
+</details>
+
+---
+
 ## 💻 사용 예시
 
 ### 📌 프로젝트 기반 블로그 자동 생성
@@ -394,6 +429,7 @@ MCP 서버 설정은 `.mcp.json` 파일에서 관리됩니다.
 /plugin update dev@cc-plugins-bch
 /plugin update gitwf@cc-plugins-bch
 /plugin update utils@cc-plugins-bch
+/plugin update newsletter@cc-plugins-bch
 ```
 
 ---
@@ -458,18 +494,41 @@ cc-plugins-bch/
 │   │       │   └── SKILL.md
 │   │       └── github-pr-review/
 │   │           └── SKILL.md
-│   └── utils/                # 유틸리티 플러그인
-│       ├── .claude-plugin/
-│       │   └── plugin.json
-│       ├── hooks/            # 데스크톱 알림 Hook
-│       │   └── hooks.json
-│       ├── scripts/
-│       │   └── notify.sh
+│   ├── utils/                # 유틸리티 플러그인
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   ├── hooks/            # 데스크톱 알림 Hook
+│   │   │   └── hooks.json
+│   │   ├── scripts/
+│   │   │   └── notify.sh
+│   │   └── skills/
+│   │       ├── creating-skills/
+│   │       │   └── SKILL.md
+│   │       └── ocr/
+│   │           └── SKILL.md
+│   └── newsletter/           # 뉴스 수집 플러그인
 │       └── skills/
-│           ├── creating-skills/
-│           │   └── SKILL.md
-│           └── ocr/
-│               └── SKILL.md
+│           ├── hn-news/
+│           │   ├── SKILL.md
+│           │   └── scripts/hn_collector.py
+│           ├── reddit-news/
+│           │   ├── SKILL.md
+│           │   └── scripts/reddit_collector.py
+│           ├── geeknews-news/
+│           │   ├── SKILL.md
+│           │   └── scripts/geeknews_collector.py
+│           ├── devday-news/
+│           │   ├── SKILL.md
+│           │   └── scripts/devday_collector.py
+│           ├── tldr-news/
+│           │   ├── SKILL.md
+│           │   └── scripts/tldr_collector.py
+│           ├── threads-news/
+│           │   ├── SKILL.md
+│           │   └── scripts/threads_collector.py
+│           └── velopers-news/
+│               ├── SKILL.md
+│               └── scripts/velopers_collector.py
 ├── .gitignore
 └── README.md
 ```
