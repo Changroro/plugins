@@ -7,6 +7,12 @@
 TYPE="${1:-info}"
 MESSAGE="${2:-Claude Code 알림}"
 
+# DND 활성화 시 알림 건너뛰기
+DND=$(gsettings get org.gnome.desktop.notifications show-banners 2>/dev/null)
+if [[ "$DND" == "false" ]]; then
+  exit 0
+fi
+
 # 스크립트 위치 기준으로 아이콘 경로 설정 (절대 경로로 변환)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAWD_ICON="$(realpath "${SCRIPT_DIR}/../assets/clawd.png" 2>/dev/null)"
