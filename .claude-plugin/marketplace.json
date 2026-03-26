@@ -38,8 +38,17 @@
     {
       "name": "newsletter",
       "source": "./plugins/newsletter",
-      "description": "뉴스 수집 플러그인 - HN, Reddit, GeekNews 등 7개 소스 AI 뉴스 자동 수집",
-      "version": "1.0.0",
+      "description": "AI 뉴스레터 - 7개 소스 자동 수집, 카테고리 분류, Telegram 전송, 시스템 cron 지원",
+      "version": "2.0.1",
+      "author": {
+        "name": "Bae-ChangHyun"
+      }
+    },
+    {
+      "name": "jobs",
+      "source": "./plugins/jobs",
+      "description": "채용 지원 플러그인 - 환경 초기화, 채용공고 크롤링, 리서치, 자소서, 면접 준비",
+      "version": "2.0.0",
       "author": {
         "name": "Bae-ChangHyun"
       }
