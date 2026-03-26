@@ -39,7 +39,7 @@
       "name": "newsletter",
       "source": "./plugins/newsletter",
       "description": "AI 뉴스레터 - 7개 소스 자동 수집, 카테고리 분류, Telegram 전송, 시스템 cron 지원",
-      "version": "2.0.1",
+      "version": "2.1.0",
       "author": {
         "name": "Bae-ChangHyun"
       }
