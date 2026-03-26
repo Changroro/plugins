@@ -72,9 +72,16 @@ AskUserQuestion:
 AskUserQuestion:
 - question: "Telegram Bot 토큰을 입력하세요 (@BotFather에서 /newbot으로 발급)"
 
-토큰을 받으면 chat_id 자동 조회:
+토큰을 받으면 chat_id를 조회한다. 다른 세션에서 Telegram 채널이 polling 중이면 getUpdates가 빈 결과를 반환하므로, 실패 시 직접 입력을 받는다.
+
+1. 사용자에게 안내: "Telegram에서 봇에게 아무 메시지를 보내주세요"
+   AskUserQuestion:
+   - question: "Telegram에서 봇에게 아무 메시지를 보내주세요 (chat_id 조회에 필요합니다). 보내셨으면 '완료', chat_id를 이미 알고 있으면 직접 입력하세요."
+   - options: ["완료"]
+
+2. "완료" 선택 시 chat_id 조회:
 ```bash
-curl -s "https://api.telegram.org/bot{TOKEN}/getUpdates" | python3 -c "
+curl -s "https://api.telegram.org/bot{TOKEN}/getUpdates?offset=-1" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
 if data.get('result'):
@@ -84,8 +91,22 @@ else:
 "
 ```
 
-- chat_id를 얻으면 확인: "chat_id: {값} — 맞나요?"
-- NO_UPDATES → "봇에게 아무 메시지를 보낸 후 다시 시도하세요"
+3. chat_id를 얻으면 확인: "chat_id: {값} — 맞나요?"
+
+4. NO_UPDATES이면 → 테스트 메시지로 검증 시도:
+```bash
+curl -s -X POST "https://api.telegram.org/bot{TOKEN}/sendMessage" \
+  -H "Content-Type: application/json" \
+  -d '{"chat_id": "USER_INPUT", "text": "뉴스레터 설정 테스트"}' | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+print('OK' if data.get('ok') else 'FAILED')
+"
+```
+   AskUserQuestion으로 chat_id를 직접 입력받고, 위 테스트 메시지로 검증한다.
+   - question: "chat_id 자동 조회에 실패했습니다 (다른 세션에서 봇을 사용 중일 수 있습니다). chat_id를 직접 입력하세요."
+   - OK → "테스트 메시지를 보냈습니다. Telegram에서 확인하세요."
+   - FAILED → "잘못된 chat_id입니다. 다시 입력하세요."
 
 ## 5단계: 수집 주기
 
