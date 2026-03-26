@@ -1,27 +1,40 @@
 ---
 name: ai-news-stop
-description: "AI 뉴스레터 자동 수집 중단. 등록된 뉴스레터 cron 스케줄을 삭제."
+description: "AI 뉴스레터 자동 수집을 중단한다. 시스템 crontab에서 뉴스레터 스케줄을 제거한다. 사용자가 '뉴스레터 중단', '뉴스 그만', 'stop', '자동 수집 꺼줘', '뉴스 멈춰' 등을 말하면 이 스킬을 사용할 것."
+allowedTools:
+  - "Bash(crontab *)"
+  - "Bash(grep *)"
 ---
 
 # AI 뉴스레터 중단
 
-## 실행 절차
+시스템 crontab에서 뉴스레터 스케줄을 제거한다.
 
-### 1단계: 현재 스케줄 조회
+## 절차
 
-CronList 도구로 현재 등록된 cron 목록을 조회한다.
+### 1. 현재 등록 확인
 
-### 2단계: 뉴스레터 관련 cron 삭제
+```bash
+crontab -l 2>/dev/null | grep "ai-news"
+```
 
-목록에서 `ai-news-now` 스킬이 등록된 cron을 찾아 CronDelete로 삭제한다.
+관련 항목이 없으면 → "등록된 뉴스레터 스케줄이 없습니다." 출력 후 종료.
 
-- 관련 cron이 없으면 → "실행 중인 뉴스레터 스케줄이 없습니다." 출력 후 종료.
+### 2. crontab에서 제거
 
-### 3단계: 중단 확인
+```bash
+crontab -l 2>/dev/null | grep -v "# ai-news-newsletter" | grep -v "ai-news-now" > /tmp/crontab_backup.txt
+crontab /tmp/crontab_backup.txt
+```
 
-"뉴스레터 자동 수집이 중단되었습니다." 메시지 출력.
+### 3. 확인
 
-## 금지 사항
+```bash
+crontab -l 2>/dev/null | grep "ai-news" || echo "뉴스레터 스케줄 제거 완료"
+```
 
-- 뉴스레터와 관련 없는 cron을 삭제하지 마라.
-- config.json을 수정하지 마라.
+"뉴스레터 자동 수집이 중단되었습니다."
+
+## 주의
+
+뉴스레터와 관련 없는 cron 항목은 절대 건드리지 않는다.

@@ -49,7 +49,10 @@ def fetch_items(accounts=None):
     return items
 
 
-def collect(accounts=None):
+def collect(accounts=None, rsshub_url=None):
+    if rsshub_url:
+        global RSSHUB_BASE
+        RSSHUB_BASE = rsshub_url
     return run_collector(
         "threads",
         lambda: fetch_items(accounts),
