@@ -1,7 +1,7 @@
 {
   "name": "newsletter",
   "description": "AI 뉴스 통합 수집 - HN, Reddit, GeekNews, TLDR, Threads, Velopers, DevDay를 하나의 뉴스레터로",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "agents": [
     "./agents/news-collector.md"
   ],
