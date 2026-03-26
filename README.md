@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/Bae-ChangHyun/cc-plugins-bch?style=flat-square&color=blue)](https://github.com/Bae-ChangHyun/cc-plugins-bch/releases)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](#)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-5-green?style=flat-square)](#-플러그인-목록)
+[![Plugins](https://img.shields.io/badge/Plugins-4-green?style=flat-square)](#-플러그인-목록)
 
 [설치하기](#-설치) • [플러그인 목록](#-플러그인-목록) • [사용 예시](#-사용-예시)
 
@@ -24,20 +24,19 @@
 
 # 2. 플러그인 설치
 /plugin install docs@cc-plugins-bch        # 문서 작성
-/plugin install dev@cc-plugins-bch         # 개발 지원
 /plugin install gitwf@cc-plugins-bch       # Git/GitHub 워크플로우
 /plugin install utils@cc-plugins-bch       # 개발 유틸리티
 /plugin install newsletter@cc-plugins-bch  # 뉴스 수집
 ```
 
 <details>
-<summary><strong>MCP Servers 설정 (docs, dev 플러그인 사용 시)</strong></summary>
+<summary><strong>MCP Servers 설정 (docs 플러그인 사용 시)</strong></summary>
 
 ```bash
 # Playwright - 웹 페이지 크롤링 (docs 플러그인)
 npx @playwright/mcp@latest
 
-# Context7 - 최신 라이브러리 문서 조회 (docs, dev 플러그인)
+# Context7 - 최신 라이브러리 문서 조회 (docs 플러그인)
 npx -y @upstash/context7-mcp
 
 # Obsidian (선택) - Obsidian 노트 연동 (docs 플러그인)
@@ -53,7 +52,6 @@ npx -y mcp-obsidian
 | 플러그인 | 설명 | 주요 기능 |
 |:---:|:---:|:---|
 | **docs** | 문서 작성 자동화 | 블로그, 업무일지, 개발일지, 포트폴리오, README |
-| **dev** | 개발 지원 | 코드 리뷰, 프로덕트 분석, 기술 스택 업데이트 |
 | **gitwf** | Git 워크플로우 | Conventional Commits, PR 생성/병합/리뷰 |
 | **utils** | 유틸리티 | 스킬 작성 가이드, OCR, 세션 마이그레이션 |
 | **newsletter** | 뉴스 수집 | HN, Reddit, GeekNews 등 7개 소스 AI 뉴스 |
@@ -78,27 +76,6 @@ npx -y mcp-obsidian
 `/docs:blog` `/docs:worklog` `/docs:devlog` `/docs:portfolio` `/docs:readme` `/docs:configure`
 
 **필요 MCP:** playwright, context7, mcp-obsidian(선택)
-
-</details>
-
----
-
-### dev - 개발 지원
-
-코드 리뷰, 프로젝트 전략 분석, 기술 스택 최신화를 수행합니다.
-
-<details>
-<summary>상세 보기</summary>
-
-**Agents:**
-- **product-advisor** - 프로젝트 전략 분석 (개선점 제안, 기능 추천)
-- **stack-updater** - 기술 스택 최신화 (최신 문서 조회, 베스트 프랙티스)
-- **senior-code-reviewer** - 종합 코드 리뷰 (아키텍처, 기능, 비즈니스)
-
-**Commands:**
-`/dev:review` `/dev:advisor` `/dev:update-stack`
-
-**필요 MCP:** playwright, context7
 
 </details>
 
@@ -195,7 +172,6 @@ sudo apt install libnotify-bin
 ```bash
 /plugin marketplace update
 /plugin update docs@cc-plugins-bch
-/plugin update dev@cc-plugins-bch
 /plugin update gitwf@cc-plugins-bch
 /plugin update utils@cc-plugins-bch
 /plugin update newsletter@cc-plugins-bch
