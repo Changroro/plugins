@@ -1,32 +1,39 @@
 ---
-name: reddit-news
-description: "Reddit AI 뉴스 수집. Reddit에서 AI 관련 새 뉴스를 확인하고 싶을 때 사용."
+name: ai-news-now
+description: "AI 뉴스 즉시 수집. 설정된 플랫폼에서 새 뉴스를 바로 수집하여 출력."
 ---
 
-# Reddit 뉴스 수집 스킬
+# AI 뉴스 즉시 수집
 
 ## 실행 절차
 
 ### 1단계: 스크립트 실행
 
 ```bash
-python3 {SKILL_DIR}/scripts/reddit_collector.py 2>/dev/null
+python3 {PLUGIN_DIR}/scripts/run_all.py 2>/dev/null
 ```
 
+- config.json이 없으면 전체 플랫폼에서 수집한다.
 - 출력이 있으면 새 뉴스가 있는 것. 출력이 비어있으면 새 뉴스 없음.
 - 중복 제거는 스크립트가 자동 처리.
 
 ### 2단계: 결과 전달
 
 - 출력이 **비어있으면** → 어떤 메시지도 보내지 마라. 완전히 침묵.
-- 출력이 있으면 → `Reddit 새 뉴스` 헤더와 함께 전달.
+- 출력이 있으면 → 아래 형식으로 전달.
 
 전송 형식:
-- 스크립트 출력의 각 줄은 `번호. [제목](URL) - [시간] [출처|점수]` 형식이다.
+- 스크립트 출력의 각 줄은 `번호. [제목](URL) - [메타데이터]` 형식이다.
 - 제목만 한국어로 번역하고, **URL과 메타데이터는 그대로 유지**하라.
-- 최종 형식: `[번역된 제목](원본URL)`
+- 최종 형식: `[번역된 제목](원본URL) - [메타데이터]`
 - **모든 항목에는 반드시 URL이 포함되어야 한다.** URL이 없는 항목을 전송하는 것은 절대 금지.
 - 스크립트 출력 데이터만 사용. 데이터를 지어내지 마라.
+
+### 3단계: Telegram 전송 (설정된 경우)
+
+config.json에서 `telegram.enabled`가 true이면:
+1. config.json에서 `telegram.chat_id`를 읽는다.
+2. 결과를 Telegram reply 도구로 해당 chat_id에 전송한다.
 
 ## 금지 사항
 
