@@ -11,8 +11,8 @@
     {
       "name": "docs",
       "source": "./plugins/docs",
-      "description": "문서 작성 플러그인 - 블로그, 업무일지, 포트폴리오, README, 세션 인계(CLAUDE.local.md + HANDOFF) 등",
-      "version": "1.11.0",
+      "description": "문서 작성 플러그인 - 블로그, 업무일지, 포트폴리오, README, 세션 인계(AGENTS.md + CLAUDE.md 임포트 + HANDOFF) 등",
+      "version": "1.12.0",
       "author": {
         "name": "Bae-ChangHyun"
       }

@@ -1,93 +1,100 @@
 ---
 name: session-handover
-description: Maintains a project's CLAUDE.local.md (durable project memory) and HANDOFF.md (rolling next-step log) so a fresh Claude session can resume work without re-explanation. Runs automatically without asking for confirmation, and ensures both files are gitignored. Use whenever the user asks to write, update, sync, or refresh either file — including Korean phrasings like "claude.local.md 최신화", "claude.local.md 적어놔", "claude.local.md 정리", "handoff 업데이트", "handoff 갱신", "핸드오프 작성", "인수인계", "세션 인계", and English phrasings like "update claude local", "refresh claude md", "write handoff", "session handover", "sync memory bank". Handles single-file and combined requests, and the full-set pattern "README / claude.local.md / HANDOFF before PR".
+description: Maintains AGENTS.md (durable cross-tool project memory readable by Claude Code, Codex, Cursor, Gemini CLI, and other agents that follow the AGENTS.md open standard) plus a one-line CLAUDE.md `@AGENTS.md` import shim and a rolling HANDOFF.md, so a fresh session in any agent can resume work without re-explanation. Runs automatically without asking for confirmation, and ensures all per-user files are gitignored. Use whenever the user asks to write, update, sync, or refresh project memory or the next-step log — including Korean phrasings like "agents.md 최신화", "agents.md 적어놔", "agents.md 정리", "claude.md 최신화", "claude.local.md 최신화", "claude.local.md 적어놔", "handoff 업데이트", "handoff 갱신", "핸드오프 작성", "인수인계", "세션 인계", and English phrasings like "update agents md", "update claude md", "refresh agents md", "write handoff", "session handover", "sync memory bank". Handles single-file and combined requests, and the full-set pattern "README / AGENTS.md / HANDOFF before PR".
 ---
 
 # Session Handover
 
-Maintains two files that let a fresh Claude Code session pick up work without the user re-explaining anything:
+Maintains three files at the project root so a fresh AI session (Claude Code, Codex, Cursor, etc.) can resume work without re-explanation:
 
-- **CLAUDE.local.md** — durable project memory. The project's intent and the rules the user has given, valid across every session.
-- **HANDOFF.md** — a short rolling log of what was just done and what Claude needs to do next.
+- **AGENTS.md** — durable project memory. Holds all content.
+- **CLAUDE.md** — a single line `@AGENTS.md`. Claude Code imports AGENTS.md through this shim. Never holds content of its own.
+- **HANDOFF.md** — rolling "just done / next up" log.
 
-Both files are written **for a future Claude session, not as human documentation**. The human already knows what they built and why; these files exist to give the next session the context it cannot recover on its own. Every sentence you write should be something the next Claude needs in order to act. If a human would be the only reader who benefits, cut it.
+All three are written for the next AI session, not for humans. If a human is the only reader who benefits from a line, cut it.
 
 ## What goes where
 
-The single rule that decides what belongs in either file: **if a future session could learn it by reading the code, running `ls`, or running `git log`, it does not belong in either file.** Directory layouts, file paths, tech stack summaries, architecture diagrams, and "we use X for Y" explanations each fail this test. They waste context and grow stale within days.
+Decision rule: **if a future session could learn it by reading the code, running `ls`, or running `git log`, it does not belong in either file.** Directory layouts, file paths, tech stack summaries, architecture diagrams fail this test.
 
-The difference between the two files is temporal. CLAUDE.local.md holds what is true across every session. HANDOFF.md holds the single handoff point between the last step and the next one.
+| Content                                             | AGENTS.md   | HANDOFF.md     |
+| --------------------------------------------------- | ----------- | -------------- |
+| Project purpose, intent, target users               | core        | —              |
+| User-given rules, conventions, cautions             | core        | —              |
+| Non-obvious environment facts (hidden setup)        | yes         | —              |
+| Label of the step just finished                     | —           | core           |
+| Concrete next steps                                 | —           | core           |
+| Unresolved blocker that gates the next step         | —           | if real        |
+| Tech stack, architecture, implementation narrative  | —           | —              |
+| File paths, directory trees, commit SHAs            | —           | —              |
+| Historical log of every past step                   | —           | —              |
+| Narration written for the human to read             | —           | —              |
 
-| Content                                             | CLAUDE.local.md | HANDOFF.md     |
-| --------------------------------------------------- | --------------- | -------------- |
-| Project purpose, intent, target users               | core            | —              |
-| User-given rules, conventions, cautions             | core            | —              |
-| Non-obvious environment facts (hidden setup)        | yes             | —              |
-| Label of the step just finished                     | —               | core           |
-| Concrete next steps                                 | —               | core           |
-| Unresolved blocker that gates the next step         | —               | if real        |
-| Tech stack, architecture, implementation narrative  | —               | —              |
-| File paths, directory trees, commit SHAs            | —               | —              |
-| Historical log of every past step                   | —               | —              |
-| Narration written for the human to read             | —               | —              |
-
-"Non-obvious environment facts" means things that would surprise a fresh session — a service running inside a specific container, a port assignment that isn't in `package.json`, an env var whose existence isn't documented anywhere else. Standard commands like `npm run dev` or `cargo build` do not qualify; the next session will find them on its own.
+"Non-obvious environment facts" = a service running inside a specific container, a port not in `package.json`, an env var not documented elsewhere. Standard commands like `npm run dev` do not qualify.
 
 ## HANDOFF is not a history log
 
-HANDOFF.md is intentionally short. It answers exactly two questions for the next Claude session:
+HANDOFF.md is intentionally short. It answers exactly two questions for the next session:
 
 1. **What was just done?** — only the immediately preceding step. Not every step in the session, not a narrative of the whole project, not command outputs or explanations written for a human reader. One or two short lines.
 2. **What should happen next?** — concrete, actionable items the next session can start on without guessing.
 
-When updating HANDOFF.md, delete older "just done" entries from prior handoffs. They are fully completed; the code and `git log` are authoritative for anything older than "the step we just finished". Keeping them around trains the next session to wade through stale narrative and bloats the context budget for every future run. The only past entry that survives into the new HANDOFF is the one from the step that was *literally just completed*.
-
-Do not write HANDOFF.md as if you were explaining your work to the user. The user was there. The next Claude was not, and the next Claude is the only reader.
+When updating HANDOFF.md, delete older "just done" entries. Only the step that was *literally just completed* survives; anything older lives in `git log`.
 
 ## Workflow
 
 ### 1. Understand the request
 
-Decide which files to touch. Most requests touch both; some touch only one. If the current directory is at all ambiguous, confirm it before doing anything — writing these files into the wrong project is a silent corruption that may not surface for a while. (This is the one thing still worth confirming; everything else in this skill runs without asking.)
+Most requests touch AGENTS.md and HANDOFF.md. CLAUDE.md is touched only when missing or its single line is corrupted. If the current directory is ambiguous, confirm before writing — wrong-project writes are a silent corruption. Everything else runs without asking.
 
 ### 2. Gather context
 
-Read whichever of the two files already exist, but treat them as potentially stale. An existing HANDOFF was written by some earlier session and may no longer match reality. Verify against `git status` and `git log --oneline -10` rather than trusting prior narrative.
+Read existing files but treat them as potentially stale. Verify against `git status` and `git log --oneline -10`.
 
-Then scan the current conversation for the material that actually belongs in each file: the user's explicit instructions and intent for CLAUDE.local.md, and the step that was literally just finished plus the concrete next actions for HANDOFF.md. If the conversation is fresh and there is nothing to log yet (e.g., the user is initializing CLAUDE.local.md at the start of a project), draft only that file from the user's stated intent, and create a minimal HANDOFF.md with only a "next up" section.
+Scan the conversation for: user's explicit instructions/intent (→ AGENTS.md), and the step just finished + concrete next actions (→ HANDOFF.md). If conversation is fresh (e.g., initializing AGENTS.md), draft AGENTS.md from stated intent and a minimal HANDOFF.md with only "next up".
 
-Both files live at the project root, alongside each other. If either file does not yet exist, create it there. Do not scatter them into `docs/handoff/` or `.claude/handoff/` subdirectories — keeping the pair colocated at the root is what makes them easy for the next session to find.
+All files live at the project root. Do not scatter into `docs/handoff/` or `.claude/handoff/` subdirectories.
 
-If a `CLAUDE.md` is tracked in git from before the user started working with Claude on the repo, leave it alone. That file belongs to the upstream project, not the user. User-specific content goes in `CLAUDE.local.md` beside it.
+#### Upstream-tracked fallback
 
-### 3. Merge CLAUDE.local.md carefully
+If `AGENTS.md` or `CLAUDE.md` is tracked in git, it belongs to the upstream project — never overwrite. Detect with `git ls-files --error-unmatch <file>` (exit 0 = tracked):
 
-CLAUDE.local.md can contain hand-edited content from the user that is not in this conversation. When updating it, preserve every existing rule, caution, and environment fact that is still true; only add, refine, or remove in response to something explicit in the current session. Never blindly overwrite it with a freshly generated version — read it first and merge.
+- Upstream `AGENTS.md` tracked → write to `AGENTS.local.md`; shim becomes `@AGENTS.local.md`.
+- Upstream `CLAUDE.md` tracked → write the shim to `CLAUDE.local.md` (Claude Code reads both).
 
-HANDOFF.md is different: it is short-lived and regenerable, so replacing it wholesale with the new "just done + next up" snapshot is the correct behavior.
+### 3. Merge, don't overwrite
+
+AGENTS.md may contain hand-edited content not in this conversation. Read it first and **merge** — preserve every still-true rule/caution/env fact; only add/refine/remove in response to something explicit in this session.
+
+HANDOFF.md is regenerable — replace wholesale with the new "just done + next up" snapshot.
+
+CLAUDE.md (or `.local` fallback) is exactly one line: `@AGENTS.md` or `@AGENTS.local.md`. If anything else accumulated there, replace the whole file with the single import line.
 
 ### 4. Filter, then write
 
-Draft internally, then remove anything that would be rediscoverable from the code. This rediscoverability filter is the whole job — text that fails it is worse than no update, because it teaches the next session bad habits and bloats the context budget.
+Drop anything rediscoverable from the code. Write directly — do not ask "작성할까요?" / "shall I write this?". Report what changed after the write.
 
-Once filtered, **write the files directly.** Do not ask the user "작성할까요?" / "이렇게 쓸까요?" / "shall I write this?" — the user invoked the skill because they already want the files written. Report what changed after the write, not before.
+### 5. Gitignore the files you wrote
 
-### 5. Ensure both files are gitignored
+Default set:
 
-After writing, make sure `HANDOFF.md` and `CLAUDE.local.md` are in the project's `.gitignore`. These files are per-user memory and must not be committed.
+```
+AGENTS.md
+CLAUDE.md
+HANDOFF.md
+```
 
-- If `.gitignore` does not exist at the project root, create it with both entries.
-- If `.gitignore` exists, read it and append only the entries that are not already present (match whole lines; don't duplicate).
-- Do not reorder, deduplicate, or reformat the rest of `.gitignore`.
+If you fell back to `.local` variants, gitignore those instead. **Never gitignore a file already tracked in git.**
 
-This is part of the skill's contract, not an optional step. The user should never have to remember to gitignore these files themselves.
+- No `.gitignore` → create it with the entries you wrote.
+- Existing `.gitignore` → append only missing whole-line entries. Don't reorder/dedupe/reformat the rest.
 
-## CLAUDE.local.md template
+## AGENTS.md template
 
 ```markdown
 # <Project Name>
 
-> Persistent project memory for Claude Code.
+> Persistent project memory for AI coding agents (Claude Code, Codex, Cursor, etc.).
 > When starting a new session, also read HANDOFF.md before doing any work.
 
 ## Purpose
@@ -102,21 +109,27 @@ This is part of the skill's contract, not an optional step. The user should neve
 
 ## Cautions
 
-- <Known landmines and things the user has told Claude to stop doing.>
+- <Known landmines and things the user has told the agent to stop doing.>
 
 ## Environment (non-obvious only)
 
 - <Setup facts that are not visible in package.json, pyproject.toml, or similar.>
 ```
 
-Keep it short by default. Every line should carry content a future session could not derive on its own; when in doubt, cut.
+## CLAUDE.md template
+
+```markdown
+@AGENTS.md
+```
+
+The entire file. No headings, no prose, no second line. `@<path>` is Claude Code's inline-include syntax. With the upstream fallback, the file is `CLAUDE.local.md` and/or the line is `@AGENTS.local.md`.
 
 ## HANDOFF.md template
 
 ```markdown
 # HANDOFF — <Project Name>
 
-<!-- For the next Claude session. Not a history log. Only "just done" and "next up". -->
+<!-- For the next AI session. Not a history log. Only "just done" and "next up". -->
 
 ## Just done
 - <Label of the single step that was literally just completed. One short line.>
@@ -129,20 +142,18 @@ Keep it short by default. Every line should carry content a future session could
 - <Only if something genuinely gates the next step. Omit the section otherwise.>
 ```
 
-Notes on the template:
+Notes:
 
-- **Just done** contains only the immediately preceding step. If an older HANDOFF had a stack of past entries, they are deleted during this update — only the step that was literally just finished survives.
-- **Next up** is the highest-value section. Each item should be concrete enough that the next session can act on it without guessing. "Improve the UX" is useless; "add pagination to the posts list" is actionable.
-- **Blockers** is optional. Omit it entirely when empty rather than leaving `(none)` placeholders — noise trains the next session to skim past the whole file.
-- No date headers, no command outputs, no narrative paragraphs. A future Claude reads this file in full every session; every extra line is a tax on every future run.
+- **Just done**: only the immediately preceding step. Older entries get deleted on update.
+- **Next up**: each item must be concrete enough to act on without guessing. "Improve the UX" → useless; "add pagination to the posts list" → actionable.
+- **Blockers**: omit the section entirely when empty. No `(none)` placeholders.
+- No date headers, no command outputs, no narrative paragraphs.
 
 ## Safety
 
-These boundaries exist for specific reasons; follow them, but also understand why, so you can make sensible calls at the edges.
-
-- **Preserve hand-edited CLAUDE.local.md content.** It is the user's memory across sessions. Read it before writing, and only change what this session has a reason to change. Blind overwrites destroy content that isn't recoverable from git (the file is gitignored).
-- **Replace HANDOFF.md wholesale, but only with the current snapshot.** It is short-lived by design. The previous HANDOFF's "just done" section is discarded when a new step completes.
-- **Trust code over prose.** When an existing HANDOFF and `git log` disagree, believe `git log` and rebuild HANDOFF from the current reality rather than propagating stale narrative.
-- **Leave upstream `CLAUDE.md` alone.** When a repository ships its own `CLAUDE.md`, that file belongs to the project. User-specific additions go in `CLAUDE.local.md` beside it.
-- **Verify the target directory** whenever there is any ambiguity. Writing these files into the wrong project is the worst failure mode because the user may not notice until much later.
-- **Gitignore is mandatory.** Both files are per-user memory. Shipping them to a shared repo leaks user context and pollutes teammates' workspaces.
+- **Preserve hand-edited AGENTS.md content.** Read before write, merge — never blind-overwrite. The file is gitignored, so overwrites are not git-recoverable.
+- **CLAUDE.md is a shim, not a memory file.** It must remain a single line.
+- **Trust `git log` over prose.** When HANDOFF and `git log` disagree, rebuild HANDOFF from current reality.
+- **Leave upstream-tracked `AGENTS.md` / `CLAUDE.md` alone.** Use `.local` fallback (see workflow §2).
+- **Verify the target directory** when ambiguous. Wrong-project writes surface late.
+- **Gitignore is mandatory for files you wrote, never for tracked files.**
