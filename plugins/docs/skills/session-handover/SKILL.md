@@ -72,7 +72,19 @@ CLAUDE.md (or `.local` fallback) is exactly one line: `@AGENTS.md` or `@AGENTS.l
 
 ### 4. Filter, then write
 
-Drop anything rediscoverable from the code. Write directly — do not ask "작성할까요?" / "shall I write this?". Report what changed after the write.
+Drop anything rediscoverable from the code. Run the pre-write checklist below and auto-correct every violation found. Write directly — do not ask "작성할까요?" / "shall I write this?". After the write, report what changed, including any checklist corrections.
+
+#### Pre-write checklist
+
+Scan the drafted AGENTS.md / HANDOFF.md / CLAUDE.md and silently fix every violation. No separate audit mode, no quality score, no report-first, no approval prompt — corrections happen inline and are summarized in the post-write report.
+
+- **Code-discoverable content leaked in** — architecture, directory trees, tech-stack summaries, file paths, commit SHAs in AGENTS.md or HANDOFF.md → remove.
+- **HANDOFF bloat** — "Just done" holds more than the single immediately-preceding step → keep only the latest, delete the rest.
+- **HANDOFF pollution** — date headers, command outputs, narrative paragraphs, `(none)` placeholder blockers → remove.
+- **CLAUDE.md pollution** — anything beyond the single `@AGENTS.md` (or `@AGENTS.local.md`) import line → replace the whole file with the one line.
+- **git log conflict** — HANDOFF contradicts `git log --oneline -10` → rebuild HANDOFF from current reality.
+- **Missing session learnings** — a rule or caution the user gave in this session is absent from AGENTS.md → add it.
+- **Human-facing prose** — AGENTS.md written as narrative for a human reader → compress to AI-facing form.
 
 ### 5. Gitignore the files you wrote
 
@@ -157,3 +169,4 @@ Notes:
 - **Leave upstream-tracked `AGENTS.md` / `CLAUDE.md` alone.** Use `.local` fallback (see workflow §2).
 - **Verify the target directory** when ambiguous. Wrong-project writes surface late.
 - **Gitignore is mandatory for files you wrote, never for tracked files.**
+- **The pre-write checklist runs on every invocation.** Violations are auto-corrected inline — no audit mode, no quality score, no approval prompt.
