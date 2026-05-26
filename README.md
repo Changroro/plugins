@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/Bae-ChangHyun/cc-plugins-bch?style=flat-square&color=blue)](https://github.com/Bae-ChangHyun/cc-plugins-bch/releases)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](#)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-5-green?style=flat-square)](#-플러그인-목록)
+[![Plugins](https://img.shields.io/badge/Plugins-4-green?style=flat-square)](#-플러그인-목록)
 
 [설치하기](#-설치) • [플러그인 목록](#-플러그인-목록)
 
@@ -25,7 +25,6 @@
 # 2. 플러그인 설치
 /plugin install docs@cc-plugins-bch        # 문서 작성
 /plugin install gitwf@cc-plugins-bch       # Git/GitHub 워크플로우
-/plugin install utils@cc-plugins-bch       # 개발 유틸리티
 /plugin install newsletter@cc-plugins-bch  # AI 뉴스레터
 /plugin install jobs@cc-plugins-bch        # 채용 지원
 ```
@@ -36,9 +35,8 @@
 
 | 플러그인 | 설명 | 주요 기능 |
 |:---:|:---:|:---|
-| **docs** | 문서 작성 자동화 | 블로그, 업무일지, 개발일지, 포트폴리오, README |
+| **docs** | 문서 작성 자동화 | 블로그(Tistory), 업무일지, 개발일지, 포트폴리오, README(배너+스크린샷), 세션 인계 |
 | **gitwf** | Git 워크플로우 | Conventional Commits, PR 생성/병합/리뷰 |
-| **utils** | 유틸리티 | 스킬 작성 가이드, OCR, 세션 마이그레이션 |
 | **newsletter** | AI 뉴스레터 | 7개 소스 자동 수집, 카테고리 분류, Telegram 전송 |
 | **jobs** | 채용 지원 | 환경 초기화, 채용공고 크롤링, 리서치, 자소서, 면접 |
 
@@ -52,14 +50,19 @@
 <summary>상세 보기</summary>
 
 **Agents:**
-- **blog-writer** - 기술 블로그 글 작성 (URL 참조, 웹 검색)
+- **blog-writer** - 기술 블로그 글 작성 (Tistory 스타일 단일 md + inline HTML, 로컬 이미지 수집)
 - **worklog-writer** - 업무일지 생성 (경영진 보고용)
 - **devlog-writer** - 상세 개발일지 생성 (기술 상세)
 - **portfolio-writer** - 포트폴리오 작성/업데이트
-- **readme-architect** - README.md 작성/개선
+- **readme-architect** - README.md 작성/개선 (배너 + 스크린샷 + 8단 OSS skeleton, 구 polished-readme 통합)
+
+**Skills:**
+- **session-handover** - AGENTS.md + CLAUDE.md 임포트 + HANDOFF.md 관리
 
 **Commands:**
 `/docs:blog` `/docs:worklog` `/docs:devlog` `/docs:portfolio` `/docs:readme` `/docs:configure`
+
+CLI/TUI 프로젝트의 데모 GIF는 `/docs:readme`가 임베드 안내 박스를 삽입하고, 실제 GIF는 `terminal-gif-maker` 스킬을 호출해 생성합니다.
 
 </details>
 
@@ -77,20 +80,6 @@ Conventional Commits 커밋, PR 생성/병합/리뷰를 자동 처리합니다.
 - **pr-create** - GitHub PR 생성
 - **pr-merge** - GitHub PR 병합
 - **pr-review** - PR 리뷰 코멘트 처리
-
-</details>
-
----
-
-### utils - 유틸리티
-
-<details>
-<summary>상세 보기</summary>
-
-**Skills:**
-- **creating-skills** - Claude Code 스킬 작성 가이드
-- **ocr** - PDF/이미지를 Vision OCR로 마크다운 변환
-- **session-migrate** - Claude Code 세션을 다른 프로젝트로 마이그레이션
 
 </details>
 
@@ -179,7 +168,6 @@ init → crawl → research → write → review → interview
 /plugin marketplace update
 /plugin update docs@cc-plugins-bch
 /plugin update gitwf@cc-plugins-bch
-/plugin update utils@cc-plugins-bch
 /plugin update newsletter@cc-plugins-bch
 /plugin update jobs@cc-plugins-bch
 ```
