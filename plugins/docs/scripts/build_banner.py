@@ -2,11 +2,6 @@
 """
 Build a polished project banner from a JSON config.
 
-출처: polished-readme skill (흡수됨)
-  원본: ~/.claude/skills/polished-readme/scripts/build_banner.py
-  이식: docs 플러그인 v2.0.0 (readme-architect agent가 직접 호출)
-  변경 없음 — 동작·인터페이스 그대로.
-
 Usage:
     python build_banner.py <config.json>
 

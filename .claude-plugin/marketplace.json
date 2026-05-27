@@ -11,8 +11,8 @@
     {
       "name": "docs",
       "source": "./plugins/docs",
-      "description": "문서 작성 플러그인 - 블로그(Tistory 스타일/로컬 이미지 수집), 업무일지, 개발일지, 포트폴리오, README(polished-readme 통합/배너+스크린샷), 세션 인계 등",
-      "version": "2.0.0",
+      "description": "문서 작성 플러그인 - 블로그(Tistory 스타일/로컬 이미지 수집), 업무일지, 개발일지, 포트폴리오, README(배너+스크린샷), 세션 인계 등",
+      "version": "3.0.0",
       "author": {
         "name": "Bae-ChangHyun"
       }

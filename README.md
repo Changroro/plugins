@@ -35,7 +35,7 @@
 
 | 플러그인 | 설명 | 주요 기능 |
 |:---:|:---:|:---|
-| **docs** | 문서 작성 자동화 | 블로그(Tistory), 업무일지, 개발일지, 포트폴리오, README(배너+스크린샷), 세션 인계 |
+| **docs** | 문서 작성 자동화 | 블로그(Tistory), 업무일지, 개발일지, 포트폴리오, README, 세션 인계 |
 | **gitwf** | Git 워크플로우 | Conventional Commits, PR 생성/병합/리뷰 |
 | **newsletter** | AI 뉴스레터 | 7개 소스 자동 수집, 카테고리 분류, Telegram 전송 |
 | **jobs** | 채용 지원 | 환경 초기화, 채용공고 크롤링, 리서치, 자소서, 면접 |
@@ -54,15 +54,15 @@
 - **worklog-writer** - 업무일지 생성 (경영진 보고용)
 - **devlog-writer** - 상세 개발일지 생성 (기술 상세)
 - **portfolio-writer** - 포트폴리오 작성/업데이트
-- **readme-architect** - README.md 작성/개선 (배너 + 스크린샷 + 8단 OSS skeleton, 구 polished-readme 통합)
 
 **Skills:**
+- **readme** - README.md 자동 생성 (배너 + 스크린샷 + 8단 OSS skeleton)
 - **session-handover** - AGENTS.md + CLAUDE.md 임포트 + HANDOFF.md 관리
 
 **Commands:**
-`/docs:blog` `/docs:worklog` `/docs:devlog` `/docs:portfolio` `/docs:readme` `/docs:configure`
+`/docs:blog` `/docs:worklog` `/docs:devlog` `/docs:portfolio` `/docs:configure`
 
-CLI/TUI 프로젝트의 데모 GIF는 `/docs:readme`가 임베드 안내 박스를 삽입하고, 실제 GIF는 `terminal-gif-maker` 스킬을 호출해 생성합니다.
+CLI/TUI 프로젝트의 데모 GIF는 readme 스킬이 임베드 안내 박스를 삽입하고, 실제 GIF는 `terminal-gif-maker` 스킬을 호출해 생성합니다.
 
 </details>
 
