@@ -49,7 +49,10 @@ Theme presets cover the common cases. Override accent + brand mark to suit.
 from __future__ import annotations  # tolerate Python 3.9 with PEP 604 unions
 
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import functools
 import json
+import os
+import subprocess
 import sys
 
 
@@ -58,11 +61,82 @@ def load_config(path: str) -> dict:
         return json.load(fh)
 
 
-def font(path: str, size: int, variation: str | None = None) -> ImageFont.FreeTypeFont:
+# --- OS-agnostic font resolution -------------------------------------------
+# 폰트는 "역할"(round/sans)과 SF named-instance weight 이름으로 요청한다.
+# macOS에서는 SF 폰트 + named variation을 그대로 쓰고, 그 외(Linux 등)에서는
+# fontconfig로 weight에 맞는 실제 폰트 파일을 찾는다. 호출부는 OS를 몰라도 된다.
+
+_IS_MAC = sys.platform == "darwin"
+
+# SF named-instance weight  →  fontconfig weight 키워드
+_FC_WEIGHT = {
+    "Heavy": "heavy", "Black": "black", "Bold": "bold",
+    "Semibold": "demibold", "Medium": "medium",
+    "Regular": "regular", "Light": "light", "Thin": "thin",
+}
+
+_MAC_FONTS = {
+    "round": ["/System/Library/Fonts/SFNSRounded.ttf", "/System/Library/Fonts/SFNS.ttf"],
+    "sans":  ["/System/Library/Fonts/SFNS.ttf"],
+}
+
+
+def _first_existing(paths) -> str | None:
+    for p in paths:
+        if p and os.path.exists(p):
+            return p
+    return None
+
+
+@functools.lru_cache(maxsize=None)
+def _fc_match(pattern: str) -> str | None:
+    """fontconfig로 패턴에 맞는 폰트 파일 경로를 찾는다 (없으면 None)."""
+    try:
+        out = subprocess.run(
+            ["fc-match", "-f", "%{file}", pattern],
+            capture_output=True, text=True, timeout=5,
+        )
+        p = out.stdout.strip()
+        return p if p and os.path.exists(p) else None
+    except Exception:
+        return None
+
+
+@functools.lru_cache(maxsize=None)
+def _resolve_font(role: str, variation: str | None) -> tuple[str, str | None]:
+    """(role, SF weight 이름) → (폰트 파일 경로, 적용할 named variation 또는 None)."""
+    # 1) macOS: SF 폰트 + named variation 그대로 사용
+    if _IS_MAC:
+        p = _first_existing(_MAC_FONTS.get(role, _MAC_FONTS["sans"]))
+        if p:
+            return p, variation
+    # 2) 그 외(Linux 등): fontconfig로 weight에 맞는 실제 파일을 찾는다
+    w = _FC_WEIGHT.get(variation or "Regular", "regular")
+    p = _fc_match(f"sans-serif:weight={w}") or _fc_match("sans-serif")
+    # 3) fontconfig가 없을 때의 마지막 폴백 후보
+    if not p:
+        heavy = w in ("bold", "heavy", "black", "demibold", "medium")
+        p = _first_existing([
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if heavy
+            else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        ])
+    if not p:
+        raise RuntimeError(
+            "배너용 폰트를 찾지 못했습니다. fontconfig(fc-match)를 설치하거나 "
+            "DejaVu/Noto/Liberation Sans 폰트를 설치하세요."
+        )
+    # 파일 자체가 weight를 담당하므로 named variation은 적용하지 않는다
+    return p, None
+
+
+def font(role: str, size: int, variation: str | None = None) -> ImageFont.FreeTypeFont:
+    path, var = _resolve_font(role, variation)
     f = ImageFont.truetype(path, size)
-    if variation:
+    if var:
         try:
-            f.set_variation_by_name(variation)
+            f.set_variation_by_name(var)
         except Exception:
             pass
     return f
@@ -217,8 +291,10 @@ def render(cfg: dict) -> None:
             bx_start = paste_brand_icon(img, mark)
 
     draw = ImageDraw.Draw(img)
-    ROUND = "/System/Library/Fonts/SFNSRounded.ttf"
-    SANS = "/System/Library/Fonts/SFNS.ttf"
+    # 폰트는 파일 경로가 아니라 "역할"로 지정한다. font()가 OS에 맞는 실제
+    # 폰트 파일을 해석한다 (macOS=SF, 그 외=fontconfig).
+    ROUND = "round"
+    SANS = "sans"
 
     # wordmark (auto-fit to space, two-tone)
     wm = cfg.get("wordmark", ["", ""])
