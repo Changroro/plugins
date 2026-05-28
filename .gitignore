@@ -18,3 +18,6 @@ node_modules/
 # Claude Code local instructions (root only, allow in plugins)
 /CLAUDE.md
 plugins/newsletter/scripts/__pycache__/
+
+# oss-review: 평가/디스크립션 최적화 산출물 (재생성 가능)
+plugins/oss-review/skills/oss-review-workspace/
