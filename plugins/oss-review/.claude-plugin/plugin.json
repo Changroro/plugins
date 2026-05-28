@@ -1,7 +1,7 @@
 {
   "name": "oss-review",
   "description": "오픈소스 프로젝트 종합 리뷰 플러그인 - 라이센스, 전체 코드(Codex+Claude 병렬), 보안, 데드코드/레거시, UI/UX(Playwright) 5개 카테고리를 새로운 컨텍스트 서브에이전트로 병렬 점검하고 통합 보고서를 생성한다.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Bae-ChangHyun",
     "url": "https://github.com/Bae-ChangHyun"
