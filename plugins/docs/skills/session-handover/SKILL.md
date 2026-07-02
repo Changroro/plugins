@@ -79,7 +79,7 @@ CLAUDE.md (or `.local` fallback) is exactly one line: `@AGENTS.md` or `@AGENTS.l
 
 ### 4. Filter, then write
 
-Run every drafted line through the two filters (rediscoverable? load-bearing?), then run the pre-write checklist below and auto-correct every violation found. Write directly — do not ask "작성할까요?" / "shall I write this?". After the write, output the post-write report defined below — the report is the proof that the checklist actually ran.
+Run every drafted line through the two filters (rediscoverable? load-bearing?), then run the pre-write checklist below and auto-correct every violation found. Write directly — do not ask "작성할까요?" / "shall I write this?". End with the compact post-write report defined below — nothing else.
 
 #### Pre-write checklist
 
@@ -97,13 +97,20 @@ Scan the drafted AGENTS.md / HANDOFF.md / CLAUDE.md and silently fix every viola
 - **Foreign tool blocks** — content injected by other tools (memory banners, auto-generated headers) → remove from all three files.
 - **Caution narration** — a caution longer than one line, or telling a past bug's story instead of the standing constraint → compress to the invariant.
 
-#### Post-write report (mandatory)
+#### Post-write report (compact)
 
-Replaces free-form "what changed" narration:
+The entire user-facing output after writing. Hard cap ~6 lines, this shape and nothing else:
 
-- One line per checklist item: `pass` or `fixed: <what>`. A missing item means the checklist did not run.
-- Final line counts vs the ≤60-line AGENTS.md target.
-- Unverified stale candidates from the merge, if any.
+```
+AGENTS.md 58줄 · HANDOFF.md 12줄 · checklist 11/11 (fixed 3)
+fixed: <item> — <half-line: what was cut>     ← fixed 항목만, 한 줄씩
+stale 유지: <unverified entries>               ← 있을 때만
+```
+
+- Passing items are silent. Report `fixed` only; the `n/n` count proves the full checklist ran.
+- Over budget → one clause ("100줄 초과, 잔여 전부 필터 통과"), not a defense essay.
+- **Never mention this skill, its version, or its rules.** The report is about the files, not the tooling.
+- No closing narration: no gitignore status, no "다음 세션은 …하면 됩니다", no explaining what the files are for.
 
 ### 5. Gitignore the files you wrote
 
