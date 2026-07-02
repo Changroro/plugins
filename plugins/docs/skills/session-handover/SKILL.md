@@ -15,7 +15,10 @@ All three are written for the next AI session, not for humans. If a human is the
 
 ## What goes where
 
-Decision rule: **if a future session could learn it by reading the code, running `ls`, or running `git log`, it does not belong in either file.** Directory layouts, file paths, tech stack summaries, architecture diagrams fail this test.
+Two filters, applied line by line — a line must survive both:
+
+1. **Rediscoverable?** Learnable from the code, `ls`, or `git log` → out. Directory layouts, file paths, tech stack summaries, architecture diagrams fail.
+2. **Load-bearing?** Would removing it cause the next session to make a mistake? No → cut, even if not rediscoverable. Restating the user's global memory (`~/.claude/CLAUDE.md` + imports) fails this test.
 
 | Content                                             | AGENTS.md   | HANDOFF.md     |
 | --------------------------------------------------- | ----------- | -------------- |
@@ -30,7 +33,9 @@ Decision rule: **if a future session could learn it by reading the code, running
 | Historical log of every past step                   | —           | —              |
 | Narration written for the human to read             | —           | —              |
 
-"Non-obvious environment facts" = a service running inside a specific container, a port not in `package.json`, an env var not documented elsewhere. Standard commands like `npm run dev` do not qualify.
+"Non-obvious environment facts" = a service running inside a specific container, a port not in `package.json`, an env var not documented elsewhere. Standard commands like `npm run dev` do not qualify; a command does qualify when it carries flags or env vars a session could not guess.
+
+**AGENTS.md budget: target ≤60 lines, hard ceiling ~100.** Over target → prune before writing. Long memory files degrade adherence.
 
 ## HANDOFF is not a history log
 
@@ -64,7 +69,9 @@ If `AGENTS.md` or `CLAUDE.md` is tracked in git, it belongs to the upstream proj
 
 ### 3. Merge, don't overwrite
 
-AGENTS.md may contain hand-edited content not in this conversation. Read it first and **merge** — preserve every still-true rule/caution/env fact; only add/refine/remove in response to something explicit in this session.
+AGENTS.md may contain hand-edited content not in this conversation. Read it first and **merge** — preserve still-true rules/cautions/env facts; only add/refine/remove in response to something explicit in this session.
+
+**"Still true" is a verdict, not an assumption.** Verify each preserved entry against the code, environment, and this session. An unconfirmable fact (limit, size, URL, workflow) is a stale candidate: update it if this session shows the current value, else keep it and list it as unverified in the post-write report. Hand-edits are not exempt from the checklist.
 
 HANDOFF.md is regenerable — replace wholesale with the new "just done + next up" snapshot.
 
@@ -72,7 +79,7 @@ CLAUDE.md (or `.local` fallback) is exactly one line: `@AGENTS.md` or `@AGENTS.l
 
 ### 4. Filter, then write
 
-Drop anything rediscoverable from the code. Run the pre-write checklist below and auto-correct every violation found. Write directly — do not ask "작성할까요?" / "shall I write this?". After the write, report what changed, including any checklist corrections.
+Run every drafted line through the two filters (rediscoverable? load-bearing?), then run the pre-write checklist below and auto-correct every violation found. Write directly — do not ask "작성할까요?" / "shall I write this?". After the write, output the post-write report defined below — the report is the proof that the checklist actually ran.
 
 #### Pre-write checklist
 
@@ -85,6 +92,18 @@ Scan the drafted AGENTS.md / HANDOFF.md / CLAUDE.md and silently fix every viola
 - **git log conflict** — HANDOFF contradicts `git log --oneline -10` → rebuild HANDOFF from current reality.
 - **Missing session learnings** — a rule or caution the user gave in this session is absent from AGENTS.md → add it.
 - **Human-facing prose** — AGENTS.md written as narrative for a human reader → compress to AI-facing form.
+- **Global-memory duplication** — a rule already in the user's global memory (`~/.claude/CLAUDE.md` + imports) restated in AGENTS.md → remove.
+- **Volatile facts** — IPs, resource IDs, versions, sizes/counts, dates in AGENTS.md → remove or generalize ("SSH ingress is IP-whitelisted", not the IP). HANDOFF may carry a literal only when the next step needs it.
+- **Foreign tool blocks** — content injected by other tools (memory banners, auto-generated headers) → remove from all three files.
+- **Caution narration** — a caution longer than one line, or telling a past bug's story instead of the standing constraint → compress to the invariant.
+
+#### Post-write report (mandatory)
+
+Replaces free-form "what changed" narration:
+
+- One line per checklist item: `pass` or `fixed: <what>`. A missing item means the checklist did not run.
+- Final line counts vs the ≤60-line AGENTS.md target.
+- Unverified stale candidates from the merge, if any.
 
 ### 5. Gitignore the files you wrote
 
@@ -128,6 +147,12 @@ If you fell back to `.local` variants, gitignore those instead. **Never gitignor
 - <Setup facts that are not visible in package.json, pyproject.toml, or similar.>
 ```
 
+Notes:
+
+- **Purpose = intent and audience, not implementation.** A tech-stack summary is not a purpose.
+- **Rules & conventions**: project-specific only — global work-style rules (commit style, planning workflow, tooling) stay in global memory.
+- Empty sections are omitted, not filled with placeholders.
+
 ## CLAUDE.md template
 
 ```markdown
@@ -163,10 +188,11 @@ Notes:
 
 ## Safety
 
-- **Preserve hand-edited AGENTS.md content.** Read before write, merge — never blind-overwrite. The file is gitignored, so overwrites are not git-recoverable.
+- **Preserve hand-edited AGENTS.md content.** Read before write, merge — never blind-overwrite. The file is gitignored, so overwrites are not git-recoverable. Preservation still requires the still-true verification (workflow §3).
+- **AGENTS.md stays within budget** — ≤60 target, ~100 ceiling.
 - **CLAUDE.md is a shim, not a memory file.** It must remain a single line.
 - **Trust `git log` over prose.** When HANDOFF and `git log` disagree, rebuild HANDOFF from current reality.
 - **Leave upstream-tracked `AGENTS.md` / `CLAUDE.md` alone.** Use `.local` fallback (see workflow §2).
 - **Verify the target directory** when ambiguous. Wrong-project writes surface late.
 - **Gitignore is mandatory for files you wrote, never for tracked files.**
-- **The pre-write checklist runs on every invocation.** Violations are auto-corrected inline — no audit mode, no quality score, no approval prompt.
+- **The pre-write checklist runs on every invocation; the post-write report proves it.** Violations auto-corrected inline — no audit mode, no quality score, no approval prompt.
