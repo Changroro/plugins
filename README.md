@@ -57,7 +57,7 @@
 
 **Skills:**
 - **readme** - README.md 자동 생성 (배너 + 스크린샷 + 8단 OSS skeleton)
-- **session-handover** - AGENTS.md + CLAUDE.md 임포트 + HANDOFF.md 관리
+- **session-handover** - AGENTS.md(규칙만, ≤100줄) + CLAUDE.md 임포트 + HANDOFF.md + docs/ 주제 문서 관리, 오염 콘텐츠 자동 정리·재배치
 
 **Commands:**
 `/docs:blog` `/docs:worklog` `/docs:devlog` `/docs:portfolio` `/docs:configure`
