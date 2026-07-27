@@ -23,7 +23,7 @@ description: Auto-generate a high-quality GitHub README.md. Detects project type
 | **CLI / TUI** | `bin/`, `cmd/`, `package.json`의 `bin`, `setup.py`의 `console_scripts`, Cobra/Click/Typer/Clap, ncurses/Textual/blessed/charmbracelet | 배너(선택) + 데모 GIF 안내 + Quick Start + 명령어 표 |
 | **Library / SDK** | `package.json`에 `main`/`exports`만 있고 `bin` 없음, `pyproject.toml`의 모듈 위주, npm/PyPI 패키지명 | 배지 + 빠른 사용 예시 + API 표 (배너/스크린샷 생략) |
 | **Native App** | `Info.plist`, `Assets.xcassets/`, `app.json` (Expo), `AndroidManifest.xml`, `.xcodeproj/`, `Package.swift` | 배너(icon + phone mockup) + 시뮬레이터 스크린샷 표 + Features + Roadmap |
-| **Web / Dashboard** | `next.config.*`, `vite.config.*`, `astro.config.*`, `app.vue`/`app.tsx`, `public/index.html`, 라이브 URL | 배너(card + browser mockup) + playwright-cli 스크린샷 + Features + Tech stack |
+| **Web / Dashboard** | `next.config.*`, `vite.config.*`, `astro.config.*`, `app.vue`/`app.tsx`, `public/index.html`, 라이브 URL | 배너(card + browser mockup) + agent-browser 스크린샷 + Features + Tech stack |
 | **Data / Research** | `notebooks/`, `data/`, `*.ipynb`, `requirements.txt`에 numpy/pandas/torch, 모델 weights | 방법론 + 데이터셋 + 결과 표/그래프 (배너 선택) |
 
 판별이 모호하면 가장 가능성 높은 타입으로 진행하고, README 끝의 "후속 작업" 섹션에 수정 안내를 남긴다.
@@ -136,17 +136,19 @@ for name, src in chosen.items():
 
 **Web / Dashboard**
 
-`playwright-cli` 바이너리 사용 (MCP `mcp__playwright__*` 도구 금지):
+`agent-browser` CLI 사용:
 
 ```bash
-playwright-cli goto https://the-site.example
-playwright-cli screenshot --filename=docs/screenshots/home.png
-playwright-cli goto https://the-site.example/dashboard
-playwright-cli screenshot --filename=docs/screenshots/dashboard.png
-playwright-cli close
+agent-browser open https://the-site.example
+agent-browser set viewport 1280 1800
+agent-browser screenshot docs/screenshots/home.png
+agent-browser open https://the-site.example/dashboard
+agent-browser set viewport 1280 1800
+agent-browser screenshot docs/screenshots/dashboard.png
+agent-browser close
 ```
 
-playwright-cli가 없으면 headless Chrome:
+agent-browser가 없으면 headless Chrome:
 ```bash
 chromium --headless --hide-scrollbars --window-size=1280,1800 \
   --screenshot=docs/screenshots/home.png "https://the-site.example"
@@ -334,7 +336,7 @@ Made with ❤️ by [Developer Name]
 | **CLI / TUI** | 짧게 | 데모 GIF placeholder | 명령어 표 우선 | 짧은 ASCII flow | 최소화 | 패키지 매니저 + 첫 명령 | 짧게 | 선택 |
 | **Library / SDK** | 강하게 (use case) | 생략 | 코드 예시 위주 | 입출력 흐름 | 의존성 / 호환성 | npm/pip 설치 + 5줄 예제 | 짧게 | 선택 |
 | **Native App** | 한 단락 + 플랫폼 | 시뮬레이터 스크린샷 표 | 2-3 bucket | 사용자 흐름 | 프레임워크 + 백엔드 | 빌드/설치 | 길게 | 권장 |
-| **Web / Dashboard** | 강하게 (가치) | playwright-cli 스크린샷 표 | 2-3 bucket | 데이터 흐름 | 풀스택 | 데모 URL + 셀프호스팅 | 권장 | 선택 |
+| **Web / Dashboard** | 강하게 (가치) | agent-browser 스크린샷 표 | 2-3 bucket | 데이터 흐름 | 풀스택 | 데모 URL + 셀프호스팅 | 권장 | 선택 |
 | **Data / Research** | 방법론 | 표/그래프 이미지 | 데이터셋 + 결과 | 파이프라인 | 모델 + 라이브러리 | 환경 + 재현 명령 | 선택 | 권장 |
 
 ## Voice / Tone

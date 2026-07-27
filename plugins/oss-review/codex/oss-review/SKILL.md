@@ -1,6 +1,6 @@
 ---
 name: oss-review
-description: "사용자가 자신이 개발한 프로젝트·레포·오픈소스를 출시·공개·릴리즈·배포 전에 전체적으로 점검·검수·리뷰받고 싶어 할 때 사용하는 종합 리뷰 스킬. 라이센스(참고한 레포 라이센스의 README/LICENSE 반영 포함), 전체 코드리뷰(Codex GPT-5.5와 Claude Opus 4.7 교차 2인 병렬), 보안 취약점, 데드코드·레거시·사일런트 fallback, UI/UX(다크·라이트·모바일 화면을 Playwright로 점검)의 5개 영역을 각각 새 세션(codex exec)으로 병렬 점검하고 하나의 통합 보고서를 만든 뒤 승인을 받아 수정한다. 다음과 같은 경우 'oss-review'라고 명시하지 않더라도 반드시 이 스킬을 사용한다 — '내 프로젝트/레포/오픈소스 리뷰해줘·점검해줘·검수해줘', '공개 전 점검', '출시 전 검수', '릴리즈 전 검토', '깃헙에 올리기 전 점검', '배포 전 검수', 'v1.0/태그 달기 전 코드리뷰', 'codex랑 claude 둘 다 써서 코드리뷰', 그리고 코드·보안·라이센스·UI·데드코드 중 둘 이상을 함께 봐달라거나 출시·공개 준비가 됐는지 다각도로 판단해 달라는 요청. 단일 PR 한 건 리뷰나 한 가지 측면만 점검하는 요청에는 전용 도구를 쓴다."
+description: "사용자가 자신이 개발한 프로젝트·레포·오픈소스를 출시·공개·릴리즈·배포 전에 전체적으로 점검·검수·리뷰받고 싶어 할 때 사용하는 종합 리뷰 스킬. 라이센스(참고한 레포 라이센스의 README/LICENSE 반영 포함), 전체 코드리뷰(Codex GPT-5.5와 Claude Opus 4.7 교차 2인 병렬), 보안 취약점, 데드코드·레거시·사일런트 fallback, UI/UX(다크·라이트·모바일 화면을 agent-browser로 점검)의 5개 영역을 각각 새 세션(codex exec)으로 병렬 점검하고 하나의 통합 보고서를 만든 뒤 승인을 받아 수정한다. 다음과 같은 경우 'oss-review'라고 명시하지 않더라도 반드시 이 스킬을 사용한다 — '내 프로젝트/레포/오픈소스 리뷰해줘·점검해줘·검수해줘', '공개 전 점검', '출시 전 검수', '릴리즈 전 검토', '깃헙에 올리기 전 점검', '배포 전 검수', 'v1.0/태그 달기 전 코드리뷰', 'codex랑 claude 둘 다 써서 코드리뷰', 그리고 코드·보안·라이센스·UI·데드코드 중 둘 이상을 함께 봐달라거나 출시·공개 준비가 됐는지 다각도로 판단해 달라는 요청. 단일 PR 한 건 리뷰나 한 가지 측면만 점검하는 요청에는 전용 도구를 쓴다."
 ---
 
 # oss-review (Codex 판): 오픈소스 프로젝트 종합 리뷰
@@ -73,7 +73,7 @@ wait $PID_LICENSE $PID_SECURITY $PID_DEADCODE $PID_UX ...
 | 2 | 전체 코드 리뷰 | 2 | A/B 교차(사용자 선택) |
 | 3 | 보안 리뷰 | 1 | Codex gpt-5.5 |
 | 4 | 데드코드 / 레거시 / 사일런트 fallback | 1 | Codex gpt-5.5 |
-| 5 | UI/UX 점검 (Playwright) | 1 | Codex gpt-5.5 (해당 시) |
+| 5 | UI/UX 점검 (agent-browser) | 1 | Codex gpt-5.5 (해당 시) |
 
 ### Step 2 — 5개 카테고리 병렬 실행
 
@@ -97,7 +97,7 @@ wait $PID_LICENSE $PID_SECURITY $PID_DEADCODE $PID_UX ...
 **4. 데드코드/레거시/사일런트 fallback (references/04-deadcode.md)** → `.oss-review/04-deadcode.md`
 **5. UI/UX (references/05-ux.md)** → `.oss-review/05-ux.md`
 - dev 서버가 이미 떠 있다고 가정, 접속 URL을 prompt에 명시.
-- `playwright-cli` 바이너리(`~/.nvm/versions/node/v20.20.1/bin/playwright-cli`)를 shell로 호출해 다크/라이트/모바일 스크린샷 캡처. 스크린샷은 `.oss-review/screenshots/`.
+- `agent-browser` CLI를 shell로 호출해 다크/라이트/모바일 스크린샷 캡처. 스크린샷은 `.oss-review/screenshots/`.
 - 이 자리는 화면 캡처가 필요하므로 `--sandbox workspace-write`로 띄운다.
 
 #### 교차 호스트 헬스체크 (교차 배치 사용 시에만)
@@ -161,7 +161,7 @@ worktree 안에서 별도 `codex exec` 세션을 가동해 변경/테스트/자�
 | `references/02-codereview.md` | 전체 코드 리뷰 (A/B 공통) |
 | `references/03-security.md` | 보안 리뷰 |
 | `references/04-deadcode.md` | 데드코드/레거시/사일런트 fallback |
-| `references/05-ux.md` | UI/UX (Playwright) |
+| `references/05-ux.md` | UI/UX (agent-browser) |
 
 ---
 
@@ -173,4 +173,4 @@ worktree 안에서 별도 `codex exec` 세션을 가동해 변경/테스트/자�
 - **교차 결과 맹신 금지**: Claude 교차 결과도 Codex Reviewer B와 교차 검증해 신뢰도 ★를 매겨라.
 - **자동 수정 금지**: 사용자 승인 없이 패치 금지. Executive Summary + 6.1/6.2 분류 후 승인 대기.
 - **dev 서버 자동 실행 금지**: 사용자에게 미리 띄워달라고 부탁하고 URL만 받는다.
-- **playwright는 `playwright-cli` 바이너리**: 사용자 글로벌 지침(AGENTS.md)에 따라 CLI 바이너리를 shell로 호출.
+- **브라우저 점검은 `agent-browser` CLI**: 사용자 글로벌 지침(AGENTS.md)에 따라 agent-browser를 shell로 호출.
