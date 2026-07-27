@@ -1,16 +1,18 @@
 ---
 name: session-handover
-description: Maintains cross-tool project memory so a fresh session in any agent (Claude Code, Codex, Cursor, Gemini CLI) resumes without re-explanation — durable rules in AGENTS.md, a one-line `@AGENTS.md` shim in CLAUDE.md, a rolling next-step log in HANDOFF.md, topical knowledge in docs/ files it creates as needed. Audits and re-routes existing content on every run, then verifies the result mechanically. Use whenever the user asks to write, update, clean up, or sync project memory, session docs, or the next-step log — including "agents.md 최신화", "agents.md 정리", "handoff 업데이트", "인수인계", "세션 인계", "기획 문서로 옮겨", "update agents md", "write handoff", "session handover", "sync memory bank", and the pre-PR pattern "README / AGENTS.md / HANDOFF".
+description: 'Maintains cross-tool project memory so a fresh session in any agent (Codex, Claude Code, Cursor, Gemini CLI) resumes without re-explanation — durable rules in AGENTS.md, a one-line `@AGENTS.md` shim in CLAUDE.md, a rolling next-step log in HANDOFF.md, topical knowledge in docs/ files it creates as needed. Audits and re-routes existing content on every run, then verifies the result mechanically. Use whenever the user asks to write, update, clean up, or sync project memory, session docs, or the next-step log — including "agents.md 최신화", "agents.md 정리", "handoff 업데이트", "인수인계", "세션 인계", "기획 문서로 옮겨", "update agents md", "write handoff", "session handover", "sync memory bank", and the pre-PR pattern "README / AGENTS.md / HANDOFF".'
 ---
 
-# Session Handover
+# Session Handover (Codex 판)
+
+> Codex CLI 전용 변환본. Claude Code 판(`cc-plugins-bch/plugins/docs/skills/session-handover/`)과 동작은 같고, 스크립트·참조 파일 경로와 상위 메모리 계층만 Codex 환경에 맞췄다.
 
 Maintains project files so a fresh AI session — in any tool — can resume work without re-explanation. Each file has one job:
 
 | File | Job | Loaded |
 | --- | --- | --- |
 | **AGENTS.md** | Durable rules another tool also needs: user-given rules, conventions, cautions, non-obvious env facts. | Every session, every tool → the expensive one. |
-| **CLAUDE.md** | One line: `@AGENTS.md`. Never holds content of its own. | Every Claude session. |
+| **CLAUDE.md** | One line: `@AGENTS.md`. Codex never reads it, but the project is shared with Claude Code — keep the shim correct. | Every Claude session. |
 | **HANDOFF.md** | Rolling "just done / next up". | Read at session start. |
 | **docs/\<topic\>.md** | Durable knowledge that is not a rule — planning, specs, design decisions, troubleshooting lore. One topic per file. | On demand only. |
 
@@ -25,7 +27,7 @@ Two filters decide whether a line survives, wherever it came from — this sessi
 1. **Rediscoverable?** Learnable from the code, `ls`, or `git log` → out.
 2. **Load-bearing?** Would removing it make the next session get something wrong? No → cut.
 
-The second filter also settles duplication: a rule already in the user's global memory or auto-memory does not get restated here.
+The second filter also settles duplication: a rule already in the user's global instructions (`~/.codex/AGENTS.md` and its imports) does not get restated in the project's AGENTS.md.
 
 ## Workflow
 
@@ -42,7 +44,7 @@ HANDOFF.md is regenerable — replace it wholesale with the new snapshot.
 **5. Verify.** Run the audit, fix what it reports, re-run until it exits 0:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/session-handover/scripts/audit.py" --root .
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/session-handover/scripts/audit.py" --root .
 ```
 
 It settles what a machine can settle — budgets, the CLAUDE.md shim, volatile literals, HANDOFF pollution, gitignore state, upstream-tracked fallbacks. It cannot judge routing, compression, or whether a line is load-bearing. Those stay yours.
@@ -70,8 +72,8 @@ Everything above is judgment except these — they are contracts, and `audit.py`
 
 ## References
 
-`${CLAUDE_PLUGIN_ROOT}/skills/session-handover/references/` 아래. 필요할 때만 읽는다:
+`${CODEX_HOME:-$HOME/.codex}/skills/session-handover/references/` 아래. 필요할 때만 읽는다:
 
-- `references/routing.md` — routing table, the three memory layers, docs/ conventions
-- `references/templates.md` — AGENTS / CLAUDE / HANDOFF file shapes
-- `references/edge-cases.md` — upstream-tracked fallback, gitignore rules, non-git projects
+- `routing.md` — routing table, the memory layers, docs/ conventions
+- `templates.md` — AGENTS / CLAUDE / HANDOFF file shapes
+- `edge-cases.md` — upstream-tracked fallback, gitignore rules, non-git projects
