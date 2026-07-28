@@ -45,10 +45,10 @@
       }
     },
     {
-      "name": "oss-review",
-      "source": "./plugins/oss-review",
-      "description": "오픈소스 프로젝트 종합 리뷰 - 라이센스, 전체 코드(Codex+Claude 병렬), 보안, 데드코드/레거시, UI/UX(Playwright) 5개 카테고리 새 컨텍스트 서브에이전트 병렬 점검",
-      "version": "1.0.1",
+      "name": "deep-audit",
+      "source": "./plugins/deep-audit",
+      "description": "프로젝트 전수 조사 - Fable 5가 기능 단위 조사 계획을 세우고 Opus 5 팀원들이 기능별로 분담해 매직넘버·불필요 주석·silent fallback·실동작 테스트·보안·데드코드·UI를 점검, 매 라운드 새 팀원으로 수렴까지 반복",
+      "version": "1.0.0",
       "author": {
         "name": "Bae-ChangHyun"
       }
