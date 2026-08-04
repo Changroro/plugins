@@ -1,4 +1,4 @@
-# changroro-plugins
+# plugins
 
 <div align="center">
 
@@ -16,27 +16,27 @@
 ## 설치
 
 ```bash
-/plugin marketplace add Bae-ChangHyun/changroro-plugins
+/plugin marketplace add Bae-ChangHyun/plugins
 
-/plugin install docs@changroro-plugins        # 문서 작성
-/plugin install gitwf@changroro-plugins       # Git/GitHub 워크플로우
-/plugin install jobs@changroro-plugins        # 채용 지원
-/plugin install newsletter@changroro-plugins  # AI 뉴스레터
-/plugin install deep-audit@changroro-plugins  # 프로젝트 전수 감사
-/plugin install imhuman@changroro-plugins     # 한글 AI 티 윤문
+/plugin install docs@plugins        # 문서 작성
+/plugin install gitwf@plugins       # Git/GitHub 워크플로우
+/plugin install jobs@plugins        # 채용 지원
+/plugin install newsletter@plugins  # AI 뉴스레터
+/plugin install deep-audit@plugins  # 프로젝트 전수 감사
+/plugin install imhuman@plugins     # 한글 AI 티 윤문
 ```
 
 ## 플러그인
 
-각 플러그인은 독립된 저장소다. 마켓플레이스는 카탈로그 역할만 한다.
+단독으로 쓸 만한 둘은 별도 저장소에 있고, 나머지는 이 저장소 `plugins/` 아래에 있다. 설치 방법은 어느 쪽이든 같다.
 
-| 플러그인 | 하는 일 | 저장소 |
+| 플러그인 | 하는 일 | 위치 |
 |---|---|---|
-| **docs** | 블로그(Tistory), 업무일지, 개발일지, 포트폴리오, README, 세션 인계, 터미널 GIF | [changroro-docs](https://github.com/Bae-ChangHyun/changroro-docs) |
-| **gitwf** | Conventional Commits 커밋, PR 생성·병합·리뷰 | [changroro-gitwf](https://github.com/Bae-ChangHyun/changroro-gitwf) |
-| **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | [changroro-jobs](https://github.com/Bae-ChangHyun/changroro-jobs) |
-| **newsletter** | 7개 소스 AI 뉴스 수집, 카테고리 분류, Telegram 전송 | [changroro-newsletter](https://github.com/Bae-ChangHyun/changroro-newsletter) |
-| **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [changroro-deep-audit](https://github.com/Bae-ChangHyun/changroro-deep-audit) |
+| **docs** | 블로그(Tistory), 업무일지, 개발일지, 포트폴리오, README, 세션 인계, 터미널 GIF | `plugins/docs` |
+| **gitwf** | Conventional Commits 커밋, PR 생성·병합·리뷰 | `plugins/gitwf` |
+| **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
+| **newsletter** | 7개 소스 AI 뉴스 수집, 카테고리 분류, Telegram 전송 | `plugins/newsletter` |
+| **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Bae-ChangHyun/deep-audit) |
 | **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Bae-ChangHyun/imhuman) |
 
 ---
@@ -133,8 +133,8 @@
 ## 업데이트
 
 ```bash
-/plugin marketplace update changroro-plugins
-/plugin update docs@changroro-plugins
+/plugin marketplace update plugins
+/plugin update docs@plugins
 ```
 
 버전은 각 플러그인 저장소의 `.claude-plugin/plugin.json`이 기준이다. 마켓플레이스는 버전을 따로 적지 않는다.

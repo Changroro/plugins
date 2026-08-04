@@ -10,51 +10,108 @@
   "plugins": [
     {
       "name": "docs",
-      "source": { "source": "github", "repo": "Bae-ChangHyun/changroro-docs" },
+      "source": "./plugins/docs",
       "description": "문서 작성 - 블로그(Tistory 스타일/로컬 이미지 수집), 업무일지, 개발일지, 포트폴리오, README(배너+스크린샷), 세션 인계, 터미널 GIF",
-      "author": { "name": "Bae-ChangHyun" },
+      "author": {
+        "name": "Bae-ChangHyun"
+      },
       "category": "productivity",
-      "tags": ["docs", "blog", "readme", "worklog", "portfolio", "handover", "korean"]
+      "tags": [
+        "docs",
+        "blog",
+        "readme",
+        "worklog",
+        "portfolio",
+        "handover",
+        "korean"
+      ]
     },
     {
       "name": "gitwf",
-      "source": { "source": "github", "repo": "Bae-ChangHyun/changroro-gitwf" },
+      "source": "./plugins/gitwf",
       "description": "Git/GitHub 워크플로우 - 커밋, PR 생성/병합/리뷰 자동화",
-      "author": { "name": "Bae-ChangHyun" },
+      "author": {
+        "name": "Bae-ChangHyun"
+      },
       "category": "development",
-      "tags": ["git", "github", "commit", "pull-request", "conventional-commits"]
+      "tags": [
+        "git",
+        "github",
+        "commit",
+        "pull-request",
+        "conventional-commits"
+      ]
     },
     {
       "name": "jobs",
-      "source": { "source": "github", "repo": "Bae-ChangHyun/changroro-jobs" },
+      "source": "./plugins/jobs",
       "description": "채용 지원 - 환경 초기화, 채용공고 크롤링, 기업·직무 리서치, 자소서 작성, 면접 준비",
-      "author": { "name": "Bae-ChangHyun" },
+      "author": {
+        "name": "Bae-ChangHyun"
+      },
       "category": "productivity",
-      "tags": ["jobs", "resume", "cover-letter", "interview", "korean"]
+      "tags": [
+        "jobs",
+        "resume",
+        "cover-letter",
+        "interview",
+        "korean"
+      ]
     },
     {
       "name": "newsletter",
-      "source": { "source": "github", "repo": "Bae-ChangHyun/changroro-newsletter" },
+      "source": "./plugins/newsletter",
       "description": "AI 뉴스레터 - 7개 소스 자동 수집, 카테고리 분류, Telegram 전송, 시스템 cron 지원",
-      "author": { "name": "Bae-ChangHyun" },
+      "author": {
+        "name": "Bae-ChangHyun"
+      },
       "category": "productivity",
-      "tags": ["news", "newsletter", "telegram", "cron", "ai-news"]
+      "tags": [
+        "news",
+        "newsletter",
+        "telegram",
+        "cron",
+        "ai-news"
+      ]
     },
     {
       "name": "imhuman",
-      "source": { "source": "github", "repo": "Bae-ChangHyun/imhuman" },
+      "source": {
+        "source": "github",
+        "repo": "Bae-ChangHyun/imhuman"
+      },
       "description": "AI가 쓴 한글 텍스트의 AI 티를 한 번의 호출로 탐지·윤문·자체검증 - 번역투·기계적 병렬·피동 남용 등 10대 카테고리 40+ 패턴, 내용은 건드리지 않고 문체만 변경",
-      "author": { "name": "Bae-ChangHyun" },
+      "author": {
+        "name": "Bae-ChangHyun"
+      },
       "category": "productivity",
-      "tags": ["korean", "humanize", "ai-detector", "translationese", "윤문", "writing"]
+      "tags": [
+        "korean",
+        "humanize",
+        "ai-detector",
+        "translationese",
+        "윤문",
+        "writing"
+      ]
     },
     {
       "name": "deep-audit",
-      "source": { "source": "github", "repo": "Bae-ChangHyun/changroro-deep-audit" },
+      "source": {
+        "source": "github",
+        "repo": "Bae-ChangHyun/deep-audit"
+      },
       "description": "프로젝트 전수 조사 - 기능 단위 조사 계획을 세우고 팀원들이 분담해 매직넘버·불필요 주석·silent fallback·실동작 테스트·보안·데드코드·UI를 점검, 매 라운드 새 팀원으로 수렴까지 반복",
-      "author": { "name": "Bae-ChangHyun" },
+      "author": {
+        "name": "Bae-ChangHyun"
+      },
       "category": "development",
-      "tags": ["audit", "code-review", "multi-agent", "security", "dead-code"]
+      "tags": [
+        "audit",
+        "code-review",
+        "multi-agent",
+        "security",
+        "dead-code"
+      ]
     }
   ]
 }
