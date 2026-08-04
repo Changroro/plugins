@@ -18,12 +18,12 @@
 ```bash
 /plugin marketplace add Bae-ChangHyun/plugins
 
-/plugin install docs@plugins        # 문서 작성
-/plugin install gitwf@plugins       # Git/GitHub 워크플로우
-/plugin install jobs@plugins        # 채용 지원
-/plugin install newsletter@plugins  # AI 뉴스레터
-/plugin install deep-audit@plugins  # 프로젝트 전수 감사
-/plugin install imhuman@plugins     # 한글 AI 티 윤문
+/plugin install docs@changroro        # 문서 작성
+/plugin install gitwf@changroro       # Git/GitHub 워크플로우
+/plugin install jobs@changroro        # 채용 지원
+/plugin install newsletter@changroro  # AI 뉴스레터
+/plugin install deep-audit@changroro  # 프로젝트 전수 감사
+/plugin install imhuman@changroro     # 한글 AI 티 윤문
 ```
 
 ## 플러그인
@@ -133,8 +133,8 @@
 ## 업데이트
 
 ```bash
-/plugin marketplace update plugins
-/plugin update docs@plugins
+/plugin marketplace update changroro
+/plugin update docs@changroro
 ```
 
 버전은 각 플러그인 저장소의 `.claude-plugin/plugin.json`이 기준이다. 마켓플레이스는 버전을 따로 적지 않는다.
