@@ -41,6 +41,14 @@
       "tags": ["news", "newsletter", "telegram", "cron", "ai-news"]
     },
     {
+      "name": "imhuman",
+      "source": { "source": "github", "repo": "Bae-ChangHyun/imhuman" },
+      "description": "AI가 쓴 한글 텍스트의 AI 티를 한 번의 호출로 탐지·윤문·자체검증 - 번역투·기계적 병렬·피동 남용 등 10대 카테고리 40+ 패턴, 내용은 건드리지 않고 문체만 변경",
+      "author": { "name": "Bae-ChangHyun" },
+      "category": "productivity",
+      "tags": ["korean", "humanize", "ai-detector", "translationese", "윤문", "writing"]
+    },
+    {
       "name": "deep-audit",
       "source": { "source": "github", "repo": "Bae-ChangHyun/changroro-deep-audit" },
       "description": "프로젝트 전수 조사 - 기능 단위 조사 계획을 세우고 팀원들이 분담해 매직넘버·불필요 주석·silent fallback·실동작 테스트·보안·데드코드·UI를 점검, 매 라운드 새 팀원으로 수렴까지 반복",

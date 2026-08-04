@@ -7,7 +7,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-5-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-6-green?style=flat-square)](#플러그인)
 
 </div>
 
@@ -23,6 +23,7 @@
 /plugin install jobs@changroro-plugins        # 채용 지원
 /plugin install newsletter@changroro-plugins  # AI 뉴스레터
 /plugin install deep-audit@changroro-plugins  # 프로젝트 전수 감사
+/plugin install imhuman@changroro-plugins     # 한글 AI 티 윤문
 ```
 
 ## 플러그인
@@ -36,6 +37,7 @@
 | **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | [changroro-jobs](https://github.com/Bae-ChangHyun/changroro-jobs) |
 | **newsletter** | 7개 소스 AI 뉴스 수집, 카테고리 분류, Telegram 전송 | [changroro-newsletter](https://github.com/Bae-ChangHyun/changroro-newsletter) |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [changroro-deep-audit](https://github.com/Bae-ChangHyun/changroro-deep-audit) |
+| **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Bae-ChangHyun/imhuman) |
 
 ---
 
