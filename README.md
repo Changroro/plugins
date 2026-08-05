@@ -16,7 +16,7 @@
 ## 설치
 
 ```bash
-/plugin marketplace add Bae-ChangHyun/plugins
+/plugin marketplace add Changroro/plugins
 
 /plugin install docs@changroro        # 문서 작성
 /plugin install gitwf@changroro       # Git/GitHub 워크플로우
@@ -36,8 +36,8 @@
 | **gitwf** | Conventional Commits 커밋, PR 생성·병합·리뷰 | `plugins/gitwf` |
 | **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
 | **newsletter** | 7개 소스 AI 뉴스 수집, 카테고리 분류, Telegram 전송 | `plugins/newsletter` |
-| **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Bae-ChangHyun/deep-audit) |
-| **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Bae-ChangHyun/imhuman) |
+| **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
+| **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
 
 ---
 
