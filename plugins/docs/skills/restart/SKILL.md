@@ -11,7 +11,7 @@ Rebuild agent memory from current evidence. This replaces accumulated memory; it
 
 1. Read the conversation; every root and nested AGENTS, AGENTS.override, CLAUDE, and HANDOFF file; canonical project documents; and enough current code, config, tests, and hooks to verify candidates.
 2. Resolve conflicts in this order: current user decisions, current config and tests, current repository state, then git history. Existing memory is evidence to verify, not authority merely because it exists.
-3. Read `references/routing.md` and inventory every item before writing:
+3. Read `../handover/references/routing.md` and inventory every item before writing:
    - Evidenced mandatory behavior → root or narrowest nested AGENTS
    - Feature and product decisions → scoped planning documents
    - Architecture and implementation knowledge → scoped development documents
@@ -25,7 +25,7 @@ Rebuild agent memory from current evidence. This replaces accumulated memory; it
 7. Run the shared auditor and fix every violation:
 
 ```bash
-python3 <restart-skill-directory>/scripts/audit.py --root . --mode full
+python3 <restart-skill-directory>/../handover/scripts/audit.py --root . --mode full
 ```
 
 The auditor checks mechanical boundaries; manually verify every promoted rule against the seven-condition gate.
@@ -36,6 +36,6 @@ Report the audit total, rebuilt scopes, promoted rules with evidence, moved item
 
 ## References
 
-- `references/routing.md` — promotion gate and destinations
-- `references/templates.md` — rebuilt file shapes
-- `references/edge-cases.md` — ownership, overrides, gitignore, and ambiguous targets
+- `../handover/references/routing.md` — promotion gate and destinations
+- `../handover/references/templates.md` — rebuilt file shapes
+- `../handover/references/edge-cases.md` — ownership, overrides, gitignore, and ambiguous targets
