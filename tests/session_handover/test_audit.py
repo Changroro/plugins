@@ -292,15 +292,15 @@ class DistributionTests(unittest.TestCase):
         self.assertFalse(adapter.exists())
         self.assertFalse(adapter.is_symlink())
 
-    def test_restart_reuses_handover_auditor_and_references(self):
-        self.assertEqual(
-            HANDOVER_ROOT / "scripts",
-            Path(os.path.realpath(RESTART_ROOT / "scripts")),
-        )
-        self.assertEqual(
-            HANDOVER_ROOT / "references",
-            Path(os.path.realpath(RESTART_ROOT / "references")),
-        )
+    def test_restart_uses_portable_sibling_resources(self):
+        restart = (RESTART_ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertFalse((RESTART_ROOT / "scripts").exists())
+        self.assertFalse((RESTART_ROOT / "scripts").is_symlink())
+        self.assertFalse((RESTART_ROOT / "references").exists())
+        self.assertFalse((RESTART_ROOT / "references").is_symlink())
+        self.assertIn("../handover/scripts/audit.py", restart)
+        self.assertIn("../handover/references/routing.md", restart)
 
     def test_handover_and_restart_contracts_are_separate(self):
         handover = (HANDOVER_ROOT / "SKILL.md").read_text(encoding="utf-8")
@@ -313,11 +313,11 @@ class DistributionTests(unittest.TestCase):
         self.assertIn("rebuild", restart.lower())
         self.assertIn("--mode full", restart)
 
-    def test_docs_plugin_version_is_4_0_0(self):
+    def test_docs_plugin_version_is_4_0_1(self):
         manifest = REPO_ROOT / "plugins" / "docs" / ".claude-plugin" / "plugin.json"
         payload = json.loads(manifest.read_text(encoding="utf-8"))
 
-        self.assertEqual("4.0.0", payload["version"])
+        self.assertEqual("4.0.1", payload["version"])
 
 
 if __name__ == "__main__":
