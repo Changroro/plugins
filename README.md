@@ -50,7 +50,7 @@
 
 **Agents** — `blog-writer`(Tistory 스타일 단일 md + inline HTML, 로컬 이미지 수집) · `worklog-writer`(경영진 보고용) · `devlog-writer`(기술 상세) · `portfolio-writer`
 
-**Skills** — `readme`(배너 + 스크린샷 + 8단 OSS skeleton) · `session-handover`(AGENTS.md + CLAUDE.md 임포트 + HANDOFF.md 관리, 오염 콘텐츠 자동 재배치) · `terminal-gif-maker`(VHS 기반 결정론적 터미널 녹화)
+**Skills** — `readme`(배너 + 스크린샷 + 8단 OSS skeleton) · `handover`(현재 대화 기반 AGENTS.md + 문서 + HANDOFF.md 갱신) · `restart`(프로젝트 근거 기반 메모리 전면 재구성) · `terminal-gif-maker`(VHS 기반 결정론적 터미널 녹화)
 
 **Commands** — `/docs:blog` `/docs:worklog` `/docs:devlog` `/docs:portfolio` `/docs:configure`
 

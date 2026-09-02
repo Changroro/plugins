@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handover"
+  short_description: "Update focused project memory and handoff"
+  default_prompt: "Use $handover to update focused project memory and prepare the next-session handoff."
