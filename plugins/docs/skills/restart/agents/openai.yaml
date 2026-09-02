@@ -1,0 +1,4 @@
+interface:
+  display_name: "Restart Project Memory"
+  short_description: "Rebuild AGENTS and handoff from project evidence"
+  default_prompt: "Use $restart to rebuild project memory and AGENTS files from current evidence."

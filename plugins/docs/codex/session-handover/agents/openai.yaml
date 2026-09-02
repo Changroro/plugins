@@ -1,4 +1,0 @@
-interface:
-  display_name: "Session Handover"
-  short_description: "Maintain AGENTS and HANDOFF memory"
-  default_prompt: "Use $session-handover to refresh AGENTS.md and HANDOFF.md for the next AI session."
