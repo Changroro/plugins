@@ -172,6 +172,22 @@ def discover(root):
     return sorted(found)
 
 
+def resolve_agents_files(root, values):
+    resolved = set()
+    for value in values:
+        target = (root / value).resolve()
+        try:
+            target.relative_to(root)
+        except ValueError as exc:
+            raise ValueError(f"AGENTS path escapes the audit root: {value}") from exc
+        if target.name not in AGENTS_NAMES:
+            raise ValueError(f"not an AGENTS file: {value}")
+        if not target.is_file():
+            raise ValueError(f"AGENTS file does not exist: {value}")
+        resolved.add(target)
+    return sorted(resolved)
+
+
 def pattern_hits(lines, patterns):
     hits = []
     in_fence = False
@@ -404,6 +420,7 @@ def main():
     )
     parser.add_argument("--root", default=".")
     parser.add_argument("--mode", choices=("routine", "full"), default="routine")
+    parser.add_argument("--agents-file", action="append", default=[])
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -419,9 +436,18 @@ def main():
     shims = [target for target in files if target.name in CLAUDE_NAMES]
     scopes = {target.parent for target in agents}
 
-    if args.mode == "full":
-        for target in agents:
-            audit_agents(audit, target)
+    try:
+        agents_to_audit = (
+            agents
+            if args.mode == "full"
+            else resolve_agents_files(root, args.agents_file)
+        )
+    except ValueError as exc:
+        print(f"audit: {exc}", file=sys.stderr)
+        return 2
+
+    for target in agents_to_audit:
+        audit_agents(audit, target)
     for target in handoffs:
         audit_handoff(audit, target)
     audit_scope_imports(audit, files)

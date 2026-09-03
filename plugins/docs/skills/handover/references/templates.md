@@ -16,6 +16,8 @@ Use these only when creating a file or repairing its shape. Omit empty sections.
 - <Compatibility, safety, or environment constraint that cannot be enforced automatically.>
 ```
 
+Each bullet must direct an agent or developer action. Never restate product behavior, business rules, field/API meaning, UI behavior, or architecture as a constraint, even in imperative wording. When every agent must consult detailed semantics before changing a component, link to the scoped document without copying those semantics into AGENTS.
+
 Do not add purpose, architecture, feature, command, setup, status, or history sections. A nested file contains only the delta for its subtree and does not repeat ancestor rules.
 
 ## Local override
