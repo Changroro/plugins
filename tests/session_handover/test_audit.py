@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import subprocess
@@ -27,7 +28,55 @@ class AuditTests(unittest.TestCase):
     def init_git(self):
         subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
 
-    def run_audit(self, mode="routine", agents_files=None):
+    def reviewable_lines(self, relative):
+        lines = (self.root / relative).read_text(encoding="utf-8").splitlines()
+        result = []
+        in_fence = False
+        for line_number, line in enumerate(lines, 1):
+            if line.strip().startswith("```"):
+                in_fence = not in_fence
+                continue
+            if in_fence or not line.strip():
+                continue
+            result.append({"line": line_number, "text": line.strip()})
+        return result
+
+    def write_semantic_review(self, agents_files):
+        files = []
+        for relative in agents_files:
+            target = self.root / relative
+            items = []
+            for item in self.reviewable_lines(relative):
+                items.append(
+                    {
+                        **item,
+                        "memory_type": (
+                            "structure"
+                            if item["text"].startswith("#")
+                            else "agent_policy"
+                        ),
+                        "kind": (
+                            "heading" if item["text"].startswith("#") else "behavior"
+                        ),
+                        "decision": "accept",
+                    }
+                )
+            files.append(
+                {
+                    "path": relative,
+                    "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+                    "items": items,
+                }
+            )
+        payload = {
+            "schema": 1,
+            "reviewer": "independent_subagent",
+            "files": files,
+        }
+        self.write("semantic-review.json", json.dumps(payload))
+        return "semantic-review.json"
+
+    def run_audit(self, mode="routine", agents_files=None, review=True):
         command = [
             "python3",
             str(AUDIT),
@@ -39,6 +88,19 @@ class AuditTests(unittest.TestCase):
         ]
         for agents_file in agents_files or []:
             command.extend(["--agents-file", agents_file])
+        reviewed = []
+        if mode == "full":
+            reviewed = sorted(
+                target.relative_to(self.root).as_posix()
+                for target in self.root.rglob("AGENTS*.md")
+                if target.name in {"AGENTS.md", "AGENTS.override.md"}
+            )
+        elif agents_files:
+            reviewed = list(agents_files)
+        if review is True and reviewed:
+            review = self.write_semantic_review(reviewed)
+        if isinstance(review, str):
+            command.extend(["--review-file", review])
         result = subprocess.run(
             command,
             text=True,
@@ -135,6 +197,50 @@ class AuditTests(unittest.TestCase):
 
         self.assertEqual(1, code)
         self.assertIn("agents-code-fence", self.violation_ids(payload))
+
+    def test_full_mode_requires_independent_semantic_review(self):
+        self.write_valid_memory()
+
+        code, payload = self.run_audit("full", review=False)
+
+        self.assertEqual(1, code)
+        self.assertIn("agents-review-required", self.violation_ids(payload))
+
+    def test_semantic_review_must_match_final_file_hash(self):
+        self.write_valid_memory()
+        review = self.write_semantic_review(["AGENTS.md"])
+        self.write("AGENTS.md", "## Rules\n\n- A different rule.\n")
+
+        code, payload = self.run_audit("full", review=review)
+
+        self.assertEqual(1, code)
+        self.assertIn("agents-review-hash", self.violation_ids(payload))
+
+    def test_semantic_review_must_cover_every_content_line(self):
+        self.write_valid_memory()
+        review = self.write_semantic_review(["AGENTS.md"])
+        target = self.root / review
+        payload = json.loads(target.read_text(encoding="utf-8"))
+        payload["files"][0]["items"] = []
+        target.write_text(json.dumps(payload), encoding="utf-8")
+
+        code, result = self.run_audit("full", review=review)
+
+        self.assertEqual(1, code)
+        self.assertIn("agents-review-coverage", self.violation_ids(result))
+
+    def test_semantic_review_accepts_only_agent_policy(self):
+        self.write_valid_memory()
+        review = self.write_semantic_review(["AGENTS.md"])
+        target = self.root / review
+        payload = json.loads(target.read_text(encoding="utf-8"))
+        payload["files"][0]["items"][0]["memory_type"] = "domain_spec"
+        target.write_text(json.dumps(payload), encoding="utf-8")
+
+        code, result = self.run_audit("full", review=review)
+
+        self.assertEqual(1, code)
+        self.assertIn("agents-review-decision", self.violation_ids(result))
 
     def test_routine_mode_does_not_reclassify_old_agents_content(self):
         self.write_valid_memory(
@@ -327,14 +433,14 @@ class DistributionTests(unittest.TestCase):
         self.assertIn("rebuild", restart.lower())
         self.assertIn("--mode full", restart)
 
-    def test_user_communication_is_quiet(self):
+    def test_user_communication_lists_only_changed_memory_files(self):
         for root in (HANDOVER_ROOT, RESTART_ROOT):
             skill = (root / "SKILL.md").read_text(encoding="utf-8")
 
-            self.assertIn("respond only `완료.`", skill)
+            self.assertIn("추가:", skill)
+            self.assertIn("수정:", skill)
+            self.assertIn("followed only by memory-document paths", skill)
             self.assertIn("authorization or unresolved ambiguity", skill)
-            self.assertNotIn("Report the audit total", skill)
-            self.assertNotIn("Quote every deleted", skill)
 
     def test_type_gate_precedes_admission_and_requires_a_critic(self):
         routing = (HANDOVER_ROOT / "references" / "routing.md").read_text(
@@ -346,14 +452,21 @@ class DistributionTests(unittest.TestCase):
         )
         self.assertIn("Product and domain facts never become agent policy", routing)
         self.assertIn("independent critic", routing.lower())
-        self.assertIn("is_active", routing)
-        self.assertIn("last_collected_at", routing)
 
-    def test_docs_plugin_version_is_4_1_0(self):
+    def test_semantic_review_contract_is_shared(self):
+        review = HANDOVER_ROOT / "references" / "semantic-review.md"
+        handover = (HANDOVER_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        restart = (RESTART_ROOT / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertTrue(review.is_file())
+        self.assertIn("--review-file", handover)
+        self.assertIn("--review-file", restart)
+
+    def test_docs_plugin_version_is_4_2_0(self):
         manifest = REPO_ROOT / "plugins" / "docs" / ".claude-plugin" / "plugin.json"
         payload = json.loads(manifest.read_text(encoding="utf-8"))
 
-        self.assertEqual("4.1.0", payload["version"])
+        self.assertEqual("4.2.0", payload["version"])
 
 
 if __name__ == "__main__":

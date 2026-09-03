@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -186,6 +187,138 @@ def resolve_agents_files(root, values):
             raise ValueError(f"AGENTS file does not exist: {value}")
         resolved.add(target)
     return sorted(resolved)
+
+
+def reviewable_lines(target):
+    result = {}
+    in_fence = False
+    for line_number, line in enumerate(
+        target.read_text(encoding="utf-8", errors="replace").splitlines(), 1
+    ):
+        stripped = line.strip()
+        if FENCE.match(stripped):
+            in_fence = not in_fence
+            continue
+        if in_fence or not stripped:
+            continue
+        result[line_number] = stripped
+    return result
+
+
+def file_sha256(target):
+    return hashlib.sha256(target.read_bytes()).hexdigest()
+
+
+def audit_semantic_review(audit, targets, review_path):
+    if not targets:
+        return
+    if review_path is None:
+        audit.check(
+            "agents-review-required",
+            False,
+            "an independent semantic review is required for every audited AGENTS file",
+        )
+        return
+    try:
+        payload = json.loads(review_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        audit.check(
+            "agents-review-invalid",
+            False,
+            f"cannot read semantic review: {exc}",
+            str(review_path),
+        )
+        return
+    if not isinstance(payload, dict):
+        audit.check(
+            "agents-review-invalid",
+            False,
+            "semantic review must be a JSON object",
+            str(review_path),
+        )
+        return
+
+    audit.check(
+        "agents-review-schema",
+        payload.get("schema") == 1
+        and payload.get("reviewer") == "independent_subagent"
+        and isinstance(payload.get("files"), list),
+        "semantic review requires schema 1, an independent_subagent reviewer, and a files list",
+        str(review_path),
+    )
+    entries = payload.get("files") if isinstance(payload.get("files"), list) else []
+    by_path = {}
+    duplicates = set()
+    for entry in entries:
+        if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
+            continue
+        path = entry["path"]
+        if path in by_path:
+            duplicates.add(path)
+        by_path[path] = entry
+
+    expected_paths = {audit.relative(target) for target in targets}
+    audit.check(
+        "agents-review-files",
+        not duplicates and set(by_path) == expected_paths,
+        "semantic review must cover exactly the AGENTS files selected for this audit",
+        str(review_path),
+    )
+
+    for target in targets:
+        relative = audit.relative(target)
+        entry = by_path.get(relative)
+        if entry is None:
+            continue
+        audit.check(
+            "agents-review-hash",
+            entry.get("sha256") == file_sha256(target),
+            "semantic review does not match the final AGENTS file",
+            relative,
+        )
+        items = entry.get("items")
+        if not isinstance(items, list):
+            audit.check(
+                "agents-review-coverage",
+                False,
+                "semantic review items must cover every non-empty content line",
+                relative,
+            )
+            continue
+        reviewed = {}
+        duplicate_lines = set()
+        decisions_ok = True
+        for item in items:
+            if not isinstance(item, dict) or not isinstance(item.get("line"), int):
+                decisions_ok = False
+                continue
+            line_number = item["line"]
+            if line_number in reviewed:
+                duplicate_lines.add(line_number)
+            reviewed[line_number] = item.get("text")
+            text = item.get("text")
+            heading = isinstance(text, str) and text.startswith("#")
+            valid_type = (
+                item.get("memory_type") == "structure" and item.get("kind") == "heading"
+                if heading
+                else item.get("memory_type") == "agent_policy"
+                and item.get("kind") in {"behavior", "document_pointer"}
+            )
+            if not valid_type or item.get("decision") != "accept":
+                decisions_ok = False
+        expected = reviewable_lines(target)
+        audit.check(
+            "agents-review-coverage",
+            not duplicate_lines and reviewed == expected,
+            "semantic review must cover every non-empty content line exactly once",
+            relative,
+        )
+        audit.check(
+            "agents-review-decision",
+            decisions_ok,
+            "every AGENTS line must be accepted as structure, agent behavior, or a document pointer",
+            relative,
+        )
 
 
 def pattern_hits(lines, patterns):
@@ -421,6 +554,7 @@ def main():
     parser.add_argument("--root", default=".")
     parser.add_argument("--mode", choices=("routine", "full"), default="routine")
     parser.add_argument("--agents-file", action="append", default=[])
+    parser.add_argument("--review-file")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
@@ -448,6 +582,12 @@ def main():
 
     for target in agents_to_audit:
         audit_agents(audit, target)
+    review_path = Path(args.review_file) if args.review_file else None
+    if review_path is not None and not review_path.is_absolute():
+        review_path = root / review_path
+    if review_path is not None:
+        review_path = review_path.resolve()
+    audit_semantic_review(audit, agents_to_audit, review_path)
     for target in handoffs:
         audit_handoff(audit, target)
     audit_scope_imports(audit, files)

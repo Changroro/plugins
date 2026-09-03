@@ -52,13 +52,12 @@ Use the actor test:
 
 Contrasts:
 
-- “When starting local development, bind the server to port 3002.” → possible `agent_policy`
-- “The deployed service listens on port 3002.” → environment or operations knowledge
-- “Preserve Python 3.9 compatibility when changing code.” → possible `agent_policy`
-- “`is_active` is only the public visibility gate.” → architecture or domain specification
-- “`last_collected_at` updates after successful or empty collection.” → data-contract specification
-- “Operator alerts are grouped once per run and source group.” → notification product specification
-- “Before changing collection semantics, read the scoped collection document and run its contract tests.” → possible narrow AGENTS pointer when always required
+- “When starting local development, use the project-specific port established by the user.” → possible `agent_policy`
+- “The deployed service listens on a particular port.” → environment or operations knowledge
+- “Preserve the declared runtime compatibility when changing code.” → possible `agent_policy`
+- “A record field changes after a particular domain event.” → architecture or data-contract specification
+- “Notifications are grouped according to a delivery policy.” → product specification
+- “Before changing this component, read its scoped contract document.” → possible narrow AGENTS pointer when always required
 
 ## Admission gate
 
@@ -76,13 +75,14 @@ A model's earlier classification or reflection is not independent evidence. One 
 
 ## Independent critic loop
 
-Review every proposed AGENTS addition before editing the file:
+Read `semantic-review.md` and review every proposed AGENTS addition before editing the file:
 
 1. Build a private packet containing the source statement, proposed rule, evidence, and target scope without the author's promotion conclusion.
-2. When an independent subagent is available, give it this file and the packet. Otherwise run a separate adversarial pass that assumes rejection.
-3. The critic returns `accept` only when the item is `agent_policy`, passes all admission conditions, contains no laundered product semantics, and cannot be replaced by a scoped document pointer.
+2. Give a fresh independent subagent this file, `semantic-review.md`, and the packet. If no independent subagent is available, ask the user before changing AGENTS instead of self-approving it.
+3. The critic returns `accept` only when the item is `agent_policy`, passes all admission conditions, contains no laundered project knowledge, and cannot be replaced by a scoped document pointer.
 4. Any `reroute` or uncertainty goes to the appropriate document. Do not ask the user to arbitrate safe demotion.
-5. After drafting, review only the added or modified AGENTS lines again. Stop after two passes; unresolved items stay out of AGENTS.
+5. Review every non-empty line in the complete AGENTS draft, including headings, not only obvious new rules. Stop after two passes; unresolved items stay out of AGENTS.
+6. Produce the temporary hash-bound review artifact required by `semantic-review.md` and pass it to the auditor.
 
 This loop reviews memory placement. It does not modify this skill or treat its own output as new evidence.
 
