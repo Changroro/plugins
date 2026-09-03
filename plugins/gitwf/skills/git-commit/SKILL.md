@@ -7,11 +7,25 @@ description: MUST use this skill when user asks to commit, create commit, save w
 
 Creates commits using the Conventional Commits format with type, scope, and subject components.
 
+## Git Identity
+
+Before the first commit in a repository, inspect `git remote -v` and `git config user.email`.
+
+| Remote host | Required commit email |
+| --- | --- |
+| GitLab or `gcsc.co.kr` | `chbae@gcsc.co.kr` |
+| `github.com` | `chbae624@gmail.com` |
+
+- Set `git config --local user.email <address>` only when the effective value does not match the remote host.
+- Keep `user.name` as `Bae-ChangHyun`; do not change it unless the user explicitly asks.
+- Use `Changroro` in current GitHub remote URLs and links. The different commit display name is intentional.
+- When includeIf already supplies the correct email, do not add a redundant local override.
+
 ## Quick Start
 
 ```bash
 # 1. Check project conventions
-cat CLAUDE.md 2>/dev/null | head -30
+cat AGENTS.md 2>/dev/null | head -30 || cat CLAUDE.md 2>/dev/null | head -30
 
 # 2. Review staged changes
 git diff --staged --stat
@@ -173,10 +187,10 @@ Even if there were 10 modifications during development (error fixes, typo fixes,
 ### 1. Check Project Conventions
 
 ```bash
-cat CLAUDE.md 2>/dev/null | head -30
+cat AGENTS.md 2>/dev/null | head -30 || cat CLAUDE.md 2>/dev/null | head -30
 ```
 
-Always check for project-specific commit rules.
+Always check for project-specific commit rules in AGENTS.md first, then CLAUDE.md when needed.
 
 ### 2. Review Staged Changes
 
@@ -327,10 +341,10 @@ git log --oneline -5
 ## Important Rules
 
 - **ALWAYS** check recent commit history to determine commit message language
-- **ALWAYS** check project conventions (CLAUDE.md) before committing
+- **ALWAYS** check project conventions before committing
 - **ALWAYS** review staged changes before committing
 - **ALWAYS** commit per task/request (one commit), not per file or per change-type; combine when in doubt
-- **ALWAYS** set local git email by remote host before committing: GitLab/`gcsc.co.kr` → `chbae@gcsc.co.kr`, `github.com` → `chbae624@gmail.com` (only if it doesn't already match)
+- **ALWAYS** apply the Git Identity section before the first commit in a repository
 - **ALWAYS** write result-oriented messages (final changes only)
 - **ALWAYS** use imperative mood in subject ("add", not "added")
 - **ALWAYS** include appropriate emoji at the start
