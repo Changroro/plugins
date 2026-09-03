@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 from pathlib import Path
 
@@ -18,12 +19,25 @@ class GitCommitContractTest(unittest.TestCase):
         self.assertIn("Keep `user.name` as `Bae-ChangHyun`", skill)
         self.assertIn("Use `Changroro` in current GitHub remote URLs", skill)
 
-    def test_gitwf_version_is_1_3_0(self):
+    def test_codex_adapters_point_to_canonical_skills(self):
+        for name in (
+            "git-commit",
+            "github-pr-creation",
+            "github-pr-merge",
+            "github-pr-review",
+        ):
+            canonical = PLUGIN_ROOT / "skills" / name
+            adapter = PLUGIN_ROOT / "codex" / name
+
+            self.assertTrue(adapter.is_symlink())
+            self.assertEqual(canonical, Path(os.path.realpath(adapter)))
+
+    def test_gitwf_version_is_1_3_1(self):
         manifest = json.loads(
             (PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
 
-        self.assertEqual("1.3.0", manifest["version"])
+        self.assertEqual("1.3.1", manifest["version"])
 
 
 if __name__ == "__main__":
