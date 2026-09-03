@@ -27,17 +27,20 @@ class AuditTests(unittest.TestCase):
     def init_git(self):
         subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
 
-    def run_audit(self, mode="routine"):
+    def run_audit(self, mode="routine", agents_files=None):
+        command = [
+            "python3",
+            str(AUDIT),
+            "--root",
+            str(self.root),
+            "--mode",
+            mode,
+            "--json",
+        ]
+        for agents_file in agents_files or []:
+            command.extend(["--agents-file", agents_file])
         result = subprocess.run(
-            [
-                "python3",
-                str(AUDIT),
-                "--root",
-                str(self.root),
-                "--mode",
-                mode,
-                "--json",
-            ],
+            command,
             text=True,
             capture_output=True,
             check=False,
@@ -143,6 +146,17 @@ class AuditTests(unittest.TestCase):
 
         self.assertEqual(0, code, payload)
         self.assertNotIn("agents-topical-section", self.violation_ids(payload))
+
+    def test_routine_mode_audits_modified_agents_content(self):
+        self.write_valid_memory(
+            "## Architecture\n\nThe API calls the worker.\n\n"
+            "## Rules\n\n- Keep the project convention."
+        )
+
+        code, payload = self.run_audit("routine", ["AGENTS.md"])
+
+        self.assertEqual(1, code)
+        self.assertIn("agents-topical-section", self.violation_ids(payload))
 
     def test_handoff_rejects_volatile_history(self):
         self.write_valid_memory()
@@ -313,11 +327,33 @@ class DistributionTests(unittest.TestCase):
         self.assertIn("rebuild", restart.lower())
         self.assertIn("--mode full", restart)
 
-    def test_docs_plugin_version_is_4_0_1(self):
+    def test_user_communication_is_quiet(self):
+        for root in (HANDOVER_ROOT, RESTART_ROOT):
+            skill = (root / "SKILL.md").read_text(encoding="utf-8")
+
+            self.assertIn("respond only `완료.`", skill)
+            self.assertIn("authorization or unresolved ambiguity", skill)
+            self.assertNotIn("Report the audit total", skill)
+            self.assertNotIn("Quote every deleted", skill)
+
+    def test_type_gate_precedes_admission_and_requires_a_critic(self):
+        routing = (HANDOVER_ROOT / "references" / "routing.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertLess(
+            routing.index("## Type gate"), routing.index("## Admission gate")
+        )
+        self.assertIn("Product and domain facts never become agent policy", routing)
+        self.assertIn("independent critic", routing.lower())
+        self.assertIn("is_active", routing)
+        self.assertIn("last_collected_at", routing)
+
+    def test_docs_plugin_version_is_4_1_0(self):
         manifest = REPO_ROOT / "plugins" / "docs" / ".claude-plugin" / "plugin.json"
         payload = json.loads(manifest.read_text(encoding="utf-8"))
 
-        self.assertEqual("4.0.1", payload["version"])
+        self.assertEqual("4.1.0", payload["version"])
 
 
 if __name__ == "__main__":
