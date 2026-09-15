@@ -75,6 +75,26 @@
       ]
     },
     {
+      "name": "ios",
+      "source": "./plugins/ios",
+      "description": "iOS 개발 워크플로 - Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring으로 검증, asc CLI로 App Store 배포",
+      "author": {
+        "name": "ChangRoro"
+      },
+      "category": "development",
+      "tags": [
+        "ios",
+        "swift",
+        "xcode",
+        "mcpbridge",
+        "device-hub",
+        "simslim",
+        "testflight",
+        "app-store",
+        "asc"
+      ]
+    },
+    {
       "name": "imhuman",
       "source": {
         "source": "github",

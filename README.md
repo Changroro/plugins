@@ -3,11 +3,11 @@
 <div align="center">
 
 **창로로 — Claude Code 플러그인 마켓플레이스**<br/>
-문서, 커밋, 채용, 뉴스, 코드 감사. 미루기 쉬운 일을 대신 처리한다.
+문서, 커밋, 채용, 뉴스, iOS 개발, 코드 감사. 미루기 쉬운 일을 대신 처리한다.
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-6-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-7-green?style=flat-square)](#플러그인)
 
 </div>
 
@@ -22,6 +22,7 @@
 /plugin install gitwf@changroro       # Git/GitHub 워크플로우
 /plugin install jobs@changroro        # 채용 지원
 /plugin install newsletter@changroro  # AI 뉴스레터
+/plugin install ios@changroro         # iOS 개발 워크플로
 /plugin install deep-audit@changroro  # 프로젝트 전수 감사
 /plugin install imhuman@changroro     # 한글 AI 티 윤문
 ```
@@ -36,6 +37,7 @@
 | **gitwf** | Conventional Commits 커밋, PR 생성·병합·리뷰 | `plugins/gitwf` |
 | **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
 | **newsletter** | 7개 소스 AI 뉴스 수집, 카테고리 분류, Telegram 전송 | `plugins/newsletter` |
+| **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
 | **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
 
@@ -104,6 +106,24 @@
 카테고리 자동 분류(모델&리서치·도구&오픈소스·보안·업계동향·개발실무), 점수 기반 필터링(HN/Reddit ≥ 3, GeekNews ≥ 5), 크로스소스 URL 중복 제거, Telegram MarkdownV2 하이퍼링크 전송.
 
 시스템 cron + `claude -p` 조합이라 Claude Code 세션을 띄워둘 필요가 없다. PC만 켜져 있으면 된다.
+
+</details>
+
+### ios
+
+<details>
+<summary>상세</summary>
+
+**Skills** — `ios-dev`(Xcode 27 워크플로 한 벌)
+
+| 단계 | 도구 | 규칙 |
+|---|---|---|
+| 빌드·테스트·디버그 | Xcode MCP 브리지 (`claude mcp add -s project xcode -- xcrun mcpbridge`) | `xcodebuild` 직접 호출 대신 Xcode 도구. 테스트 스윕·버그 헌트는 Xcode 내장 에이전트 |
+| 시뮬레이터 검증 | Device Hub + SimSlim (`simslim verify`) | `Simulator.app` 안 연다. UI 바뀐 뒤엔 스크린샷·계층 확인 |
+| 실기기 검증 | iPhone Mirroring + Xcode 콘솔 / `devicectl --console` | 사용자 승인 뒤에만 설치·실행 |
+| App Store 배포 | `asc` (`asc publish testflight` → `asc publish appstore --submit`) | 키는 키체인, 제출은 사용자 확인, 게시마다 태그·체인지로그 |
+
+사이드로드(SideStore)·크로스플랫폼(Expo) 은 후보로만 제안한다.
 
 </details>
 
