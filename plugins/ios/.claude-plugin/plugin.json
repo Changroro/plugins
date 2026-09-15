@@ -1,0 +1,21 @@
+{
+  "name": "ios",
+  "description": "iOS 개발 워크플로 - Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring으로 검증, asc CLI로 App Store 배포",
+  "version": "1.0.0",
+  "author": {
+    "name": "ChangRoro",
+    "url": "https://github.com/Changroro"
+  },
+  "keywords": [
+    "ios",
+    "swift",
+    "swiftui",
+    "xcode",
+    "mcpbridge",
+    "device-hub",
+    "simslim",
+    "testflight",
+    "app-store",
+    "asc"
+  ]
+}
