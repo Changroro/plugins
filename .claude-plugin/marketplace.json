@@ -132,6 +132,26 @@
         "security",
         "dead-code"
       ]
+    },
+    {
+      "name": "handdrawn-promo-video",
+      "source": {
+        "source": "github",
+        "repo": "Changroro/handdrawn-promo-video"
+      },
+      "description": "주제를 조사해 손그림 캔버스 애니메이션 + 8비트 미니미 홍보 영상을 MP4로 제작 - 영상 설정 질문, 출처 기반 조사, 스토리보드 승인, 스틸 검수, 병렬 렌더",
+      "author": {
+        "name": "ChangRoro"
+      },
+      "category": "productivity",
+      "tags": [
+        "video",
+        "animation",
+        "hand-drawn",
+        "8-bit",
+        "promo",
+        "korean"
+      ]
     }
   ]
 }
