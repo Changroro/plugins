@@ -14,9 +14,8 @@ class GitCommitContractTest(unittest.TestCase):
         )
 
         self.assertIn("## Git Identity", skill)
-        self.assertIn("chbae@gcsc.co.kr", skill)
-        self.assertIn("chbae624@gmail.com", skill)
-        self.assertIn("Keep `user.name` as `Bae-ChangHyun`", skill)
+        self.assertNotRegex(skill, r"[\w.+-]+@[\w-]+\.[\w.]+")
+        self.assertIn("effective git config", skill)
         self.assertIn("Use `Changroro` in current GitHub remote URLs", skill)
 
     def test_codex_adapters_point_to_canonical_skills(self):
@@ -32,12 +31,12 @@ class GitCommitContractTest(unittest.TestCase):
             self.assertTrue(adapter.is_symlink())
             self.assertEqual(canonical, Path(os.path.realpath(adapter)))
 
-    def test_gitwf_version_is_1_3_1(self):
+    def test_gitwf_version_is_1_3_2(self):
         manifest = json.loads(
             (PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
         )
 
-        self.assertEqual("1.3.1", manifest["version"])
+        self.assertEqual("1.3.2", manifest["version"])
 
 
 if __name__ == "__main__":
