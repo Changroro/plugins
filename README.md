@@ -3,11 +3,11 @@
 <div align="center">
 
 **창로로 — Claude Code 플러그인 마켓플레이스**<br/>
-문서, 커밋, 채용, 뉴스, iOS 개발, 코드 감사. 미루기 쉬운 일을 대신 처리한다.
+문서, 커밋, 채용, 뉴스, iOS 개발, 코드 감사, 홍보 영상. 미루기 쉬운 일을 대신 처리한다.
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-7-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-8-green?style=flat-square)](#플러그인)
 
 </div>
 
@@ -25,11 +25,12 @@
 /plugin install ios@changroro         # iOS 개발 워크플로
 /plugin install deep-audit@changroro  # 프로젝트 전수 감사
 /plugin install imhuman@changroro     # 한글 AI 티 윤문
+/plugin install handdrawn-promo-video@changroro  # 손그림 홍보 영상
 ```
 
 ## 플러그인
 
-단독으로 쓸 만한 둘은 별도 저장소에 있고, 나머지는 이 저장소 `plugins/` 아래에 있다. 설치 방법은 어느 쪽이든 같다.
+단독으로 쓸 만한 셋은 별도 저장소에 있고, 나머지는 이 저장소 `plugins/` 아래에 있다. 설치 방법은 어느 쪽이든 같다.
 
 | 플러그인 | 하는 일 | 위치 |
 |---|---|---|
@@ -40,6 +41,7 @@
 | **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
 | **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
+| **handdrawn-promo-video** | 주제 조사 → 손그림 + 8비트 미니미 홍보 영상 MP4 | [handdrawn-promo-video](https://github.com/Changroro/handdrawn-promo-video) |
 
 ---
 
@@ -137,6 +139,17 @@
 중점 항목 — 의도하지 않은 매직넘버·하드코딩, 불필요한 주석·docstring, silent fallback·silent default, 각 기능이 기획 의도대로 실제로 동작하는지, 그리고 보안 취약점·데드코드·레거시·UI/UX.
 
 단일 PR 리뷰나 한 파일만 보는 요청에는 과하다. 그럴 땐 전용 리뷰 도구를 쓰는 게 낫다.
+
+</details>
+
+### handdrawn-promo-video
+
+<details>
+<summary>상세</summary>
+
+회사·서비스·사이트 같은 주제를 조사해 손그림 캔버스 애니메이션과 8비트 미니미 캐릭터 스타일의 짧은 홍보 영상을 MP4로 만든다. 영상 길이·비율·언어·캐릭터를 먼저 묻고, 출처가 있는 사실로 스토리보드를 승인받은 뒤 제작, 스틸 검수, 병렬 렌더까지 진행한다.
+
+필요 도구 — Node.js 18+, libx264가 포함된 ffmpeg, Google Chrome, uv. 소리 없는 영상을 만든다.
 
 </details>
 
