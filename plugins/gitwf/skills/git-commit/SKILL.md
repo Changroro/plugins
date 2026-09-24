@@ -9,17 +9,11 @@ Creates commits using the Conventional Commits format with type, scope, and subj
 
 ## Git Identity
 
-Before the first commit in a repository, inspect `git remote -v` and `git config user.email`.
+Commit with the effective git config (`git config user.name`, `git config user.email`). The user's global config selects the identity per remote host with includeIf.
 
-| Remote host | Required commit email |
-| --- | --- |
-| GitLab or `gcsc.co.kr` | `chbae@gcsc.co.kr` |
-| `github.com` | `chbae624@gmail.com` |
-
-- Set `git config --local user.email <address>` only when the effective value does not match the remote host.
-- Keep `user.name` as `Bae-ChangHyun`; do not change it unless the user explicitly asks.
+- Do not set or override `user.name` or `user.email` unless the user explicitly asks.
+- If the effective email looks wrong for the remote host, stop and ask before committing.
 - Use `Changroro` in current GitHub remote URLs and links. The different commit display name is intentional.
-- When includeIf already supplies the correct email, do not add a redundant local override.
 
 ## Quick Start
 
