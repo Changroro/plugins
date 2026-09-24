@@ -25,7 +25,7 @@
 /plugin install ios@changroro         # iOS 개발 워크플로
 /plugin install deep-audit@changroro  # 프로젝트 전수 감사
 /plugin install imhuman@changroro     # 한글 AI 티 윤문
-/plugin install handdrawn-promo-video@changroro  # 손그림 홍보 영상
+/plugin install code-video@changroro  # 코드로 그린 홍보 영상
 ```
 
 ## 플러그인
@@ -41,7 +41,7 @@
 | **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
 | **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
-| **handdrawn-promo-video** | 주제 조사 → 손그림 + 8비트 미니미 홍보 영상 MP4 | [handdrawn-promo-video](https://github.com/Changroro/handdrawn-promo-video) |
+| **code-video** | 주제 조사 → 코드로 그린 영상 MP4 (화풍 8 × 이야기 형식 8) | [code-video](https://github.com/Changroro/code-video) |
 
 ---
 
@@ -142,14 +142,14 @@
 
 </details>
 
-### handdrawn-promo-video
+### code-video
 
 <details>
 <summary>상세</summary>
 
-회사·서비스·사이트 같은 주제를 조사해 손그림 캔버스 애니메이션과 8비트 미니미 캐릭터 스타일의 짧은 홍보 영상을 MP4로 만든다. 영상 길이·비율·언어·캐릭터를 먼저 묻고, 출처가 있는 사실로 스토리보드를 승인받은 뒤 제작, 스틸 검수, 병렬 렌더까지 진행한다.
+회사·서비스·사이트 같은 주제를 조사해 짧은 영상을 전부 코드로 그려 MP4로 만든다. 영상 생성 모델이나 스톡 영상은 쓰지 않는다. 화풍(손그림, 모션그래픽, 모래 그림, 아케이드, 터미널, 감열지, 노선도, 청사진)과 이야기 형식(기본 홍보, 대전, 세션, 영수증, 노선도, 설계도, 가사형 뮤직비디오, 비트 싱크)을 먼저 고르고, 길이·비율·캐릭터·화면 언어를 정한 뒤, 출처가 있는 사실로 스토리보드를 승인받아 제작, 검수, 병렬 렌더까지 진행한다. 음악과 효과음도 코드로 합성한다.
 
-필요 도구 — Node.js 18+, libx264가 포함된 ffmpeg, Google Chrome, uv. 소리 없는 영상을 만든다.
+필요 도구 — Node.js 18+, libx264가 포함된 ffmpeg, Google Chrome, uv.
 
 </details>
 

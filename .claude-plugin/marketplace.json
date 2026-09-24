@@ -134,12 +134,12 @@
       ]
     },
     {
-      "name": "handdrawn-promo-video",
+      "name": "code-video",
       "source": {
         "source": "github",
-        "repo": "Changroro/handdrawn-promo-video"
+        "repo": "Changroro/code-video"
       },
-      "description": "주제를 조사해 손그림 캔버스 애니메이션 + 8비트 미니미 홍보 영상을 MP4로 제작 - 영상 설정 질문, 출처 기반 조사, 스토리보드 승인, 스틸 검수, 병렬 렌더",
+      "description": "주제를 조사해 영상 전체를 코드로 그려 MP4로 제작 - 화풍 8가지(손그림, 모션그래픽, 모래 그림, 아케이드, 터미널, 감열지, 노선도, 청사진) × 이야기 형식 8가지, 출처 기반 조사, 스토리보드 승인, 코드 합성 음악, 검수, 병렬 렌더",
       "author": {
         "name": "ChangRoro"
       },
@@ -147,10 +147,10 @@
       "tags": [
         "video",
         "animation",
-        "hand-drawn",
-        "8-bit",
-        "promo",
-        "korean"
+        "motion-graphics",
+        "pixel-art",
+        "explainer",
+        "canvas"
       ]
     }
   ]
