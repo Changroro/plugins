@@ -95,6 +95,22 @@
       ]
     },
     {
+      "name": "find-me",
+      "source": "./plugins/find-me",
+      "description": "대화에서 직접 밝힌 경험·생각을 맥락 있는 요약으로 Obsidian에 날짜별 기록",
+      "author": {
+        "name": "ChangRoro"
+      },
+      "category": "productivity",
+      "tags": [
+        "memory",
+        "self-reflection",
+        "obsidian",
+        "career",
+        "korean"
+      ]
+    },
+    {
       "name": "imhuman",
       "source": {
         "source": "github",

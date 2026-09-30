@@ -3,11 +3,11 @@
 <div align="center">
 
 **창로로 — Claude Code 플러그인 마켓플레이스**<br/>
-문서, 커밋, 채용, 뉴스, iOS 개발, 코드 감사, 홍보 영상. 미루기 쉬운 일을 대신 처리한다.
+문서, 커밋, 채용, 뉴스, iOS 개발, 자기 기록, 코드 감사, 홍보 영상. 미루기 쉬운 일을 대신 처리한다.
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-8-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-9-green?style=flat-square)](#플러그인)
 
 </div>
 
@@ -23,6 +23,7 @@
 /plugin install jobs@changroro        # 채용 지원
 /plugin install newsletter@changroro  # AI 뉴스레터
 /plugin install ios@changroro         # iOS 개발 워크플로
+/plugin install find-me@changroro     # 대화 속 자기 경험 기록
 /plugin install deep-audit@changroro  # 프로젝트 전수 감사
 /plugin install imhuman@changroro     # 한글 AI 티 윤문
 /plugin install code-video@changroro  # 코드로 그린 홍보 영상
@@ -39,6 +40,7 @@
 | **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
 | **newsletter** | 7개 소스 AI 뉴스 수집, 카테고리 분류, Telegram 전송 | `plugins/newsletter` |
 | **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
+| **find-me** | 대화에서 직접 밝힌 경험·생각을 Obsidian에 날짜별 요약 | `plugins/find-me` |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
 | **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
 | **code-video** | 주제 조사 → 코드로 그린 영상 MP4 (화풍·브랜드 DESIGN.md·자유 화풍) | [code-video](https://github.com/Changroro/code-video) |
@@ -128,6 +130,10 @@
 사이드로드(SideStore)·크로스플랫폼(Expo) 은 후보로만 제안한다.
 
 </details>
+
+### find-me
+
+대화에서 사용자가 직접 밝힌 습관·경험·감정·계획을 맥락이 남는 짧은 문장으로 정리한다. Obsidian에 등록된 볼트 중 `개인/` 폴더가 있는 볼트가 정확히 하나일 때 `개인/나에 대해/기록.md`에 날짜별로 추가하고, 저장한 내용을 응답에 보여준다. 설치 후에는 해당 발언이 나오면 별도 호출 없이 기록한다.
 
 ### deep-audit
 
