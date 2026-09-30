@@ -17,7 +17,6 @@ node_modules/
 
 # Claude Code local instructions (root only, allow in plugins)
 /CLAUDE.md
-plugins/newsletter/scripts/__pycache__/
 plugins/docs/skills/handover/scripts/__pycache__/
 tests/session_handover/__pycache__/
 

@@ -3,11 +3,11 @@
 <div align="center">
 
 **창로로 — Claude Code 플러그인 마켓플레이스**<br/>
-문서, 커밋, 채용, 뉴스, iOS 개발, 자기 기록, 코드 감사, 홍보 영상. 미루기 쉬운 일을 대신 처리한다.
+문서, 커밋, 채용, iOS 개발, 자기 기록, 코드 감사, 홍보 영상. 미루기 쉬운 일을 대신 처리한다.
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-9-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-8-green?style=flat-square)](#플러그인)
 
 </div>
 
@@ -21,7 +21,6 @@
 /plugin install docs@changroro        # 문서 작성
 /plugin install gitwf@changroro       # Git/GitHub 워크플로우
 /plugin install jobs@changroro        # 채용 지원
-/plugin install newsletter@changroro  # AI 뉴스레터
 /plugin install ios@changroro         # iOS 개발 워크플로
 /plugin install find-me@changroro     # 대화 속 자기 경험 기록
 /plugin install deep-audit@changroro  # 프로젝트 전수 감사
@@ -38,7 +37,6 @@
 | **docs** | 블로그(Tistory), 업무일지, 개발일지, 포트폴리오, README, 세션 인계, 터미널 GIF | `plugins/docs` |
 | **gitwf** | Conventional Commits 커밋, PR 생성·병합·리뷰 | `plugins/gitwf` |
 | **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
-| **newsletter** | 7개 소스 AI 뉴스 수집, 카테고리 분류, Telegram 전송 | `plugins/newsletter` |
 | **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
 | **find-me** | 대화에서 직접 밝힌 경험·생각을 Obsidian에 날짜별 요약 | `plugins/find-me` |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
@@ -90,26 +88,6 @@
 | `interview` | 1분 자기소개, 예상 질문 100개, 모의면접 |
 
 모든 경로가 상대경로이고, 프롬프트 템플릿 16개가 들어 있다.
-
-</details>
-
-### newsletter
-
-<details>
-<summary>상세</summary>
-
-**수집 소스** — HN, Reddit, GeekNews, TLDR, Threads, Velopers, DevDay
-
-```bash
-/newsletter:ai-news-onboard   # 최초 설정 (플랫폼, Telegram bot_token, 주기)
-/newsletter:ai-news-start     # 시스템 crontab 등록
-/newsletter:ai-news-stop      # 해제
-/newsletter:ai-news-now       # 즉시 1회 수집
-```
-
-카테고리 자동 분류(모델&리서치·도구&오픈소스·보안·업계동향·개발실무), 점수 기반 필터링(HN/Reddit ≥ 3, GeekNews ≥ 5), 크로스소스 URL 중복 제거, Telegram MarkdownV2 하이퍼링크 전송.
-
-시스템 cron + `claude -p` 조합이라 Claude Code 세션을 띄워둘 필요가 없다. PC만 켜져 있으면 된다.
 
 </details>
 

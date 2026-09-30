@@ -5,7 +5,7 @@
     "url": "https://github.com/Changroro"
   },
   "metadata": {
-    "description": "창로로 — Claude Code 플러그인 마켓플레이스. 문서·커밋·채용·뉴스·감사 등 미루기 쉬운 일을 대신 처리한다."
+    "description": "창로로 — Claude Code 플러그인 마켓플레이스. 문서·커밋·채용·감사 등 미루기 쉬운 일을 대신 처리한다."
   },
   "plugins": [
     {
@@ -56,22 +56,6 @@
         "cover-letter",
         "interview",
         "korean"
-      ]
-    },
-    {
-      "name": "newsletter",
-      "source": "./plugins/newsletter",
-      "description": "AI 뉴스레터 - 7개 소스 자동 수집, 카테고리 분류, Telegram 전송, 시스템 cron 지원",
-      "author": {
-        "name": "ChangRoro"
-      },
-      "category": "productivity",
-      "tags": [
-        "news",
-        "newsletter",
-        "telegram",
-        "cron",
-        "ai-news"
       ]
     },
     {
