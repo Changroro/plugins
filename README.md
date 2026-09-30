@@ -22,7 +22,7 @@
 /plugin install gitwf@changroro       # Git/GitHub 워크플로우
 /plugin install jobs@changroro        # 채용 지원
 /plugin install ios@changroro         # iOS 개발 워크플로
-/plugin install find-me@changroro     # 대화 속 자기 경험 기록
+/plugin install find-me@changroro     # 대화 속 자기 발견 기록
 /plugin install deep-audit@changroro  # 프로젝트 전수 감사
 /plugin install imhuman@changroro     # 한글 AI 티 윤문
 /plugin install code-video@changroro  # 코드로 그린 홍보 영상
@@ -30,7 +30,7 @@
 
 ## 플러그인
 
-단독으로 쓸 만한 셋은 별도 저장소에 있고, 나머지는 이 저장소 `plugins/` 아래에 있다. 설치 방법은 어느 쪽이든 같다.
+독립 플러그인은 별도 저장소에 있고, 나머지는 이 저장소 `plugins/` 아래에 있다. 설치 방법은 어느 쪽이든 같다.
 
 | 플러그인 | 하는 일 | 위치 |
 |---|---|---|
@@ -38,7 +38,7 @@
 | **gitwf** | Conventional Commits 커밋, PR 생성·병합·리뷰 | `plugins/gitwf` |
 | **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
 | **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
-| **find-me** | 대화에서 직접 밝힌 경험·생각을 Obsidian에 날짜별 요약 | `plugins/find-me` |
+| **find-me** | 개인 프롬프트로 대화 속 자기 발견과 실제 맥락을 Markdown에 날짜별 기록 | [find-me](https://github.com/Changroro/find-me) |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
 | **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
 | **code-video** | 주제 조사 → 코드로 그린 영상 MP4 (화풍·브랜드 DESIGN.md·자유 화풍) | [code-video](https://github.com/Changroro/code-video) |
@@ -111,7 +111,9 @@
 
 ### find-me
 
-대화에서 사용자가 직접 밝힌 습관·경험·감정·계획을 맥락이 남는 짧은 문장으로 정리한다. Obsidian에 등록된 볼트 중 `개인/` 폴더가 있는 볼트가 정확히 하나일 때 `개인/나에 대해/기록.md`에 날짜별로 추가하고, 저장한 내용을 응답에 보여준다. 설치 후에는 해당 발언이 나오면 별도 호출 없이 기록한다.
+[독립 저장소](https://github.com/Changroro/find-me)의 플러그인으로 Claude Code와 Codex를 지원한다. `setup`은 저장할 문서 경로·주제를 입력받고 Git으로 관리하는 기본 프롬프트 JSON을 개인 JSON으로 복사한다. `write-record`는 현재 개인 JSON을 읽어 자기 발견을 기록하고, `fix-record`는 피드백으로 개인 프롬프트만 수정한다. 개인 JSON은 플러그인 밖에 저장하며 업데이트나 setup 재실행으로 덮어쓰지 않는다.
+
+기본 주제는 유지하며 에이전트 사용·개발 습관과 대화 스타일도 포착한다. 기본 형식은 `범용적인 발견. 대화 맥락: 실제 사용자 대화 요약.`이며 프로젝트명·기술명·자소서 소재는 뒤쪽 맥락에 둔다. Claude Code에서는 `/find-me:setup`, `/find-me:write-record`, `/find-me:fix-record`, Codex에서는 같은 이름을 `$find-me:setup`처럼 호출한다. 자세한 설치·사용법은 독립 저장소에 있다.
 
 ### deep-audit
 
