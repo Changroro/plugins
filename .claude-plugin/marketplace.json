@@ -98,6 +98,16 @@
       ]
     },
     {
+      "name": "project-rename",
+      "source": "./plugins/project-rename",
+      "description": "Claude·Codex 별도 스킬로 프로젝트와 기존 세션의 내부 경로 자동 수정·검증·복구 — ID·대화 유지, 프로세스 종료 없음",
+      "author": {
+        "name": "ChangRoro"
+      },
+      "category": "development",
+      "tags": ["project", "rename", "move", "sessions", "claude-code", "codex", "backup"]
+    },
+    {
       "name": "imhuman",
       "source": {
         "source": "github",

@@ -7,7 +7,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
-[![Plugins](https://img.shields.io/badge/Plugins-8-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-9-green?style=flat-square)](#플러그인)
 
 </div>
 
@@ -23,6 +23,7 @@
 /plugin install jobs@changroro        # 채용 지원
 /plugin install ios@changroro         # iOS 개발 워크플로
 /plugin install find-me@changroro     # 대화 속 자기 발견 기록
+/plugin install project-rename@changroro  # Claude·Codex 별도 프로젝트·세션 경로 수정
 /plugin install deep-audit@changroro  # 프로젝트 전수 감사
 /plugin install imhuman@changroro     # 한글 AI 티 윤문
 /plugin install code-video@changroro  # 코드로 그린 홍보 영상
@@ -39,6 +40,7 @@
 | **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
 | **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
 | **find-me** | 개인 프롬프트로 대화 속 자기 발견과 실제 맥락을 Markdown에 날짜별 기록 | [find-me](https://github.com/Changroro/find-me) |
+| **project-rename** | Claude·Codex 별도 스킬로 프로젝트·기존 세션 내부 경로 자동 수정 | `plugins/project-rename` |
 | **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
 | **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
 | **code-video** | 주제 조사 → 코드로 그린 영상 MP4 (화풍·브랜드 DESIGN.md·자유 화풍) | [code-video](https://github.com/Changroro/code-video) |
@@ -114,6 +116,12 @@
 [독립 저장소](https://github.com/Changroro/find-me)의 플러그인으로 Claude Code와 Codex를 지원한다. `setup`은 저장할 문서 경로·주제를 입력받고 Git으로 관리하는 기본 프롬프트 JSON을 개인 JSON으로 복사한다. `write-record`는 현재 개인 JSON을 읽어 자기 발견을 기록하고, `fix-record`는 피드백으로 개인 프롬프트만 수정한다. 개인 JSON은 플러그인 밖에 저장하며 업데이트나 setup 재실행으로 덮어쓰지 않는다.
 
 기본 주제는 유지하며 에이전트 사용·개발 습관과 대화 스타일도 포착한다. 기본 형식은 `범용적인 발견. 대화 맥락: 실제 사용자 대화 요약.`이며 프로젝트명·기술명·자소서 소재는 뒤쪽 맥락에 둔다. Claude Code에서는 `/find-me:setup`, `/find-me:write-record`, `/find-me:fix-record`, Codex에서는 같은 이름을 `$find-me:setup`처럼 호출한다. 자세한 설치·사용법은 독립 저장소에 있다.
+
+### project-rename
+
+`/project-rename:claude-project-rename`과 `/project-rename:codex-project-rename`을 별도로 제공한다. Claude는 Haiku, Codex는 Luna 작업자가 각각의 저장 구조에 맞는 스크립트를 사용한다. ASM의 이관 방식을 참고했지만 ASM 설치나 호출은 필요 없다. Codex 역할 정의는 `plugins/project-rename/codex/agents/codex-renamer.toml`에 있다.
+
+Claude는 세션 디렉터리·JSONL 경로 메타데이터·인덱스·프로젝트 설정을, Codex는 rollout 경로 메타데이터·세션 DB cwd·프로젝트 등록·신뢰 설정을 자동 수정한다. 기존 ID·본문·도구 결과·타임스탬프는 유지한다. 프로세스 종료·서버 실행·세션 분기·검증 대화는 없다. 기록 중인 데이터는 적용 전에 차단한다. 두 도구를 함께 쓴 프로젝트는 첫 스킬로 폴더와 해당 도구 경로를 바꾸고, 두 번째 스킬의 `--sessions-only`로 나머지 세션 경로를 갱신한다. 현재 writer 검사는 Linux를 지원한다.
 
 ### deep-audit
 
