@@ -128,25 +128,6 @@
       ]
     },
     {
-      "name": "deep-audit",
-      "source": {
-        "source": "github",
-        "repo": "Changroro/deep-audit"
-      },
-      "description": "프로젝트 전수 조사 - 기능 단위 조사 계획을 세우고 팀원들이 분담해 매직넘버·불필요 주석·silent fallback·실동작 테스트·보안·데드코드·UI를 점검, 매 라운드 새 팀원으로 수렴까지 반복",
-      "author": {
-        "name": "ChangRoro"
-      },
-      "category": "development",
-      "tags": [
-        "audit",
-        "code-review",
-        "multi-agent",
-        "security",
-        "dead-code"
-      ]
-    },
-    {
       "name": "code-video",
       "source": {
         "source": "github",

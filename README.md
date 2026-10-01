@@ -3,7 +3,7 @@
 **문서 작성부터 커밋, 채용 지원, 프로젝트 이관까지. 반복하는 작업을 에이전트에게 맡깁니다.**
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Plugins](https://img.shields.io/badge/Plugins-9-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-8-green?style=flat-square)](#플러그인)
 
 창로로의 개인 워크플로를 모은 Claude Code 플러그인 마켓플레이스입니다. 각 플러그인은 작업 순서, 확인할 근거, 결과물 형식을 스킬과 명령으로 제공합니다. Codex에서도 사용하는 스킬이 있으며, 필요한 도구와 지원 범위는 개별 문서에서 확인할 수 있습니다.
 
@@ -31,7 +31,6 @@ Claude Code에서 마켓플레이스를 등록하고 필요한 플러그인만 �
 | **ios** | Xcode MCP로 빌드·테스트·디버그, 기기 검증, App Store 배포 | [README](plugins/ios/README.md) |
 | **project-rename** | 프로젝트 이름·경로 변경과 Claude·Codex 기존 세션 경로 이관 | [README](plugins/project-rename/README.md) |
 | [**find-me**](https://github.com/Changroro/find-me) | 개인 프롬프트로 대화 속 자기 발견과 맥락 기록 | [README](https://github.com/Changroro/find-me/blob/main/README.md) |
-| [**deep-audit**](https://github.com/Changroro/deep-audit) | 기능별 분담과 새 팀원 반복 검증으로 프로젝트 전수 감사 | 미작성 |
 | [**imhuman**](https://github.com/Changroro/imhuman) | 내용을 유지하면서 한글의 AI 문체 탐지·윤문 | [README](https://github.com/Changroro/imhuman/blob/main/README.md) |
 | [**code-video**](https://github.com/Changroro/code-video) | 주제를 조사하고 디자인에 맞춰 코드로 MP4 홍보 영상 제작 | [README](https://github.com/Changroro/code-video/blob/main/README.md) |
 
