@@ -1,171 +1,82 @@
-# plugins
+# changroro plugins
 
-<div align="center">
+**문서 작성부터 커밋, 채용 지원, 프로젝트 이관까지. 반복하는 작업을 에이전트에게 맡깁니다.**
 
-**창로로 — Claude Code 플러그인 마켓플레이스**<br/>
-문서, 커밋, 채용, iOS 개발, 자기 기록, 코드 감사, 홍보 영상. 미루기 쉬운 일을 대신 처리한다.
-
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-8A2BE2?style=flat-square)](https://github.com/anthropics/claude-code)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Plugins](https://img.shields.io/badge/Plugins-9-green?style=flat-square)](#플러그인)
 
-</div>
+창로로의 개인 워크플로를 모은 Claude Code 플러그인 마켓플레이스입니다. 각 플러그인은 작업 순서, 확인할 근거, 결과물 형식을 스킬과 명령으로 제공합니다. Codex에서도 사용하는 스킬이 있으며, 필요한 도구와 지원 범위는 개별 문서에서 확인할 수 있습니다.
 
----
+## 빠른 시작
 
-## 설치
+Claude Code에서 마켓플레이스를 등록하고 필요한 플러그인만 설치합니다.
 
-```bash
+```text
 /plugin marketplace add Changroro/plugins
-
-/plugin install docs@changroro        # 문서 작성
-/plugin install gitwf@changroro       # Git/GitHub 워크플로우
-/plugin install jobs@changroro        # 채용 지원
-/plugin install ios@changroro         # iOS 개발 워크플로
-/plugin install find-me@changroro     # 대화 속 자기 발견 기록
-/plugin install project-rename@changroro  # Claude·Codex 별도 프로젝트·세션 경로 수정
-/plugin install deep-audit@changroro  # 프로젝트 전수 감사
-/plugin install imhuman@changroro     # 한글 AI 티 윤문
-/plugin install code-video@changroro  # 코드로 그린 홍보 영상
+/plugin install docs@changroro
+/docs:readme
 ```
+
+다른 플러그인은 설치 명령의 `docs`를 아래 표의 이름으로 바꾸면 됩니다.
 
 ## 플러그인
 
-독립 플러그인은 별도 저장소에 있고, 나머지는 이 저장소 `plugins/` 아래에 있다. 설치 방법은 어느 쪽이든 같다.
+이 저장소에 본체가 있는 플러그인은 상세 문서로, 별도 저장소가 있는 플러그인은 해당 저장소로 연결됩니다.
 
-| 플러그인 | 하는 일 | 위치 |
+| 플러그인 | 맡길 수 있는 작업 | 소스 |
 |---|---|---|
-| **docs** | 블로그(Tistory), 업무일지, 개발일지, 포트폴리오, README, 세션 인계, 터미널 GIF | `plugins/docs` |
-| **gitwf** | Conventional Commits 커밋, PR 생성·병합·리뷰 | `plugins/gitwf` |
-| **jobs** | 채용공고 크롤링, 기업·직무 리서치, 자소서, 면접 준비 | `plugins/jobs` |
-| **ios** | Xcode 27 MCP 브리지로 빌드·테스트·디버그, Device Hub(SimSlim)·iPhone Mirroring 검증, asc로 App Store 배포 | `plugins/ios` |
-| **find-me** | 개인 프롬프트로 대화 속 자기 발견과 실제 맥락을 Markdown에 날짜별 기록 | [find-me](https://github.com/Changroro/find-me) |
-| **project-rename** | Claude·Codex 별도 스킬로 프로젝트·기존 세션 내부 경로 자동 수정 | `plugins/project-rename` |
-| **deep-audit** | 멀티 라운드 병렬 팀 감사 — 매직넘버·silent fallback·기능 검증 | [deep-audit](https://github.com/Changroro/deep-audit) |
-| **imhuman** | AI가 쓴 한글의 AI 티 탐지·윤문 — 내용은 그대로, 문체만 | [imhuman](https://github.com/Changroro/imhuman) |
-| **code-video** | 주제 조사 → 코드로 그린 영상 MP4 (화풍·브랜드 DESIGN.md·자유 화풍) | [code-video](https://github.com/Changroro/code-video) |
+| [**docs**](docs/docs.md) | 블로그·일지·포트폴리오·README, 세션 인계, 터미널 녹화 | [plugins/docs](plugins/docs) |
+| [**gitwf**](docs/gitwf.md) | Conventional Commits 커밋, PR 생성·리뷰 대응·병합 | [plugins/gitwf](plugins/gitwf) |
+| [**jobs**](docs/jobs.md) | 공고 분석, 기업 리서치, 자소서 작성·퇴고, 면접 준비 | [plugins/jobs](plugins/jobs) |
+| [**ios**](docs/ios.md) | Xcode MCP로 빌드·테스트·디버그, 기기 검증, App Store 배포 | [plugins/ios](plugins/ios) |
+| [**project-rename**](docs/project-rename.md) | 프로젝트 이름·경로 변경과 Claude·Codex 기존 세션 경로 이관 | [plugins/project-rename](plugins/project-rename) |
+| [**find-me**](https://github.com/Changroro/find-me) | 개인 프롬프트로 대화 속 자기 발견과 맥락 기록 | 별도 저장소 |
+| [**deep-audit**](https://github.com/Changroro/deep-audit) | 기능별 분담과 새 팀원 반복 검증으로 프로젝트 전수 감사 | 별도 저장소 |
+| [**imhuman**](https://github.com/Changroro/imhuman) | 내용을 유지하면서 한글의 AI 문체 탐지·윤문 | 별도 저장소 |
+| [**code-video**](https://github.com/Changroro/code-video) | 주제를 조사하고 디자인에 맞춰 코드로 MP4 홍보 영상 제작 | 별도 저장소 |
 
----
+## 사용 방식
 
-### docs
+```text
+작업 요청 → 스킬·명령 선택 → 근거 확인과 필요한 승인 → 결과물·검증
+```
 
-블로그, 일지, README, 포트폴리오를 생성한다.
+Claude Code에서는 `/플러그인:이름`, Codex에 설치한 스킬은 `$플러그인:이름`으로 호출합니다. Claude 전용 명령·hooks의 Codex 지원 여부는 개별 문서와 설치 환경을 확인하세요.
 
-<details>
-<summary>상세</summary>
+## 필요한 환경
 
-**Agents** — `blog-writer`(Tistory 스타일 단일 md + inline HTML, 로컬 이미지 수집) · `worklog-writer`(경영진 보고용) · `devlog-writer`(기술 상세) · `portfolio-writer`
-
-**Skills** — `readme`(배너 + 스크린샷 + 8단 OSS skeleton) · `handover`(현재 대화 기반 AGENTS.md + 문서 + HANDOFF.md 갱신) · `restart`(프로젝트 근거 기반 메모리 전면 재구성) · `terminal-gif-maker`(VHS 기반 결정론적 터미널 녹화)
-
-**Commands** — `/docs:blog` `/docs:worklog` `/docs:devlog` `/docs:portfolio` `/docs:configure`
-
-</details>
-
-### gitwf
-
-<details>
-<summary>상세</summary>
-
-**Skills** — `git-commit`(Conventional Commits + Emoji) · `github-pr-creation` · `github-pr-merge` · `github-pr-review`
-
-커밋은 파일 단위가 아니라 작업 단위로 묶는다. 한 요청 = 한 커밋이 기본값이다.
-
-</details>
-
-### jobs
-
-<details>
-<summary>상세</summary>
-
-**워크플로우** — `init` → `crawl` → `research` → `write` → `review` → `interview`
-
-| 스킬 | 하는 일 |
+| 작업 | 필요한 도구·환경 |
 |---|---|
-| `init` | 폴더 구조 생성 (현재 디렉토리 기준) |
-| `crawl` | 채용공고 URL 크롤링 → 마크다운 정리 |
-| `research` | 기업분석 + 직무분석 에이전트 병렬 실행 |
-| `write` | 문항 유형 자동 판별 → 자소서 2~3개 버전 |
-| `review` | 클리셰 검사, AI 티 제거, 일관성 검증 |
-| `interview` | 1분 자기소개, 예상 질문 100개, 모의면접 |
+| 기본 사용 | Claude Code와 플러그인 설치 기능 |
+| GitHub PR | Git, GitHub CLI(`gh`), 저장소 접근 인증 |
+| 터미널 영상 | VHS, ttyd, ffmpeg |
+| iOS 개발 | 스킬이 지정한 macOS·Xcode 환경, Xcode MCP, SimSlim, 배포 시 `asc` |
+| 프로젝트·세션 이관 | Linux, `uv`, Python 3.11; Codex 이관 시 실제 상태 DB 경로 |
 
-모든 경로가 상대경로이고, 프롬프트 템플릿 16개가 들어 있다.
-
-</details>
-
-### ios
-
-<details>
-<summary>상세</summary>
-
-**Skills** — `ios-dev`(Xcode 27 워크플로 한 벌)
-
-| 단계 | 도구 | 규칙 |
-|---|---|---|
-| 빌드·테스트·디버그 | Xcode MCP 브리지 (`claude mcp add -s project xcode -- xcrun mcpbridge`) | `xcodebuild` 직접 호출 대신 Xcode 도구. 테스트 스윕·버그 헌트는 Xcode 내장 에이전트 |
-| 시뮬레이터 검증 | Device Hub + SimSlim (`simslim verify`) | `Simulator.app` 안 연다. UI 바뀐 뒤엔 스크린샷·계층 확인 |
-| 실기기 검증 | iPhone Mirroring + Xcode 콘솔 / `devicectl --console` | 사용자 승인 뒤에만 설치·실행 |
-| App Store 배포 | `asc` (`asc publish testflight` → `asc publish appstore --submit`) | 키는 키체인, 제출은 사용자 확인, 게시마다 태그·체인지로그 |
-
-사이드로드(SideStore)·크로스플랫폼(Expo) 은 후보로만 제안한다.
-
-</details>
-
-### find-me
-
-[독립 저장소](https://github.com/Changroro/find-me)의 플러그인으로 Claude Code와 Codex를 지원한다. `setup`은 저장할 문서 경로·주제를 입력받고 Git으로 관리하는 기본 프롬프트 JSON을 개인 JSON으로 복사한다. `write-record`는 현재 개인 JSON을 읽어 자기 발견을 기록하고, `fix-record`는 피드백으로 개인 프롬프트만 수정한다. 개인 JSON은 플러그인 밖에 저장하며 업데이트나 setup 재실행으로 덮어쓰지 않는다.
-
-기본 주제는 유지하며 에이전트 사용·개발 습관과 대화 스타일도 포착한다. 기본 형식은 `범용적인 발견. 대화 맥락: 실제 사용자 대화 요약.`이며 프로젝트명·기술명·자소서 소재는 뒤쪽 맥락에 둔다. Claude Code에서는 `/find-me:setup`, `/find-me:write-record`, `/find-me:fix-record`, Codex에서는 같은 이름을 `$find-me:setup`처럼 호출한다. 자세한 설치·사용법은 독립 저장소에 있다.
-
-### project-rename
-
-`/project-rename:claude-project-rename`과 `/project-rename:codex-project-rename`을 별도로 제공한다. Claude는 Haiku, Codex는 Luna 작업자가 각각의 저장 구조에 맞는 스크립트를 사용한다. ASM의 이관 방식을 참고했지만 ASM 설치나 호출은 필요 없다. Codex 역할 정의는 `plugins/project-rename/codex/agents/codex-renamer.toml`에 있다.
-
-Claude는 세션 디렉터리·JSONL 경로 메타데이터·인덱스·프로젝트 설정을, Codex는 rollout 경로 메타데이터·세션 DB cwd·프로젝트 등록·신뢰 설정을 자동 수정한다. 기존 ID·본문·도구 결과·타임스탬프는 유지한다. 프로세스 종료·서버 실행·세션 분기·검증 대화는 없다. 기록 중인 데이터는 적용 전에 차단한다. 두 도구를 함께 쓴 프로젝트는 첫 스킬로 폴더와 해당 도구 경로를 바꾸고, 두 번째 스킬의 `--sessions-only`로 나머지 세션 경로를 갱신한다. 현재 writer 검사는 Linux를 지원한다.
-
-### deep-audit
-
-<details>
-<summary>상세</summary>
-
-코드베이스 전체를 정찰해 기능 단위 조사 계획을 세우고, 팀원 여러 명에게 기능별로 분배해 병렬 분석·실동작 테스트를 시킨다. 승인된 수정을 적용한 뒤 **이전과 겹치지 않는 새 팀원**을 소집해 같은 과정을 수렴할 때까지 반복한다.
-
-중점 항목 — 의도하지 않은 매직넘버·하드코딩, 불필요한 주석·docstring, silent fallback·silent default, 각 기능이 기획 의도대로 실제로 동작하는지, 그리고 보안 취약점·데드코드·레거시·UI/UX.
-
-단일 PR 리뷰나 한 파일만 보는 요청에는 과하다. 그럴 땐 전용 리뷰 도구를 쓰는 게 낫다.
-
-</details>
-
-### code-video
-
-<details>
-<summary>상세</summary>
-
-회사·서비스·사이트 같은 주제를 조사해 짧은 영상을 전부 코드로 그려 MP4로 만든다. 영상 생성 모델이나 스톡 영상은 쓰지 않는다. 디자인과 주제, 형식(길이·비율·화면 언어)만 주면 출처가 있는 사실로 이야기를 짜고, 짧은 계획을 승인받은 뒤 제작·렌더한다. 디자인은 화풍(손그림, 모션그래픽, 모래 그림, 코믹, 툰, 스크랩북, 찢은 종이 콜라주, UI 모프, 아케이드, 터미널 등, 계속 추가), 애플·삼성·페라리·나이키·스포티파이풍 프리셋, 아무 사이트의 DESIGN.md, 또는 말로 설명하거나 보여 준 자유 화풍 중 하나다. 원작자가 있는 화풍은 크레딧을 건다. 음악과 효과음도 코드로 합성한다.
-
-필요 도구 — Node.js 18+, libx264가 포함된 ffmpeg, Google Chrome, uv.
-
-</details>
-
----
-
-## 데스크톱 알림 (Hooks)
-
-| 이벤트 | 알림 | Urgency |
-|---|---|---|
-| 권한 요청 | 권한 승인이 필요합니다 | critical |
-| 입력 대기 | 입력을 기다리고 있습니다 | normal |
-| 작업 완료 | 작업이 완료되었습니다 | normal |
+플러그인 설치와 외부 도구·계정 인증 준비는 별도 단계입니다. 자세한 조건은 각 플러그인 문서에 있습니다.
 
 ## 업데이트
 
-```bash
+Claude Code에서 카탈로그와 설치한 플러그인을 갱신합니다.
+
+```text
 /plugin marketplace update changroro
 /plugin update docs@changroro
 ```
 
-버전은 각 플러그인 저장소의 `.claude-plugin/plugin.json`이 기준이다. 마켓플레이스는 버전을 따로 적지 않는다.
+버전의 기준은 각 플러그인의 `.claude-plugin/plugin.json`입니다. 카탈로그에는 버전을 중복 기록하지 않습니다.
+
+## 저장소 구성과 개발
+
+| 경로 | 역할 |
+|---|---|
+| [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) | 로컬·외부 플러그인 카탈로그 |
+| [plugins/](plugins) | 이 저장소에서 개발하는 플러그인 본체 |
+| [docs/](docs) | 로컬 플러그인별 설치·사용 문서 |
+| [tests/](tests) | 스크립트와 문서 워크플로 검증 |
+
+로컬 플러그인은 `plugins/<name>`에서 수정하고 해당 `plugin.json`의 버전을 올립니다. 별도 저장소의 플러그인은 그 저장소에서 수정·배포합니다. 카탈로그와 설명은 실제 구현을 기준으로 유지합니다.
 
 ## 라이선스
 
-MIT — [LICENSE](./LICENSE)
+이 저장소는 [MIT License](LICENSE)를 따릅니다. 외부 플러그인의 라이선스·사용 조건은 각 저장소에서 확인하세요.
