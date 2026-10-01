@@ -2,7 +2,7 @@
 
 **프로젝트 이름·경로를 바꾸면서 Claude·Codex의 기존 세션과 내부 경로 참조를 함께 이관합니다.**
 
-[마켓플레이스](../README.md) · [플러그인 소스](../plugins/project-rename)
+[마켓플레이스](../../README.md) · [플러그인 소스](.)
 
 ## 소개
 
@@ -19,14 +19,14 @@ Claude Code에서 전체 플러그인을 설치합니다. 스킬 폴더만 복�
 /absolute/old를 /absolute/new로 바꿔줘. 참조 조사는 /absolute/related 안에서 해줘.
 ```
 
-Codex는 설치한 `$project-rename:codex-project-rename` 스킬을 호출합니다. Claude 작업자는 Haiku이며 Codex는 [codex-renamer 정의](../plugins/project-rename/codex/agents/codex-renamer.toml)를 등록한 Luna 작업자를 사용합니다. 역할이 없으면 등록 변경안을 먼저 제시합니다.
+Codex는 설치한 `$project-rename:codex-project-rename` 스킬을 호출합니다. Claude 작업자는 Haiku이며 Codex는 [codex-renamer 정의](codex/agents/codex-renamer.toml)를 등록한 Luna 작업자를 사용합니다. 역할이 없으면 등록 변경안을 먼저 제시합니다.
 
 ## 두 도구의 처리 범위
 
 | 스킬 | 자동 갱신하는 데이터 |
 |---|---|
-| [claude-project-rename](../plugins/project-rename/skills/claude-project-rename/SKILL.md) | 인코딩된 세션 디렉터리, JSONL 경로 메타데이터, 인덱스, 프로젝트 설정·연관 데이터 |
-| [codex-project-rename](../plugins/project-rename/skills/codex-project-rename/SKILL.md) | 현재·보관 rollout 경로 메타데이터, 대상 DB 행의 `cwd`, 프로젝트 등록, TOML 신뢰 설정 |
+| [claude-project-rename](skills/claude-project-rename/SKILL.md) | 인코딩된 세션 디렉터리, JSONL 경로 메타데이터, 인덱스, 프로젝트 설정·연관 데이터 |
+| [codex-project-rename](skills/codex-project-rename/SKILL.md) | 현재·보관 rollout 경로 메타데이터, 대상 DB 행의 `cwd`, 프로젝트 등록, TOML 신뢰 설정 |
 
 일반 파일 참조는 지정한 디렉터리에서 조사하고 확인한 파일·이전 값·새 값을 `--reference-map`으로 계획에 추가합니다. 홈 전체를 검색하거나 메시지 본문을 일괄 치환하지 않습니다.
 
@@ -54,7 +54,7 @@ uv run --python 3.11 python "$PLUGIN_ROOT/scripts/codex_rename.py" plan \
   --out /outside/project/codex-rename-plan
 ```
 
-`apply`, `verify`, `rollback` 인수는 [Codex 스킬](../plugins/project-rename/skills/codex-project-rename/SKILL.md)에 있습니다. Claude는 [별도 스크립트·상태 홈 인수](../plugins/project-rename/skills/claude-project-rename/SKILL.md)를 사용합니다. 백업 위치는 프로젝트·세션 저장소 밖의 새 디렉터리로 지정합니다.
+`apply`, `verify`, `rollback` 인수는 [Codex 스킬](skills/codex-project-rename/SKILL.md)에 있습니다. Claude는 [별도 스크립트·상태 홈 인수](skills/claude-project-rename/SKILL.md)를 사용합니다. 백업 위치는 프로젝트·세션 저장소 밖의 새 디렉터리로 지정합니다.
 
 ## 안전성·지원 범위와 검증
 
@@ -72,4 +72,4 @@ Claude는 임시 데이터로 검증했고 Codex는 로컬 시험 프로젝트�
 
 ## 라이선스
 
-[MIT License](../LICENSE).
+[MIT License](../../LICENSE).

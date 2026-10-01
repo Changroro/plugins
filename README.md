@@ -21,19 +21,19 @@ Claude Code에서 마켓플레이스를 등록하고 필요한 플러그인만 �
 
 ## 플러그인
 
-이 저장소에 본체가 있는 플러그인은 상세 문서로, 별도 저장소가 있는 플러그인은 해당 저장소로 연결됩니다.
+플러그인 이름은 별도 저장소가 있을 때 해당 저장소로 연결됩니다. README 열에서 각 플러그인의 설치·사용 문서를 확인할 수 있습니다.
 
-| 플러그인 | 맡길 수 있는 작업 | 소스 |
+| 플러그인 | 맡길 수 있는 작업 | README |
 |---|---|---|
-| [**docs**](docs/docs.md) | 블로그·일지·포트폴리오·README, 세션 인계, 터미널 녹화 | [plugins/docs](plugins/docs) |
-| [**gitwf**](docs/gitwf.md) | Conventional Commits 커밋, PR 생성·리뷰 대응·병합 | [plugins/gitwf](plugins/gitwf) |
-| [**jobs**](docs/jobs.md) | 공고 분석, 기업 리서치, 자소서 작성·퇴고, 면접 준비 | [plugins/jobs](plugins/jobs) |
-| [**ios**](docs/ios.md) | Xcode MCP로 빌드·테스트·디버그, 기기 검증, App Store 배포 | [plugins/ios](plugins/ios) |
-| [**project-rename**](docs/project-rename.md) | 프로젝트 이름·경로 변경과 Claude·Codex 기존 세션 경로 이관 | [plugins/project-rename](plugins/project-rename) |
-| [**find-me**](https://github.com/Changroro/find-me) | 개인 프롬프트로 대화 속 자기 발견과 맥락 기록 | 별도 저장소 |
-| [**deep-audit**](https://github.com/Changroro/deep-audit) | 기능별 분담과 새 팀원 반복 검증으로 프로젝트 전수 감사 | 별도 저장소 |
-| [**imhuman**](https://github.com/Changroro/imhuman) | 내용을 유지하면서 한글의 AI 문체 탐지·윤문 | 별도 저장소 |
-| [**code-video**](https://github.com/Changroro/code-video) | 주제를 조사하고 디자인에 맞춰 코드로 MP4 홍보 영상 제작 | 별도 저장소 |
+| **docs** | 블로그·일지·포트폴리오·README, 세션 인계, 터미널 녹화 | [README](plugins/docs/README.md) |
+| **gitwf** | Conventional Commits 커밋, PR 생성·리뷰 대응·병합 | [README](plugins/gitwf/README.md) |
+| **jobs** | 공고 분석, 기업 리서치, 자소서 작성·퇴고, 면접 준비 | [README](plugins/jobs/README.md) |
+| **ios** | Xcode MCP로 빌드·테스트·디버그, 기기 검증, App Store 배포 | [README](plugins/ios/README.md) |
+| **project-rename** | 프로젝트 이름·경로 변경과 Claude·Codex 기존 세션 경로 이관 | [README](plugins/project-rename/README.md) |
+| [**find-me**](https://github.com/Changroro/find-me) | 개인 프롬프트로 대화 속 자기 발견과 맥락 기록 | [README](https://github.com/Changroro/find-me/blob/main/README.md) |
+| [**deep-audit**](https://github.com/Changroro/deep-audit) | 기능별 분담과 새 팀원 반복 검증으로 프로젝트 전수 감사 | 미작성 |
+| [**imhuman**](https://github.com/Changroro/imhuman) | 내용을 유지하면서 한글의 AI 문체 탐지·윤문 | [README](https://github.com/Changroro/imhuman/blob/main/README.md) |
+| [**code-video**](https://github.com/Changroro/code-video) | 주제를 조사하고 디자인에 맞춰 코드로 MP4 홍보 영상 제작 | [README](https://github.com/Changroro/code-video/blob/main/README.md) |
 
 ## 사용 방식
 
@@ -72,7 +72,7 @@ Claude Code에서 카탈로그와 설치한 플러그인을 갱신합니다.
 |---|---|
 | [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) | 로컬·외부 플러그인 카탈로그 |
 | [plugins/](plugins) | 이 저장소에서 개발하는 플러그인 본체 |
-| [docs/](docs) | 로컬 플러그인별 설치·사용 문서 |
+| `plugins/<name>/README.md` | 각 플러그인의 설치·사용 문서 |
 | [tests/](tests) | 스크립트와 문서 워크플로 검증 |
 
 로컬 플러그인은 `plugins/<name>`에서 수정하고 해당 `plugin.json`의 버전을 올립니다. 별도 저장소의 플러그인은 그 저장소에서 수정·배포합니다. 카탈로그와 설명은 실제 구현을 기준으로 유지합니다.

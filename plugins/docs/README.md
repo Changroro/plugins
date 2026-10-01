@@ -2,7 +2,7 @@
 
 **개발 기록을 블로그, 일지, 포트폴리오와 다음 세션의 인수인계 문서로 만듭니다.**
 
-[마켓플레이스](../README.md) · [플러그인 소스](../plugins/docs)
+[마켓플레이스](../../README.md) · [플러그인 소스](.)
 
 ## 소개
 
@@ -36,10 +36,10 @@ Claude Code에서 실행합니다.
 
 | 스킬 | 역할 |
 |---|---|
-| [readme](../plugins/docs/skills/readme/SKILL.md) | 코드·설정에 근거한 설치·사용·기능 설명과 적합한 시각 자산 구성 |
-| [handover](../plugins/docs/skills/handover/SKILL.md) | 이번 결과와 다음 작업을 HANDOFF에 정리하고 지식을 알맞은 문서에 배치 |
-| [restart](../plugins/docs/skills/restart/SKILL.md) | 문서·코드·설정으로 프로젝트 기억을 다시 구성 |
-| [terminal-gif-maker](../plugins/docs/skills/terminal-gif-maker/SKILL.md) | `.tape`로 재생성 가능한 터미널 GIF·MP4·WebM 제작 |
+| [readme](skills/readme/SKILL.md) | 코드·설정에 근거한 설치·사용·기능 설명과 적합한 시각 자산 구성 |
+| [handover](skills/handover/SKILL.md) | 이번 결과와 다음 작업을 HANDOFF에 정리하고 지식을 알맞은 문서에 배치 |
+| [restart](skills/restart/SKILL.md) | 문서·코드·설정으로 프로젝트 기억을 다시 구성 |
+| [terminal-gif-maker](skills/terminal-gif-maker/SKILL.md) | `.tape`로 재생성 가능한 터미널 GIF·MP4·WebM 제작 |
 
 ```text
 /docs:handover
@@ -65,4 +65,4 @@ Claude Code용 명령·작성 에이전트·알림 hooks를 포함합니다. Cod
 
 ## 라이선스
 
-[MIT License](../LICENSE).
+[MIT License](../../LICENSE).

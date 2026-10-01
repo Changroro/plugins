@@ -2,7 +2,7 @@
 
 **Xcode의 빌드·테스트·디버그 도구를 에이전트에 연결하고 기기 검증과 App Store 배포까지 진행합니다.**
 
-[마켓플레이스](../README.md) · [플러그인 소스](../plugins/ios)
+[마켓플레이스](../../README.md) · [플러그인 소스](.)
 
 ## 소개
 
@@ -18,7 +18,7 @@
 | 실기기 | 기기 연결·Developer Mode, 사용자가 연 iPhone Mirroring |
 | 배포 | `asc`, App Store Connect 인증, 서명·프로비저닝 환경 |
 
-이 표는 [현재 스킬의 실행 조건](../plugins/ios/skills/ios-dev/SKILL.md)입니다.
+이 표는 [현재 스킬의 실행 조건](skills/ios-dev/SKILL.md)입니다.
 
 ## 설치와 Xcode 연결
 
@@ -77,4 +77,4 @@ macOS의 네이티브 iOS 환경을 대상으로 합니다. 실기기 설치·�
 
 ## 라이선스
 
-[MIT License](../LICENSE).
+[MIT License](../../LICENSE).

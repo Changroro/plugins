@@ -2,7 +2,7 @@
 
 **변경을 작업 단위로 커밋하고, PR 생성부터 리뷰 대응과 병합까지 이어갑니다.**
 
-[마켓플레이스](../README.md) · [플러그인 소스](../plugins/gitwf)
+[마켓플레이스](../../README.md) · [플러그인 소스](.)
 
 ## 소개
 
@@ -31,10 +31,10 @@ gh auth status
 
 | 스킬 | 하는 일 |
 |---|---|
-| [git-commit](../plugins/gitwf/skills/git-commit/SKILL.md) | 작업 범위와 diff 확인, Emoji + Conventional Commits 메시지 작성 |
-| [github-pr-creation](../plugins/gitwf/skills/github-pr-creation/SKILL.md) | 커밋·검증 결과에 근거한 제목·설명·라벨 구성과 PR 생성 |
-| [github-pr-review](../plugins/gitwf/skills/github-pr-review/SKILL.md) | 리뷰 코멘트 수집·분류, 수정과 답변 처리 |
-| [github-pr-merge](../plugins/gitwf/skills/github-pr-merge/SKILL.md) | 테스트·CI·리뷰 확인, 사용자 확인 뒤 병합과 후속 정리 |
+| [git-commit](skills/git-commit/SKILL.md) | 작업 범위와 diff 확인, Emoji + Conventional Commits 메시지 작성 |
+| [github-pr-creation](skills/github-pr-creation/SKILL.md) | 커밋·검증 결과에 근거한 제목·설명·라벨 구성과 PR 생성 |
+| [github-pr-review](skills/github-pr-review/SKILL.md) | 리뷰 코멘트 수집·분류, 수정과 답변 처리 |
+| [github-pr-merge](skills/github-pr-merge/SKILL.md) | 테스트·CI·리뷰 확인, 사용자 확인 뒤 병합과 후속 정리 |
 
 Claude에서는 `/gitwf:github-pr-creation`, Codex에 설치한 스킬은 `$gitwf:github-pr-creation`처럼 호출합니다.
 
@@ -62,4 +62,4 @@ Git 저장소 접근 권한과, PR 작업 시 GitHub CLI 인증·해당 저장�
 
 ## 라이선스
 
-[MIT License](../LICENSE).
+[MIT License](../../LICENSE).
