@@ -188,6 +188,18 @@ def connect_db(path):
     return closing(sqlite3.connect(Path(path).as_uri() + '?mode=ro', uri=True, timeout=1))
 
 
+def require_other_session(data, caller_thread_id=None):
+    if data.get('engine') != 'codex':
+        return
+    runtime_id = os.environ.get('CODEX_THREAD_ID')
+    require(not runtime_id or not caller_thread_id or runtime_id == caller_thread_id, '현재 세션 ID가 실행 환경과 다릅니다')
+    caller = runtime_id or caller_thread_id
+    require(caller, '현재 세션 ID를 확인할 수 없습니다. --caller-thread-id로 실제 실행 세션 ID를 지정하세요')
+    rows = [row for database in data['databases'] for row in database['rows']]
+    require(rows, '이관할 Codex 세션을 찾지 못했습니다. 아무것도 이관하지 않았습니다')
+    require(all(row[0] != caller for row in rows), '현재 대화 중인 Codex 세션이 이관 대상입니다. 다른 세션에서 이 명령을 실행하세요. 아무것도 변경하지 않았습니다')
+
+
 def update_db(item, reverse=False):
     with closing(sqlite3.connect(item['path'], timeout=1)) as db, db:
         db.execute('BEGIN IMMEDIATE')
@@ -239,21 +251,27 @@ def transform(raw, old, new):
 
 def plan(args, adapter=None):
     source, target = Path(args.source).absolute(), Path(args.destination).absolute()
+    session_move = getattr(args, 'session_move', False)
     sessions_only = getattr(args, 'sessions_only', False)
-    if sessions_only:
+    if session_move:
+        require(target.is_dir() and target.resolve() == target, '세션 목적지는 기존 실제 디렉터리여야 합니다')
+        require(source != target, '세션이 이미 목적지 프로젝트에 있습니다')
+    elif sessions_only:
         require(not os.path.lexists(source) and target.is_dir() and target.resolve() == target, 'sessions-only는 폴더 rename 이후에만 사용하세요')
     else:
         require(source.is_dir() and source.resolve() == source and not source.is_symlink(), '원본은 실제 절대 디렉터리여야 합니다')
-    require(source not in {Path.home(), Path('/')}, '홈/루트 rename 금지')
+    require(session_move or source not in {Path.home(), Path('/')}, '홈/루트 rename 금지')
     require(target.parent.is_dir() and target.parent.resolve() == target.parent, '목적지 부모가 실제 디렉터리가 아님')
     require(sessions_only or not os.path.lexists(target), '목적지가 이미 존재합니다; 덮어쓰지 않습니다')
-    require(not under(str(target), str(source)) and not under(str(source), str(target)), '중첩된 경로 rename 금지')
+    require(session_move or not under(str(target), str(source)) and not under(str(source), str(target)), '중첩된 경로 rename 금지')
     require(sessions_only or source.stat().st_dev == target.parent.stat().st_dev, '다른 파일시스템은 rename할 수 없습니다')
-    require(not (source / '.git').is_file(), 'worktree/submodule은 Git 전용 절차가 필요합니다')
-    require(not (source / '.git/worktrees').exists(), '연결된 worktree가 있는 저장소는 Git 전용 절차가 필요합니다')
+    require(session_move or not (source / '.git').is_file(), 'worktree/submodule은 Git 전용 절차가 필요합니다')
+    require(session_move or not (source / '.git/worktrees').exists(), '연결된 worktree가 있는 저장소는 Git 전용 절차가 필요합니다')
     info = (target if sessions_only else source).stat()
     moves = [] if sessions_only else [{'source':str(source), 'destination':str(target), 'identity':[info.st_dev, info.st_ino]}]
     data = {'version': 5, 'engine':getattr(args, 'engine', None), 'source': str(source), 'destination': str(target), 'identity': [info.st_dev, info.st_ino], 'moves':moves, 'files': [], 'databases': []}
+    if session_move:
+        data['mode'] = 'session'
     staged = []
     for filename, previous, following in args.reference_map:
         path = Path(filename).absolute()
@@ -281,7 +299,9 @@ def plan(args, adapter=None):
     require(len({f['path'] for f in data['files']}) == len(data['files']), '같은 파일의 중복 참조 수정은 하나의 형식별 변경으로 정리하세요')
     out = Path(args.out).absolute()
     require(out.parent.is_dir() and out.parent.resolve() == out.parent and not os.path.lexists(out), '계획은 실제 부모 아래 새 디렉터리여야 합니다')
-    require(not under(str(out), str(source)) and not under(str(out), str(target)), '계획·백업은 rename 대상 밖에 두세요')
+    require((session_move or not under(str(out), str(source))) and not under(str(out), str(target)), '계획·백업은 rename 대상 밖에 두세요')
+    if session_move:
+        require(not under(str(out), str(Path(args.codex_home).absolute())), '세션 백업은 Codex 홈 밖에 두세요')
     out.mkdir(mode=0o700)
     for index, (before, after) in enumerate(staged):
         atomic(out / f'{index}.before', before)
@@ -306,7 +326,7 @@ def check_directory(path, data):
 
 def verify(data, out):
     old, new = data['source'], data['destination']
-    require(not os.path.lexists(old), '이전 경로가 다시 생성되었습니다')
+    require(data.get('mode') == 'session' or not os.path.lexists(old), '이전 경로가 다시 생성되었습니다')
     check_directory(Path(new), data)
     for item in data['files']:
         check_payload(item, out)
@@ -316,12 +336,13 @@ def verify(data, out):
         with connect_db(item['path']) as db:
             for session_id, _, new in item['rows']:
                 require(db.execute('SELECT cwd FROM threads WHERE id=?', (session_id,)).fetchone() == (new,), 'DB 세션 경로 검증 실패')
-    print('검증 통과: 폴더·세션 경로 갱신, 세션 ID·대화 내용 유지; 프로세스 제어 없음')
+    print(json.dumps({'status':'verified', 'directory_moves':len(data['moves']), 'modified_files':len(data['files']), 'database_rows':sum(len(item['rows']) for item in data['databases']), 'session_ids':[row[0] for item in data['databases'] for row in item['rows']]}, ensure_ascii=False))
 
 
-def rollback(data, out, state):
+def rollback(data, out, state, caller_thread_id=None):
     old, new = data['source'], data['destination']
     require(state['status'] in {'applying', 'applied', 'restoring'}, '되돌릴 작업이 없습니다')
+    require_other_session(data, caller_thread_id)
     ensure_idle(data)
     for item in data['files']:
         check_payload(item, out)
@@ -350,7 +371,8 @@ def rollback(data, out, state):
     print('원래 폴더 이름과 참조를 복구했습니다; 백업은 보존했습니다')
 
 
-def apply(data, out, raw):
+def apply(data, out, raw, caller_thread_id=None):
+    require_other_session(data, caller_thread_id)
     require(not (out / 'state.json').exists(), '이미 실행한 계획입니다; verify/rollback으로 확인하세요')
     ensure_idle(data)
     for move in data['moves']:
@@ -388,7 +410,7 @@ def apply(data, out, raw):
         except Exception:
             for db in connections:
                 db.rollback()
-            rollback(data, out, state)
+            rollback(data, out, state, caller_thread_id)
             raise
 
 
@@ -406,12 +428,16 @@ def main(adapter=None, kind=None):
         planning.add_argument('--claude-config')
     if kind == 'codex':
         planning.add_argument('--codex-home', required=True)
-        planning.add_argument('--codex-db')
+        planning.add_argument('--codex-db', required=True)
+        planning.add_argument('--caller-thread-id')
+        planning.add_argument('--session-id', action='append', default=[])
     for name in ('apply', 'verify', 'rollback'):
         command = commands.add_parser(name)
         command.add_argument('--plan', required=True)
         if name != 'verify':
             command.add_argument('--approve', required=True)
+            if kind == 'codex':
+                command.add_argument('--caller-thread-id')
     args = parser.parse_args()
     if args.command == 'plan':
         plan(args, adapter)
@@ -426,7 +452,7 @@ def main(adapter=None, kind=None):
     with (path.parent / '.lock').open('a') as stream:
         fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
         if args.command == 'apply':
-            apply(data, path.parent, raw)
+            apply(data, path.parent, raw, getattr(args, 'caller_thread_id', None))
         else:
             state = json.loads(read_file(path.parent / 'state.json'))
             require(state['plan_hash'] == digest(raw), '적용한 계획과 다릅니다')
@@ -434,7 +460,7 @@ def main(adapter=None, kind=None):
                 require(state['status'] == 'applied', '적용이 완료되지 않았습니다')
                 verify(data, path.parent)
             else:
-                rollback(data, path.parent, state)
+                rollback(data, path.parent, state, getattr(args, 'caller_thread_id', None))
 
 
 if __name__ == '__main__':

@@ -241,6 +241,47 @@ class MetadataTests(unittest.TestCase):
         for path,content in originals.items():
             self.assertEqual(path.read_bytes(),content)
 
+    def test_explicit_codex_id_moves_a_shared_cwd_without_other_sessions(self):
+        file, records, other, _, database = self.codex()
+        for record in [records[0], records[1]]:
+            record['payload']['cwd'] = str(self.root)
+        records[0]['payload']['runtime_workspace_roots'] = [str(self.root)]
+        records[4]['payload']['thread_settings']['cwd'] = str(self.root)
+        file.write_text(''.join(json.dumps(r)+'\n' for r in records))
+        original = file.read_bytes()
+        other_raw = other.read_bytes()
+        with closing(sqlite3.connect(database)) as db, db:
+            db.execute('UPDATE threads SET cwd=? WHERE id IN ("same-id","other-id")', (str(self.root),))
+        self.old.rename(self.new)
+        self.args.sessions_only = True
+        self.args.session_id = ['same-id']
+        data, raw = self.agent_plan(codex_rename)
+        self.assertEqual(data['databases'][0]['rows'], [['same-id',str(self.root),str(self.new)]])
+        state = self.run_apply(data, raw)
+        actual = [json.loads(line) for line in file.read_text().splitlines()]
+        self.assertEqual(actual[0]['payload']['id'],'same-id')
+        self.assertEqual(actual[0]['payload']['cwd'],str(self.new))
+        self.assertEqual(actual[0]['payload']['runtime_workspace_roots'],[str(self.root)])
+        self.assertEqual(actual[1]['payload']['cwd'],str(self.new))
+        self.assertEqual(actual[2:4],records[2:4])
+        self.assertEqual(actual[4]['payload']['thread_settings']['cwd'],str(self.new))
+        self.assertEqual(other.read_bytes(),other_raw)
+        with closing(sqlite3.connect(database)) as db:
+            self.assertEqual(db.execute('SELECT cwd FROM threads WHERE id="other-id"').fetchone(),(str(self.root),))
+            self.assertEqual(db.execute('SELECT cwd FROM threads WHERE id="archived-id"').fetchone(),(str(self.old / 'archive'),))
+        with patch('builtins.print'):
+            rename.rollback(data,self.out,state)
+        self.assertEqual(file.read_bytes(),original)
+
+    def test_missing_explicit_codex_id_stops_instead_of_selecting_other_threads(self):
+        self.codex()
+        self.old.rename(self.new)
+        self.args.sessions_only = True
+        self.args.session_id = ['missing-id']
+        with self.assertRaisesRegex(ValueError, '세션 ID'):
+            self.agent_plan(codex_rename)
+        self.assertFalse(self.out.exists())
+
     def test_codex_updates_rollout_db_registration_and_trust_preserving_history(self):
         file, records, other, global_state, database = self.codex()
         original = file.read_bytes()

@@ -29,7 +29,7 @@ Claude Code에서 마켓플레이스를 등록하고 필요한 플러그인만 �
 | **gitwf** | Conventional Commits 커밋, PR 생성·리뷰 대응·병합 | [README](plugins/gitwf/README.md) |
 | **jobs** | 공고 분석, 기업 리서치, 자소서 작성·퇴고, 면접 준비 | [README](plugins/jobs/README.md) |
 | **ios** | Xcode MCP로 빌드·테스트·디버그, 기기 검증, App Store 배포 | [README](plugins/ios/README.md) |
-| **project-rename** | 프로젝트 이름·경로 변경과 Claude·Codex 기존 세션 경로 이관 | [README](plugins/project-rename/README.md) |
+| **project-rename** | mv-session 세션 이동 · mv-project 프로젝트·세션 전체 이관 | [README](plugins/project-rename/README.md) |
 | [**find-me**](https://github.com/Changroro/find-me) | 개인 프롬프트로 대화 속 자기 발견과 맥락 기록 | [README](https://github.com/Changroro/find-me/blob/main/README.md) |
 | [**imhuman**](https://github.com/Changroro/imhuman) | 내용을 유지하면서 한글의 AI 문체 탐지·윤문 | [README](https://github.com/Changroro/imhuman/blob/main/README.md) |
 | [**code-video**](https://github.com/Changroro/code-video) | 주제를 조사하고 디자인에 맞춰 코드로 MP4 홍보 영상 제작 | [README](https://github.com/Changroro/code-video/blob/main/README.md) |
