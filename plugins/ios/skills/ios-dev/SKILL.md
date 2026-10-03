@@ -16,6 +16,8 @@ Never open `Simulator.app`; Device Hub replaced it. Never `killall`; stop only p
 
 ## 0. Connect to Xcode (once per project)
 
+Linux에서 원격 Mac으로 빌드·검증·업로드할 때는 `company-macbookpro`를 우선하고, 회사 맥북을 사용할 수 없을 때만 `my-macbookpro`를 사용한다. 개인 맥북에 캐시나 서명 환경이 준비돼 있다는 이유로 순서를 바꾸지 않는다. 빌드 스크립트에는 선택한 호스트를 `HOST=`로 명시한다.
+
 Requirements: Xcode 27+, macOS 26.6+, Apple Silicon. In Xcode: Settings > Intelligence > Model Context Protocol > **Xcode Tools** on.
 
 ```bash
