@@ -9,6 +9,14 @@
   },
   "plugins": [
     {
+      "name": "file-dock",
+      "source": "./plugins/file-dock",
+      "description": "Claude Code Mod — Claude가 말한 경로, 내가 적은 경로, 붙여넣은 이미지를 입력창 위 버튼으로 모아 기본 프로그램·파일 탐색기로 바로 열기",
+      "author": { "name": "ChangRoro" },
+      "category": "productivity",
+      "tags": ["mods", "files", "open", "image", "korean"]
+    },
+    {
       "name": "docs",
       "source": "./plugins/docs",
       "description": "문서 작성 - 블로그(Tistory 스타일/로컬 이미지 수집), 업무일지, 개발일지, 포트폴리오, README(배너+스크린샷), 세션 인계, 터미널 GIF",

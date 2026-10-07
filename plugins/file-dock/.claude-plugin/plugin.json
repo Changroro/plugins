@@ -1,0 +1,8 @@
+{
+  "name": "file-dock",
+  "version": "0.4.0",
+  "description": "붙여넣은 이미지, 내가 적은 경로, Claude 답변에 나온 파일과 폴더(절대·상대 경로)를 입력창 위 버튼으로 모아 기본 프로그램이나 파일 탐색기로 여는 Mod",
+  "author": { "name": "ChangRoro" },
+  "keywords": ["mods", "files", "image", "open", "korean"],
+  "types": "./types/index.d.ts"
+}

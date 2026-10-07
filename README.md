@@ -3,7 +3,7 @@
 **문서 작성부터 커밋, 채용 지원, 프로젝트 이관까지. 반복하는 작업을 에이전트에게 맡깁니다.**
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Plugins](https://img.shields.io/badge/Plugins-8-green?style=flat-square)](#플러그인)
+[![Plugins](https://img.shields.io/badge/Plugins-9-green?style=flat-square)](#플러그인)
 
 창로로의 개인 워크플로를 모은 Claude Code 플러그인 마켓플레이스입니다. 각 플러그인은 작업 순서, 확인할 근거, 결과물 형식을 스킬과 명령으로 제공합니다. Codex에서도 사용하는 스킬이 있으며, 필요한 도구와 지원 범위는 개별 문서에서 확인할 수 있습니다.
 
@@ -25,6 +25,7 @@ Claude Code에서 마켓플레이스를 등록하고 필요한 플러그인만 �
 
 | 플러그인 | 맡길 수 있는 작업 | README |
 |---|---|---|
+| **file-dock** | Mod: Claude가 말한 경로·붙여넣은 이미지를 입력창 위 버튼으로 모아 바로 열기 | [README](plugins/file-dock/README.md) |
 | **docs** | 블로그·일지·포트폴리오·README, 세션 인계, 터미널 녹화 | [README](plugins/docs/README.md) |
 | **gitwf** | Conventional Commits 커밋, PR 생성·리뷰 대응·병합 | [README](plugins/gitwf/README.md) |
 | **jobs** | 공고 분석, 기업 리서치, 자소서 작성·퇴고, 면접 준비 | [README](plugins/jobs/README.md) |
