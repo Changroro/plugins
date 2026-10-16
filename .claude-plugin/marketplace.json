@@ -17,6 +17,14 @@
       "tags": ["mods", "files", "open", "image", "korean"]
     },
     {
+      "name": "attention-ko",
+      "source": "./plugins/attention-ko",
+      "description": "ADHD 친화 한국어 출력 스타일. 결론 먼저, 쉬운 한국어, 진행 멘트까지 한국어 고정 (attention-span 한국어 수정판, AGPL-3.0)",
+      "author": { "name": "ChangRoro" },
+      "category": "productivity",
+      "tags": ["output-style", "adhd", "korean"]
+    },
+    {
       "name": "docs",
       "source": "./plugins/docs",
       "description": "문서 작성 - 블로그(Tistory 스타일/로컬 이미지 수집), 업무일지, 개발일지, 포트폴리오, README(배너+스크린샷), 세션 인계, 터미널 GIF",

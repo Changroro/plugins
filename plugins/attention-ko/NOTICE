@@ -1,0 +1,18 @@
+attention-ko
+Copyright (C) 2026 ChangRoro
+
+이 플러그인은 Alex Greenshpun의 attention-span을 수정한 저작물이다.
+  원본: https://github.com/alexgreensh/attention-span
+  원본 파일: output-styles/attention-kind.md (v0.8.0, commit 2714c965)
+  원본 라이선스: GNU Affero General Public License v3.0
+
+2026-10-16 ChangRoro 수정 내용:
+  - 본문 전체를 한국어로 번역
+  - "Plain English" 규칙을 "쉬운 한국어"와 번역투 금지로 교체
+  - 진행 멘트·중간 보고까지 한국어로 쓰도록 언어 규칙을 맨 앞에 추가
+  - 코드 주석 언어는 코드베이스 관례를 따르도록 추가
+  - "이 사람에게 맞춘 규칙" 섹션 추가: 모르는 이름 설명, 조어 금지,
+    번호 질문 대응, 확인·추측 구분, 세부 생략, 표 사용, 확인 안 된 답 재알림
+
+이 플러그인 폴더(plugins/attention-ko)는 저장소의 MIT 라이선스가 아니라
+같은 폴더의 LICENSE(AGPL-3.0)를 따른다.
