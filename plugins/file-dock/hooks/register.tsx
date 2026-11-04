@@ -1,7 +1,8 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { Entry } from '../types'
+import type { Entry, Item } from '../types'
+import { addMemo, remember, when } from './history'
 import { candidates, isShelved, pick, refsOf, resolve, slug, visible } from './paths'
 import type { Os } from './platform'
 import { baseName, openCommand, tmpRoot } from './platform'
@@ -11,8 +12,16 @@ const draft = atom({ plugin: 'file-dock', key: 'draft' } as const, [])
 const sent = atom({ plugin: 'file-dock', key: 'sent' } as const, [])
 const mine = atom({ plugin: 'file-dock', key: 'mine' } as const, [])
 const claude = atom({ plugin: 'file-dock', key: 'claude' } as const, [])
+const revision = atom({ plugin: 'file-dock', key: 'revision' } as const, 0)
+const writing = atom({ plugin: 'file-dock', key: 'writing' } as const, '')
+const PAGE = 100
+const page = atom({ plugin: 'file-dock', key: 'page' } as const, PAGE)
+const PANE = 'file-dock'
 const SHOWN = 5
+// 사람이 보낸 프롬프트가 아닌 것: 이것들로는 '나' 버튼을 바꾸지 않음
+const AUTOMATED = new Set(['task-notification', 'scheduled-trigger', 'peer', 'peer-send-message', 'projects-relay', 'coordinator', 'observer', 'observer-activity', 'auto-continuation', 'plugin'])
 const written = new Set<string>()
+const kept = new Set<string>()
 const known = new Map<string, { entry: Entry | null; at: number }>()
 let os: Os = 'linux'
 let home = ''
@@ -61,12 +70,47 @@ async function open($: EngineInterface, path: string) {
   $.ui.toast(ran.exitCode === 0 ? `📂 ${baseName(path)} 열었습니다` : `file-dock: 열지 못했습니다 (${ran.stderr.trim() || `exit ${ran.exitCode}`})`)
 }
 
+const historyOf = async ($: EngineInterface) => ((await $.store.get('history')) ?? []) as Item[]
+
+// shortcut: 세션마다 읽고 바로 쓰므로 같은 순간의 동시 기록은 한쪽이 질 수 있음, 잦아지면 항목별 키로 나눔
+async function change($: EngineInterface, edit: (list: Item[]) => Item[]) {
+  try {
+    await $.store.set('history', edit(await historyOf($)))
+  } catch (error) {
+    $.ui.toast(`file-dock: 기록을 저장하지 못했습니다 (${error instanceof Error ? error.message : error})`)
+    return false
+  }
+  await update($, revision, count => count + 1)
+  return true
+}
+
+async function record($: EngineInterface, entries: Entry[]) {
+  if (!entries.length) return
+  const at = await $.clock.now()
+  const project = baseName((await $.session.cwd()).replace(/[\\/]$/, ''))
+  await change($, list => remember(list, entries, project, at))
+}
+
+async function toggleMemo($: EngineInterface, path: string) {
+  const opening = (await read($, writing)) !== path
+  await update($, writing, () => (opening ? path : ''))
+  // 포커스가 안 옮겨져도 입력칸은 Tab으로 닿으므로 메모 흐름을 막지 않음
+  if (opening) await $.ui.focus({ requestId: PANE, key: 'memo-input' }).catch(() => undefined)
+}
+
+async function saveMemo($: EngineInterface, path: string, text: string) {
+  if (!text.trim()) return
+  const at = await $.clock.now()
+  if (await change($, list => addMemo(list, path, text.trim(), at))) await update($, writing, () => '')
+}
+
 export const register: Register = on => {
   let polling = false
 
   on('session.start', async ($, e, next) => {
     if (polling) return next(e)
     polling = true
+    await $.command.register({ name: 'file-dock', description: '모든 세션의 파일·폴더 기록과 메모 패널을 엽니다' })
     os = await osOf($)
     home = (await $.env.get('HOME')) ?? (await $.env.get('USERPROFILE')) ?? ''
     const env = {
@@ -93,18 +137,29 @@ export const register: Register = on => {
       seen = key
       await update($, pasted, () => shots)
       await update($, draft, () => refs)
+      const fresh = visible(shots, [], await read($, sent)).filter(shot => !kept.has(shot.path))
+      fresh.forEach(shot => kept.add(shot.path))
+      await record($, fresh.map(shot => ({ path: shot.path, isDir: false })))
     })
     return next(e)
   })
 
+  on('command.run', { command: 'file-dock' }, async $ => {
+    await update($, revision, count => count + 1)
+    const opened = await $.ui.open({ id: PANE, title: '기록', focus: true })
+    return { text: opened.isPlaced ? 'file-dock 기록 패널을 열었습니다.' : `file-dock 패널을 열지 못했습니다: ${opened.reason}` }
+  })
+
   on('prompt.submit', async ($, e, next) => {
+    if (AUTOMATED.has(e.origin?.kind) || e.text.startsWith('/')) return next(e)
     const typed = await read($, draft)
     const refs = refsOf(e.text)
     const result = await next(e)
-    await update($, sent, list => [...new Set([...list, ...(refs.length ? refs : typed)])])
+    await update($, sent, () => (refs.length ? refs : typed))
     await update($, draft, () => [])
     const paths = await existing($, e.text)
-    if (paths.length) await update($, mine, list => [...list.filter(old => !paths.some(p => p.path === old.path)), ...paths].slice(-20))
+    await update($, mine, () => paths)
+    await record($, paths)
     return result
   }).catch(($, e, next) => next(e))
 
@@ -121,6 +176,7 @@ export const register: Register = on => {
     const fromAnswer = await existing($, [e.answer, ...written].join('\n'))
     written.clear()
     await update($, claude, () => fromAnswer.slice(0, SHOWN))
+    await record($, fromAnswer)
     return result
   })
 
@@ -147,6 +203,30 @@ export const register: Register = on => {
             <Button key={`claude-${index}`} label={labelOf(entry)} onPress={() => open($, entry.path)} />
           ))}
         </Box>
+      </Box>
+    )
+  })
+  on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
+    const { Box, Text, Button, Input } = $.ui.resolve(e)
+    await read($, revision)
+    const list = [...(await historyOf($))].reverse()
+    const editing = await read($, writing)
+    const limit = await read($, page)
+    return (
+      <Box flexDirection="column" rowGap={1}>
+        {list.length === 0 && <Text dimColor>아직 기록이 없습니다.</Text>}
+        {list.slice(0, limit).map(item => (
+          <Box flexDirection="column">
+            <Text dimColor>{`${when(item.at)} · ${item.project}`}</Text>
+            <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
+              <Button key={`open:${item.path}`} label={labelOf(item)} onPress={() => open($, item.path)} />
+              <Button key={`memo:${item.path}`} label={item.memos.length ? `메모 ${item.memos.length}` : '메모'} onPress={() => toggleMemo($, item.path)} />
+            </Box>
+            {item.memos.map(memo => <Text>{`  ${when(memo.at)} ${memo.text}`}</Text>)}
+            {editing === item.path && <Input key="memo-input" rows={2} autoFocus placeholder="메모를 쓰고 Enter" submitLabel="저장" onSubmit={text => saveMemo($, item.path, text)} />}
+          </Box>
+        ))}
+        {list.length > limit && <Button key="more" label={`이전 기록 더 보기 (${list.length - limit}개 남음)`} onPress={() => update($, page, count => count + PAGE)} />}
       </Box>
     )
   })

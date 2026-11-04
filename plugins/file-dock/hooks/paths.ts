@@ -31,7 +31,7 @@ export function candidates(text: string) {
   const found = [
     ...[...text.matchAll(FILE_URL)].map(m => decodeURIComponent(m[1])),
     ...[...text.matchAll(QUOTED)].map(m => m[1].trim().replace(/:\d+(?::\d+)?$/, '')),
-    ...[...text.matchAll(TOKEN)].map(m => m[2]),
+    ...[...text.matchAll(TOKEN)].map(m => m[2].replace(/(?<=[^.])\.$/, '')),
   ]
   const inline = [...text.matchAll(INLINE)].map(m => m[1].replace(/:\d+(?::\d+)?$/, '')).filter(raw => /[A-Za-z가-힣]/.test(raw))
   return [...new Set([...found.filter(pathLike), ...inline].filter(raw => !raw.includes('://')))]
