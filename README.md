@@ -25,7 +25,7 @@ Claude Code에서 마켓플레이스를 등록하고 필요한 플러그인만 �
 
 | 플러그인 | 맡길 수 있는 작업 | README |
 |---|---|---|
-| **file-dock** | Mod: Claude가 말한 경로·붙여넣은 이미지를 입력창 위 버튼으로 모아 바로 열기 | [README](plugins/file-dock/README.md) |
+| **file-dock** | Mod: Claude가 말한 파일·링크·붙여넣은 이미지를 FileDock 패널에 쌓고 바로 열기, 메모 남기기 | [README](plugins/file-dock/README.md) |
 | **attention-ko** | ADHD 친화 한국어 출력 스타일, 진행 멘트까지 한국어 고정 | [README](plugins/attention-ko/README.md) |
 | **docs** | 블로그·일지·포트폴리오·README, 세션 인계, 터미널 녹화 | [README](plugins/docs/README.md) |
 | **gitwf** | Conventional Commits 커밋, PR 생성·리뷰 대응·병합 | [README](plugins/gitwf/README.md) |

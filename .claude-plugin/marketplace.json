@@ -11,7 +11,7 @@
     {
       "name": "file-dock",
       "source": "./plugins/file-dock",
-      "description": "Claude Code Mod — Claude가 말한 경로, 내가 적은 경로, 붙여넣은 이미지를 입력창 위 버튼으로 모아 기본 프로그램·파일 탐색기로 바로 열기",
+      "description": "Claude Code Mod — Claude가 말한 파일·링크와 붙여넣은 이미지를 FileDock 패널에 쌓고 기본 프로그램으로 열거나 메모를 남기기",
       "author": { "name": "ChangRoro" },
       "category": "productivity",
       "tags": ["mods", "files", "open", "image", "korean"]
