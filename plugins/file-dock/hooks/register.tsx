@@ -7,18 +7,14 @@ import { candidates, isShelved, pick, refsOf, resolve, slug, visible } from './p
 import type { Os } from './platform'
 import { baseName, openCommand, tmpRoot } from './platform'
 
-const pasted = atom({ plugin: 'file-dock', key: 'pasted' } as const, [])
 const draft = atom({ plugin: 'file-dock', key: 'draft' } as const, [])
 const sent = atom({ plugin: 'file-dock', key: 'sent' } as const, [])
-const mine = atom({ plugin: 'file-dock', key: 'mine' } as const, [])
-const claude = atom({ plugin: 'file-dock', key: 'claude' } as const, [])
 const revision = atom({ plugin: 'file-dock', key: 'revision' } as const, 0)
 const writing = atom({ plugin: 'file-dock', key: 'writing' } as const, '')
 const PAGE = 100
 const page = atom({ plugin: 'file-dock', key: 'page' } as const, PAGE)
 const PANE = 'file-dock'
-const SHOWN = 5
-// 사람이 보낸 프롬프트가 아닌 것: 이것들로는 '나' 버튼을 바꾸지 않음
+// 사람이 보낸 프롬프트가 아닌 것: 이것들은 기록하지 않음
 const AUTOMATED = new Set(['task-notification', 'scheduled-trigger', 'peer', 'peer-send-message', 'projects-relay', 'coordinator', 'observer', 'observer-activity', 'auto-continuation', 'plugin'])
 const written = new Set<string>()
 const kept = new Set<string>()
@@ -146,7 +142,6 @@ export const register: Register = on => {
       const key = `${shots.map(s => `${s.path}:${s.mtimeMs}`).join('|')}#${refs.join(',')}`
       if (key === seen) return
       seen = key
-      await update($, pasted, () => shots)
       await update($, draft, () => refs)
       const fresh = visible(shots, [], await read($, sent)).filter(shot => !kept.has(shot.path))
       fresh.forEach(shot => kept.add(shot.path))
@@ -167,9 +162,7 @@ export const register: Register = on => {
     const result = await next(e)
     await update($, sent, () => (refs.length ? refs : typed))
     await update($, draft, () => [])
-    const paths = await existing($, e.text)
-    await update($, mine, () => paths)
-    await record($, paths)
+    await record($, await existing($, e.text))
     return result
   }).catch(($, e, next) => next(e))
 
@@ -185,38 +178,24 @@ export const register: Register = on => {
     if (e.agentId || e.reason !== 'answer') return result
     const fromAnswer = await existing($, [e.answer, ...written].join('\n'))
     written.clear()
-    await update($, claude, () => fromAnswer.slice(0, SHOWN))
     await record($, fromAnswer)
     return result
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
-    const images = visible(await read($, pasted), await read($, draft), await read($, sent)).slice(-SHOWN)
-    const paths = (await read($, mine)).slice(-SHOWN)
-    const given = (await read($, claude)).filter(entry => !paths.some(p => p.path === entry.path))
     if (e.props.hasSurvey) return next(e)
-    const { Box, Text, Button } = $.ui.resolve(e)
+    const { Box, Button } = $.ui.resolve(e)
     const below = await next(e)
     return (
       <Box flexDirection="column">
         {below}
-        <Box flexDirection="row" flexWrap="wrap" paddingX={1} columnGap={1}>
+        <Box flexDirection="row" paddingX={1}>
           <Button key="dock" label="FileDock" onPress={() => togglePane($)} />
-          {(images.length > 0 || paths.length > 0) && <Box flexShrink={0}><Text dimColor>나</Text></Box>}
-          {images.map(shot => (
-            <Button key={`image-${shot.number}`} label={`Image #${shot.number}`} onPress={() => open($, shot.path)} />
-          ))}
-          {paths.map((entry, index) => (
-            <Button key={`mine-${index}`} label={labelOf(entry)} onPress={() => open($, entry.path)} />
-          ))}
-          {given.length > 0 && <Box flexShrink={0}><Text dimColor>Claude</Text></Box>}
-          {given.map((entry, index) => (
-            <Button key={`claude-${index}`} label={labelOf(entry)} onPress={() => open($, entry.path)} />
-          ))}
         </Box>
       </Box>
     )
   })
+
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     await read($, revision)
@@ -231,9 +210,9 @@ export const register: Register = on => {
             <Text dimColor>{`${when(item.at)} · ${item.project}`}</Text>
             <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
               <Button key={`open:${item.path}`} label={labelOf(item)} onPress={() => open($, item.path)} />
-              <Button key={`memo:${item.path}`} label={item.memos.length ? `메모 ${item.memos.length}` : '메모'} onPress={() => toggleMemo($, item.path)} />
+              <Button key={`memo:${item.path}`} label={item.memos.at(-1)?.text.replace(/\s+/g, ' ') ?? '메모'} onPress={() => toggleMemo($, item.path)} />
             </Box>
-            {item.memos.map(memo => <Text>{`  ${when(memo.at)} ${memo.text}`}</Text>)}
+            {item.memos.slice(0, -1).map(memo => <Text>{`  ${when(memo.at)} ${memo.text}`}</Text>)}
             {editing === item.path && <Input key="memo-input" rows={2} autoFocus placeholder="메모를 쓰고 Enter" submitLabel="저장" onSubmit={text => saveMemo($, item.path, text)} />}
           </Box>
         ))}

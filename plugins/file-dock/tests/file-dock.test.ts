@@ -66,6 +66,8 @@ test('OS별 임시 루트와 여는 명령', () => {
   expect(openCommand('linux', '/a.png')).toEqual(['xdg-open', '/a.png'])
 })
 
+const PANE = { plugin: 'file-dock', surface: 'terminal', component: 'Pane', requestId: 'file-dock', props: { title: '기록', isFocused: true, bodyColumns: 50, placement: 'dock', scroll: { offset: 0, bodyRows: 30 }, view: {} } } as any
+
 const cases = [
   { os: 'linux', env: { HOME: '/home/u' }, uname: 'Linux', base: '/tmp/claude-1000', open: 'xdg-open', project: '-w' },
   { os: 'mac', env: { HOME: '/home/u', TMPDIR: '/var/folders/ab/T/' }, uname: 'Darwin', base: '/var/folders/ab/T/claude-1000', open: 'open', project: '-w' },
@@ -73,10 +75,10 @@ const cases = [
 ] as const
 
 for (const c of cases) {
-  test(`${c.os}: 붙여넣은 이미지·내가 적은 경로·Claude가 준 경로를 버튼으로 모아 기본 프로그램으로 엶`, async ($, on) => {
+  test(`${c.os}: 보낸 이미지·내가 적은 경로·Claude가 준 경로를 패널에 쌓고 기본 프로그램으로 엶`, async ($, on) => {
     const time = mock.clock(on)
     const images = `${c.base}/${c.project}/s1/images`
-    const files = new Set(['/home/u/문서/보고서.hwp', '/w/out/result.pdf', '/w/chart.png', '/w/notes.md'])
+    const files = new Set(['/home/u/문서/보고서.hwp', '/w/out/result.pdf', '/w/chart.png', '/w/chart2.png', '/w/notes.md'])
     const dirs = new Set(['/w/plugins'])
     const opened: string[] = []
     let entries = [] as ReturnType<typeof file>[]
@@ -102,49 +104,39 @@ for (const c of cases) {
     on('fs.exists', ($, e) => ({ value: files.has(e.path) || dirs.has(e.path) || is(e.path, c.base) || (is(e.path, images) && entries.length > 0) }))
     on('fs.stat', ($, e) => ({ value: { kind: dirs.has(e.path) ? 'dir' : 'file', size: 1, mtimeMs: 1, isLink: false } }))
     on('fs.list', ($, e) => ({ value: is(e.path, c.base) ? [dir('other'), dir(c.project)] : entries }))
-    on('ui.render', { component: 'AbovePrompt' }, () => ({ type: 'Box', props: {}, children: [] }))
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/w' } as any)
-    const band = await $.ui.mount({ plugin: 'file-dock', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 120 } } as any)
+    const pane = await $.ui.mount(PANE) as any
+    const shot = (n: number) => `open:${images.replace(/\\/g, '/')}/${n}.png`.replace(/^open:.*\/(?=C:)/, 'open:')
 
     entries = [file('2.png', 2), file('1.png', 1)]
     box = '[Image #1] [Image #2]'
     await time.advance(2_000)
-    expect(await band.find({ key: 'image-1' })).toMatchObject({ props: { label: 'Image #1' } })
+    expect(await pane.find({ key: shot(1) })).toBeUndefined()
     box = '[Image #1] '
     await time.advance(2_000)
-    expect(await band.find({ key: 'image-2' })).toBeUndefined()
 
     await $.prompt.submit({ text: '[Image #1] 이거랑 ~/문서/보고서.hwp 봐줘', asUser: true })
     box = ''
     await time.advance(2_000)
-    expect(await band.find({ key: 'image-1' })).toBeDefined()
-    expect(await band.find({ key: 'mine-0' })).toMatchObject({ props: { label: '보고서.hwp' } })
+    expect(await pane.find({ key: shot(1) })).toMatchObject({ props: { label: '1.png' } })
+    expect(await pane.find({ key: shot(2) })).toBeUndefined()
+    expect(await pane.find({ key: 'open:/home/u/문서/보고서.hwp' })).toMatchObject({ props: { label: '보고서.hwp' } })
 
     await $.tool.call({ tool: 'Write', file_path: '/w/notes.md', content: '...' } as any)
     const answer = '결과는 `out/result.pdf`, 차트는 ./chart.png, 폴더는 `plugins` 와 **/w/plugins** 입니다. 없는 /w/gone.pdf'
     await $.turn.complete({ answer, durationMs: 1, isAborted: false, turnId: 't1', reason: 'answer' } as any)
-    const labels = await Promise.all([0, 1, 2, 3, 4].map(async i => (await band.find({ key: `claude-${i}` }))?.props.label))
-    expect(labels).toEqual(['result.pdf', 'chart.png', 'plugins/', 'notes.md', undefined])
+    for (const [path, label] of [['/w/out/result.pdf', 'result.pdf'], ['/w/chart.png', 'chart.png'], ['/w/plugins', 'plugins/'], ['/w/notes.md', 'notes.md']]) {
+      expect(await pane.find({ key: `open:${path}` })).toMatchObject({ props: { label } })
+    }
+    expect(await pane.find({ key: 'open:/w/gone.pdf' })).toBeUndefined()
 
-
-    await band.press({ key: 'image-1' })
-    await band.press({ key: 'mine-0' })
-    await band.press({ key: 'claude-0' })
+    await pane.press({ key: 'open:/w/out/result.pdf' })
     expect(toasts.at(-1)).toBe('📂 result.pdf 열었습니다')
-    expect(opened.map(path => path.replace(/^.*\/(?=C:)/, ''))).toEqual([`${images.replace(/\\/g, '/')}/1.png`.replace(/^.*\/(?=C:)/, ''), '/home/u/문서/보고서.hwp', '/w/out/result.pdf'])
+    expect(opened).toEqual(['/w/out/result.pdf'])
 
-    await $.turn.complete({ answer: '파일 없음', durationMs: 1, isAborted: false, turnId: 't2', reason: 'answer' } as any)
-    expect(await band.find({ key: 'claude-0' })).toBeUndefined()
-    expect(await band.find({ key: 'mine-0' })).toBeDefined()
-
-    await $.prompt.submit({ text: '이번엔 notes.md 만 봐줘', asUser: true })
-    await time.advance(2_000)
-    expect(await band.find({ key: 'mine-0' })).toMatchObject({ props: { label: 'notes.md' } })
-    expect(await band.find({ key: 'mine-1' })).toBeUndefined()
-    expect(await band.find({ key: 'image-1' })).toBeUndefined()
-    await $.prompt.submit({ text: '/model', asUser: true })
-    expect(await band.find({ key: 'mine-0' })).toMatchObject({ props: { label: 'notes.md' } })
-    await band.unmount()
+    await $.prompt.submit({ text: '/model /w/chart2.png', asUser: true })
+    expect(await pane.find({ key: 'open:/w/chart2.png' })).toBeUndefined()
+    await pane.unmount()
   })
 }
 
@@ -165,7 +157,6 @@ test('FileDock 버튼: 파일이 없어도 보이고, 누르면 패널을 열고
   await band.unmount()
 })
 
-const PANE = { plugin: 'file-dock', surface: 'terminal', component: 'Pane', requestId: 'file-dock', props: { title: '기록', isFocused: true, bodyColumns: 50, placement: 'dock', scroll: { offset: 0, bodyRows: 30 }, view: {} } } as any
 
 test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 메모를 쌓음', async ($, on) => {
   const time = mock.clock(on)
@@ -199,7 +190,7 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
 
   const pane = await $.ui.mount(PANE) as any
   expect(await pane.find({ key: 'open:/old/옛날.pdf' })).toMatchObject({ props: { label: '옛날.pdf' } })
-  expect((await pane.find({ type: 'Text', text: /이전 세션 메모/ }))?.text).toContain('이전 세션 메모')
+  expect(await pane.find({ key: 'memo:/old/옛날.pdf' })).toMatchObject({ props: { label: '이전 세션 메모' } })
 
   await $.turn.complete({ answer: '결과는 /w/new.png, 코드는 /w/app.ts 입니다.', durationMs: 1, isAborted: false, turnId: 't1', reason: 'answer' } as any)
   expect(await pane.find({ key: 'open:/w/new.png' })).toBeDefined()
@@ -213,14 +204,17 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
   await time.advance(2_000)
   expect(await pane.find({ key: 'open:/tmp/claude-1000/-w/s1/images/1.png' })).toMatchObject({ props: { label: '1.png' } })
 
+  expect(await pane.find({ key: 'memo:/w/new.png' })).toMatchObject({ props: { label: '메모' } })
   await pane.press({ key: 'memo:/w/new.png' })
   await pane.input({ key: 'memo-input', text: '  ' })
   await pane.input({ key: 'memo-input', text: '첫 메모' })
+  expect(await pane.find({ key: 'memo:/w/new.png' })).toMatchObject({ props: { label: '첫 메모' } })
   await pane.press({ key: 'memo:/w/new.png' })
   await pane.input({ key: 'memo-input', text: '둘째 메모' })
   expect(await pane.find({ key: 'memo-input' })).toBeUndefined()
-  expect(await pane.find({ key: 'memo:/w/new.png' })).toMatchObject({ props: { label: '메모 2' } })
-  expect((await pane.find({ type: 'Text', text: /둘째 메모/ }))?.text).toContain('둘째 메모')
+  expect(await pane.find({ key: 'memo:/w/new.png' })).toMatchObject({ props: { label: '둘째 메모' } })
+  expect((await pane.find({ type: 'Text', text: /첫 메모/ }))?.text).toContain('첫 메모')
+  expect(await pane.find({ type: 'Text', text: /둘째 메모/ })).toBeUndefined()
 
   await pane.press({ key: 'open:/w/new.png' })
   expect(opened).toEqual(['/w/new.png'])
