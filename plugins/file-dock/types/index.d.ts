@@ -8,6 +8,6 @@ export type Item = Entry & { at: number; project: string; memos: Memo[] }
 
 declare module 'claude-code' {
   interface PluginState {
-    'file-dock': { draft: number[]; sent: number[]; revision: number; writing: string; page: number }
+    'file-dock': { draft: number[]; sent: number[]; revision: number; writing: string; removing: string; page: number }
   }
 }

@@ -2,8 +2,8 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Entry, Item } from '../types'
-import { addMemo, remember, when } from './history'
-import { candidates, isShelved, pick, refsOf, resolve, slug, visible } from './paths'
+import { addMemo, forget, remember, when } from './history'
+import { candidates, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, visible } from './paths'
 import type { Os } from './platform'
 import { baseName, openCommand, tmpRoot } from './platform'
 
@@ -11,6 +11,7 @@ const draft = atom({ plugin: 'file-dock', key: 'draft' } as const, [])
 const sent = atom({ plugin: 'file-dock', key: 'sent' } as const, [])
 const revision = atom({ plugin: 'file-dock', key: 'revision' } as const, 0)
 const writing = atom({ plugin: 'file-dock', key: 'writing' } as const, '')
+const removing = atom({ plugin: 'file-dock', key: 'removing' } as const, '')
 const PAGE = 100
 const page = atom({ plugin: 'file-dock', key: 'page' } as const, PAGE)
 const PANE = 'file-dock'
@@ -45,10 +46,10 @@ async function existing($: EngineInterface, text: string) {
     const entry = await lookup($, raw, cwd)
     if (entry && (entry.isDir || isShelved(entry.path)) && !found.some(f => f.path === entry.path)) found.push(entry)
   }
-  return found
+  return [...found, ...links(text).map(path => ({ path, isDir: false }))]
 }
 
-const labelOf = (entry: Entry) => (entry.isDir ? `${baseName(entry.path.replace(/[\\/]$/, ''))}/` : baseName(entry.path))
+const labelOf = (entry: Entry) => isLink(entry.path) ? linkLabel(entry.path) : (entry.isDir ? `${baseName(entry.path.replace(/[\\/]$/, ''))}/` : baseName(entry.path))
 
 async function findImages($: EngineInterface, base: string, cwd: string, sessionId: string) {
   const guess = `${base}/${slug(cwd)}/${sessionId}/images`
@@ -63,7 +64,7 @@ async function findImages($: EngineInterface, base: string, cwd: string, session
 
 async function open($: EngineInterface, path: string) {
   const ran = await $.process.run(openCommand(os, path), { timeoutMs: 10_000 })
-  $.ui.toast(ran.exitCode === 0 ? `📂 ${baseName(path)} 열었습니다` : `file-dock: 열지 못했습니다 (${ran.stderr.trim() || `exit ${ran.exitCode}`})`)
+  $.ui.toast(ran.exitCode === 0 ? `📂 ${labelOf({ path, isDir: false })} 열었습니다` : `file-dock: 열지 못했습니다 (${ran.stderr.trim() || `exit ${ran.exitCode}`})`)
 }
 
 const historyOf = async ($: EngineInterface) => ((await $.store.get('history')) ?? []) as Item[]
@@ -103,6 +104,11 @@ async function toggleMemo($: EngineInterface, path: string) {
   await update($, writing, () => (opening ? path : ''))
   // 포커스가 안 옮겨져도 입력칸은 Tab으로 닿으므로 메모 흐름을 막지 않음
   if (opening) await $.ui.focus({ requestId: PANE, key: 'memo-input' }).catch(() => undefined)
+}
+
+async function removeItem($: EngineInterface, path: string) {
+  if ((await read($, removing)) !== path) return update($, removing, () => path)
+  if (await change($, list => forget(list, path))) await update($, removing, () => '')
 }
 
 async function saveMemo($: EngineInterface, path: string, text: string) {
@@ -201,6 +207,7 @@ export const register: Register = on => {
     await read($, revision)
     const list = [...(await historyOf($))].reverse()
     const editing = await read($, writing)
+    const armed = await read($, removing)
     const limit = await read($, page)
     return (
       <Box flexDirection="column" rowGap={1}>
@@ -211,6 +218,7 @@ export const register: Register = on => {
             <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
               <Button key={`open:${item.path}`} label={labelOf(item)} onPress={() => open($, item.path)} />
               <Button key={`memo:${item.path}`} label={item.memos.at(-1)?.text.replace(/\s+/g, ' ') ?? '메모'} onPress={() => toggleMemo($, item.path)} />
+              <Button key={`drop:${item.path}`} label={armed === item.path ? '기록에서 삭제' : '삭제'} onPress={() => removeItem($, item.path)}><Text color="#ff4040">{armed === item.path ? '기록에서 삭제' : '삭제'}</Text></Button>
             </Box>
             {item.memos.slice(0, -1).map(memo => <Text>{`  ${when(memo.at)} ${memo.text}`}</Text>)}
             {editing === item.path && <Input key="memo-input" rows={2} autoFocus placeholder="메모를 쓰고 Enter" submitLabel="저장" onSubmit={text => saveMemo($, item.path, text)} />}

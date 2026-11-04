@@ -10,6 +10,8 @@ export function remember(list: Item[], entries: Entry[], project: string, at: nu
 
 export const addMemo = (list: Item[], path: string, text: string, at: number) => list.map(item => (item.path === path ? { ...item, memos: [...item.memos, { at, text }] } : item))
 
+export const forget = (list: Item[], path: string) => list.filter(item => item.path !== path)
+
 export function when(at: number) {
   const date = new Date(at)
   const two = (value: number) => String(value).padStart(2, '0')

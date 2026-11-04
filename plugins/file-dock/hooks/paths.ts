@@ -37,6 +37,18 @@ export function candidates(text: string) {
   return [...new Set([...found.filter(pathLike), ...inline].filter(raw => !raw.includes('://')))]
 }
 
+const LINK = /https?:\/\/[A-Za-z0-9\-._~:/?#@!$&+,;=%]+/g
+
+export const isLink = (path: string) => /^https?:\/\//i.test(path)
+
+// shortcut: 한글이 그대로 든 주소는 한글 앞에서 잘림, 조사가 붙은 주소와 구분할 방법이 생기면 넓힘
+export const links = (text: string) => [...new Set([...text.matchAll(LINK)].map(m => m[0].replace(/[.,;:!?]+$/, '')))]
+
+export function linkLabel(url: string) {
+  const short = url.replace(/^https?:\/\//i, '').replace(/\/$/, '')
+  return short.length > 40 ? `${short.slice(0, 39)}…` : short
+}
+
 export function pick(entries: readonly FsEntry[], dir: string): Shot[] {
   return entries
     .filter(entry => entry.kind === 'file' && /^\d+\.[a-z]+$/i.test(entry.name))

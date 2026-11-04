@@ -1,7 +1,7 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { candidates, isShelved, pick, refsOf, resolve, slug, visible } from '../hooks/paths'
-import { addMemo, remember, when } from '../hooks/history'
+import { candidates, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, visible } from '../hooks/paths'
+import { addMemo, forget, remember, when } from '../hooks/history'
 import { baseName, openCommand, tmpRoot } from '../hooks/platform'
 
 const file = (name: string, mtimeMs: number) => ({ name, kind: 'file' as const, size: 1, mtimeMs })
@@ -40,6 +40,21 @@ test('기록: 같은 경로는 메모를 지키며 최신으로 옮김, 폴더 �
   expect(again[0]).toMatchObject({ project: 'v', at: 4 })
   expect(again[0].memos.map(memo => memo.text)).toEqual(['첫째', '둘째'])
   expect(when(new Date(2026, 10, 4, 9, 5).getTime())).toBe('11-04 09:05')
+})
+
+test('링크: 문장 부호와 마크다운을 빼고 http(s)만 찾음', () => {
+  const text = '문서는 https://x.com/a?b=1&c=2. 와 [링크](http://y.io/p) 그리고 **https://z.dev/**, `https://w.app/q`에 있고 ftp://no.io 는 제외, https://x.com/a?b=1&c=2 중복'
+  expect(links(text)).toEqual(['https://x.com/a?b=1&c=2', 'http://y.io/p', 'https://z.dev/', 'https://w.app/q'])
+  expect(isLink('https://x.com')).toBe(true)
+  expect(isLink('/tmp/a.pdf')).toBe(false)
+  expect(linkLabel('https://docs.x.com/guide/')).toBe('docs.x.com/guide')
+  expect(linkLabel(`https://x.com/${'a'.repeat(60)}`)).toHaveLength(40)
+  expect(openCommand('windows', 'https://x.com/a')).toEqual(['rundll32', 'url.dll,FileProtocolHandler', 'https://x.com/a'])
+})
+
+test('기록 삭제: 그 항목만 지움', () => {
+  const list = remember([], [{ path: '/w/a.pdf', isDir: false }, { path: '/w/b.pdf', isDir: false }], 'w', 1)
+  expect(forget(list, '/w/a.pdf').map(item => item.path)).toEqual(['/w/b.pdf'])
 })
 
 const SCREEN = '지금 위치는 **/home/bch/Project/claude-marketplace**입니다.\n\n→ 하위 프로젝트: `changroro-plugins`, `find-me.git`(bare 저장소)와 `없는폴더` 가 있습니다.'
@@ -218,6 +233,19 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
 
   await pane.press({ key: 'open:/w/new.png' })
   expect(opened).toEqual(['/w/new.png'])
+
+  await $.turn.complete({ answer: '자세한 건 https://docs.x.com/guide 참고', durationMs: 1, isAborted: false, turnId: 't2', reason: 'answer' } as any)
+  expect(await pane.find({ key: 'open:https://docs.x.com/guide' })).toMatchObject({ props: { label: 'docs.x.com/guide' } })
+  await pane.press({ key: 'open:https://docs.x.com/guide' })
+  expect(opened.at(-1)).toBe('https://docs.x.com/guide')
+
+  expect(await pane.find({ key: 'drop:/old/옛날.pdf' })).toMatchObject({ props: { label: '삭제' } })
+  await pane.press({ key: 'drop:/old/옛날.pdf' })
+  expect(await pane.find({ key: 'drop:/old/옛날.pdf' })).toMatchObject({ props: { label: '기록에서 삭제' } })
+  expect(await pane.find({ key: 'open:/old/옛날.pdf' })).toBeDefined()
+  await pane.press({ key: 'drop:/old/옛날.pdf' })
+  expect(await pane.find({ key: 'open:/old/옛날.pdf' })).toBeUndefined()
+  expect(await pane.find({ key: 'open:/w/new.png' })).toBeDefined()
   await pane.unmount()
 
   const again = await $.ui.mount(PANE)

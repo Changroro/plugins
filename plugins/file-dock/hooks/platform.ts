@@ -11,7 +11,7 @@ export function tmpRoot(os: Os, env: Env) {
 
 export function openCommand(os: Os, path: string) {
   if (os === 'mac') return ['open', path]
-  if (os === 'windows') return ['rundll32', 'url.dll,FileProtocolHandler', path.replace(/\//g, '\\')]
+  if (os === 'windows') return ['rundll32', 'url.dll,FileProtocolHandler', /^https?:/i.test(path) ? path : path.replace(/\//g, '\\')]
   return ['xdg-open', path]
 }
 
