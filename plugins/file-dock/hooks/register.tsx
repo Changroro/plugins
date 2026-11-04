@@ -91,6 +91,17 @@ async function record($: EngineInterface, entries: Entry[]) {
   await change($, list => remember(list, entries, project, at))
 }
 
+async function openPane($: EngineInterface) {
+  await update($, revision, count => count + 1)
+  return $.ui.open({ id: PANE, title: 'FileDock', focus: true })
+}
+
+async function togglePane($: EngineInterface) {
+  if ((await $.ui.panes()).some(pane => pane.id === PANE)) return $.ui.close({ id: PANE })
+  const opened = await openPane($)
+  if (!opened.isPlaced) $.ui.toast(`file-dock: 패널을 열지 못했습니다 (${opened.reason})`)
+}
+
 async function toggleMemo($: EngineInterface, path: string) {
   const opening = (await read($, writing)) !== path
   await update($, writing, () => (opening ? path : ''))
@@ -145,8 +156,7 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: 'file-dock' }, async $ => {
-    await update($, revision, count => count + 1)
-    const opened = await $.ui.open({ id: PANE, title: '기록', focus: true })
+    const opened = await openPane($)
     return { text: opened.isPlaced ? 'file-dock 기록 패널을 열었습니다.' : `file-dock 패널을 열지 못했습니다: ${opened.reason}` }
   })
 
@@ -184,13 +194,14 @@ export const register: Register = on => {
     const images = visible(await read($, pasted), await read($, draft), await read($, sent)).slice(-SHOWN)
     const paths = (await read($, mine)).slice(-SHOWN)
     const given = (await read($, claude)).filter(entry => !paths.some(p => p.path === entry.path))
-    if (e.props.hasSurvey || (!images.length && !paths.length && !given.length)) return next(e)
+    if (e.props.hasSurvey) return next(e)
     const { Box, Text, Button } = $.ui.resolve(e)
     const below = await next(e)
     return (
       <Box flexDirection="column">
         {below}
         <Box flexDirection="row" flexWrap="wrap" paddingX={1} columnGap={1}>
+          <Button key="dock" label="FileDock" onPress={() => togglePane($)} />
           {(images.length > 0 || paths.length > 0) && <Box flexShrink={0}><Text dimColor>나</Text></Box>}
           {images.map(shot => (
             <Button key={`image-${shot.number}`} label={`Image #${shot.number}`} onPress={() => open($, shot.path)} />

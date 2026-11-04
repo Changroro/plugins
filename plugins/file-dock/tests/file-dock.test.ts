@@ -148,6 +148,23 @@ for (const c of cases) {
   })
 }
 
+test('FileDock 버튼: 파일이 없어도 보이고, 누르면 패널을 열고 다시 누르면 닫음', async ($, on) => {
+  const opened: string[] = []
+  const closed: string[] = []
+  mock.store(on)
+  on('ui.render', { component: 'AbovePrompt' }, () => ({ type: 'Box', props: {}, children: [] }))
+  on('ui.panes', () => ({ value: opened.filter(id => !closed.includes(id)).map(id => ({ id, title: 'FileDock', isShown: true, isFocused: false, isPlaced: true })) }) as any)
+  on('ui.open', ($, e) => { opened.push(e.id); return { value: { isPlaced: true } } })
+  on('ui.close', ($, e) => { closed.push(e.id); return { value: undefined } })
+  const band = await $.ui.mount({ plugin: 'file-dock', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 120 } } as any)
+  expect(await band.find({ key: 'dock' })).toMatchObject({ props: { label: 'FileDock' } })
+  await band.press({ key: 'dock' })
+  expect(opened).toEqual(['file-dock'])
+  await band.press({ key: 'dock' })
+  expect(closed).toEqual(['file-dock'])
+  await band.unmount()
+})
+
 const PANE = { plugin: 'file-dock', surface: 'terminal', component: 'Pane', requestId: 'file-dock', props: { title: '기록', isFocused: true, bodyColumns: 50, placement: 'dock', scroll: { offset: 0, bodyRows: 30 }, view: {} } } as any
 
 test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 메모를 쌓음', async ($, on) => {
