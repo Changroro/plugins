@@ -48,7 +48,7 @@ test('링크: 문장 부호와 마크다운을 빼고 http(s)만 찾음', () => 
   expect(isLink('https://x.com')).toBe(true)
   expect(isLink('/tmp/a.pdf')).toBe(false)
   expect(linkLabel('https://docs.x.com/guide/')).toBe('docs.x.com/guide')
-  expect(linkLabel(`https://x.com/${'a'.repeat(60)}`)).toHaveLength(40)
+  expect(linkLabel(`https://x.com/${'a'.repeat(60)}`)).toHaveLength(32)
   expect(openCommand('windows', 'https://x.com/a')).toEqual(['rundll32', 'url.dll,FileProtocolHandler', 'https://x.com/a'])
 })
 

@@ -1,6 +1,6 @@
 {
   "name": "file-dock",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "붙여넣은 이미지, 내가 적은 경로, Claude 답변에 나온 파일, 폴더, 링크를 모든 세션에 걸쳐 FileDock 패널에 쌓고, 기본 프로그램으로 열거나 메모를 남기는 Mod",
   "author": { "name": "ChangRoro" },
   "keywords": ["mods", "files", "image", "open", "korean"],

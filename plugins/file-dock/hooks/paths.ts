@@ -46,7 +46,7 @@ export const links = (text: string) => [...new Set([...text.matchAll(LINK)].map(
 
 export function linkLabel(url: string) {
   const short = url.replace(/^https?:\/\//i, '').replace(/\/$/, '')
-  return short.length > 40 ? `${short.slice(0, 39)}…` : short
+  return short.length > 32 ? `${short.slice(0, 31)}…` : short
 }
 
 export function pick(entries: readonly FsEntry[], dir: string): Shot[] {

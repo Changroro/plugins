@@ -4,7 +4,7 @@
 
 [마켓플레이스](../../README.md) · [플러그인 소스](.)
 
-<img src="demo/file-dock.gif" alt="file-dock 데모: 경로가 입력창 위 버튼으로 모이고, 누르면 파일과 폴더가 열린다" width="780"/>
+<img src="demo/file-dock.png" alt="file-dock 패널: 대화 옆에 파일, 폴더, 링크 기록과 메모, 삭제 버튼이 보인다" width="780"/>
 
 Claude Code [mods](https://code.claude.com/docs/en/plugins/mods/)로 만든 플러그인입니다. Claude Code 2.1.287 이상이 필요합니다.
 
@@ -72,5 +72,3 @@ claude plugin validate --strict plugins/file-dock
 claude plugin test plugins/file-dock
 claude --plugin-dir ./plugins/file-dock
 ```
-
-데모 GIF는 `demo/file-dock.tape`를 [VHS](https://github.com/charmbracelet/vhs)로 녹화했습니다.
