@@ -4,10 +4,10 @@ export type Entry = { path: string; isDir: boolean }
 
 export type Memo = { at: number; text: string }
 
-export type Item = Entry & { at: number; project: string; memos: Memo[] }
+export type Item = Entry & { at: number; memos: Memo[] }
 
 declare module 'claude-code' {
   interface PluginState {
-    'file-dock': { draft: number[]; sent: number[]; revision: number; writing: string; removing: string; page: number }
+    'file-dock': { pasted: Shot[]; draft: number[]; sent: number[]; recent: Entry[]; revision: number; writing: string; removing: string; page: number }
   }
 }

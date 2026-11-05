@@ -2,9 +2,10 @@ import type { FsEntry } from 'claude-code'
 
 import type { Shot } from '../types'
 
+const IMAGE = 'png|jpe?g|gif|webp|bmp|svg|heic|tiff?'
 const EXT = [
   'pdf|hwpx?|docx?|pptx?|xlsx?|od[tps]|rtf|pages|key|numbers|epub|html?|md|markdown|txt|csv|tsv|log',
-  'png|jpe?g|gif|webp|bmp|svg|heic|tiff?',
+  IMAGE,
   'mp4|mov|webm|mkv|mp3|wav|m4a|flac|zip',
 ].join('|')
 
@@ -40,6 +41,8 @@ export function candidates(text: string) {
 const LINK = /https?:\/\/[A-Za-z0-9\-._~:/?#@!$&+,;=%]+/g
 
 export const isLink = (path: string) => /^https?:\/\//i.test(path)
+
+export const isImage = (path: string) => !isLink(path) && new RegExp(`\\.(?:${IMAGE})$`, 'i').test(path)
 
 // shortcut: 한글이 그대로 든 주소는 한글 앞에서 잘림, 조사가 붙은 주소와 구분할 방법이 생기면 넓힘
 export const links = (text: string) => [...new Set([...text.matchAll(LINK)].map(m => m[0].replace(/[.,;:!?]+$/, '')))]

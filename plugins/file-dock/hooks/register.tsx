@@ -3,18 +3,21 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type { Entry, Item } from '../types'
 import { addMemo, forget, remember, when } from './history'
-import { candidates, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, visible } from './paths'
+import { candidates, isImage, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, visible } from './paths'
 import type { Os } from './platform'
 import { baseName, openCommand, tmpRoot } from './platform'
 
+const pasted = atom({ plugin: 'file-dock', key: 'pasted' } as const, [])
 const draft = atom({ plugin: 'file-dock', key: 'draft' } as const, [])
 const sent = atom({ plugin: 'file-dock', key: 'sent' } as const, [])
+const recent = atom({ plugin: 'file-dock', key: 'recent' } as const, [])
 const revision = atom({ plugin: 'file-dock', key: 'revision' } as const, 0)
 const writing = atom({ plugin: 'file-dock', key: 'writing' } as const, '')
 const removing = atom({ plugin: 'file-dock', key: 'removing' } as const, '')
 const PAGE = 100
 const page = atom({ plugin: 'file-dock', key: 'page' } as const, PAGE)
 const PANE = 'file-dock'
+const SHOWN = 5
 // 사람이 보낸 프롬프트가 아닌 것: 이것들은 기록하지 않음
 const AUTOMATED = new Set(['task-notification', 'scheduled-trigger', 'peer', 'peer-send-message', 'projects-relay', 'coordinator', 'observer', 'observer-activity', 'auto-continuation', 'plugin'])
 const written = new Set<string>()
@@ -67,12 +70,15 @@ async function open($: EngineInterface, path: string) {
   $.ui.toast(ran.exitCode === 0 ? `📂 ${labelOf({ path, isDir: false })} 열었습니다` : `file-dock: 열지 못했습니다 (${ran.stderr.trim() || `exit ${ran.exitCode}`})`)
 }
 
-const historyOf = async ($: EngineInterface) => ((await $.store.get('history')) ?? []) as Item[]
+const images = (entries: Entry[]) => entries.filter(entry => !entry.isDir && isImage(entry.path))
 
-// shortcut: 세션마다 읽고 바로 쓰므로 같은 순간의 동시 기록은 한쪽이 질 수 있음, 잦아지면 항목별 키로 나눔
+const keyOf = async ($: EngineInterface) => `history:${await $.session.id()}`
+const historyOf = async ($: EngineInterface) => ((await $.store.get(await keyOf($))) ?? []) as Item[]
+
+// shortcut: 세션별 키는 지우지 않아 저장소 4 MiB가 차면 저장 실패 알림이 뜸, 그때 오래된 세션 키를 정리
 async function change($: EngineInterface, edit: (list: Item[]) => Item[]) {
   try {
-    await $.store.set('history', edit(await historyOf($)))
+    await $.store.set(await keyOf($), edit(await historyOf($)))
   } catch (error) {
     $.ui.toast(`file-dock: 기록을 저장하지 못했습니다 (${error instanceof Error ? error.message : error})`)
     return false
@@ -84,8 +90,7 @@ async function change($: EngineInterface, edit: (list: Item[]) => Item[]) {
 async function record($: EngineInterface, entries: Entry[]) {
   if (!entries.length) return
   const at = await $.clock.now()
-  const project = baseName((await $.session.cwd()).replace(/[\\/]$/, ''))
-  await change($, list => remember(list, entries, project, at))
+  await change($, list => remember(list, entries, at))
 }
 
 async function openPane($: EngineInterface) {
@@ -123,7 +128,7 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     if (polling) return next(e)
     polling = true
-    await $.command.register({ name: 'file-dock', description: '모든 세션의 파일·폴더 기록과 메모 패널을 엽니다' })
+    await $.command.register({ name: 'file-dock', description: '현재 세션의 파일·폴더·링크 기록과 메모 패널을 엽니다' })
     os = await osOf($)
     home = (await $.env.get('HOME')) ?? (await $.env.get('USERPROFILE')) ?? ''
     const env = {
@@ -148,6 +153,7 @@ export const register: Register = on => {
       const key = `${shots.map(s => `${s.path}:${s.mtimeMs}`).join('|')}#${refs.join(',')}`
       if (key === seen) return
       seen = key
+      await update($, pasted, () => shots)
       await update($, draft, () => refs)
       const fresh = visible(shots, [], await read($, sent)).filter(shot => !kept.has(shot.path))
       fresh.forEach(shot => kept.add(shot.path))
@@ -162,13 +168,15 @@ export const register: Register = on => {
   })
 
   on('prompt.submit', async ($, e, next) => {
-    if (AUTOMATED.has(e.origin?.kind) || e.text.startsWith('/')) return next(e)
+    if (AUTOMATED.has(e.origin?.kind) || /^\/[^/\s]+(?:\s|$)/.test(e.text)) return next(e)
     const typed = await read($, draft)
     const refs = refsOf(e.text)
     const result = await next(e)
     await update($, sent, () => (refs.length ? refs : typed))
     await update($, draft, () => [])
-    await record($, await existing($, e.text))
+    const paths = await existing($, e.text)
+    await update($, recent, () => images(paths))
+    await record($, paths)
     return result
   }).catch(($, e, next) => next(e))
 
@@ -184,6 +192,7 @@ export const register: Register = on => {
     if (e.agentId || e.reason !== 'answer') return result
     const fromAnswer = await existing($, [e.answer, ...written].join('\n'))
     written.clear()
+    await update($, recent, list => [...list, ...images(fromAnswer).filter(entry => !list.some(old => old.path === entry.path))])
     await record($, fromAnswer)
     return result
   })
@@ -191,12 +200,16 @@ export const register: Register = on => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
     const { Box, Button } = $.ui.resolve(e)
+    const shots = visible(await read($, pasted), await read($, draft), await read($, sent)).slice(-SHOWN)
+    const given = (await read($, recent)).slice(-SHOWN)
     const below = await next(e)
     return (
       <Box flexDirection="column">
         {below}
-        <Box flexDirection="row" paddingX={1}>
+        <Box flexDirection="row" flexWrap="wrap" paddingX={1} columnGap={1}>
           <Button key="dock" label="FileDock" onPress={() => togglePane($)} />
+          {shots.map(shot => <Button key={`image-${shot.number}`} label={`Image #${shot.number}`} onPress={() => open($, shot.path)} />)}
+          {given.map((entry, index) => <Button key={`recent-${index}`} label={labelOf(entry)} onPress={() => open($, entry.path)} />)}
         </Box>
       </Box>
     )
@@ -214,7 +227,7 @@ export const register: Register = on => {
         {list.length === 0 && <Text dimColor>아직 기록이 없습니다.</Text>}
         {list.slice(0, limit).map(item => (
           <Box flexDirection="column">
-            <Text dimColor>{`${when(item.at)} · ${item.project}`}</Text>
+            <Text dimColor>{when(item.at)}</Text>
             <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
               <Button key={`open:${item.path}`} label={labelOf(item)} onPress={() => open($, item.path)} />
               <Button key={`memo:${item.path}`} label={item.memos.at(-1)?.text.replace(/\s+/g, ' ') ?? '메모'} onPress={() => toggleMemo($, item.path)} />

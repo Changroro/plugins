@@ -1,6 +1,6 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { candidates, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, visible } from '../hooks/paths'
+import { candidates, isImage, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, visible } from '../hooks/paths'
 import { addMemo, forget, remember, when } from '../hooks/history'
 import { baseName, openCommand, tmpRoot } from '../hooks/platform'
 
@@ -32,12 +32,12 @@ test('경로 후보: 문장 끝 마침표는 경로에 넣지 않음', () => {
 })
 
 test('기록: 같은 경로는 메모를 지키며 최신으로 옮김, 폴더 끝 슬래시는 같은 경로', () => {
-  const first = remember([], [{ path: '/w/a.pdf', isDir: false }, { path: '/w/d/', isDir: true }], 'w', 1)
+  const first = remember([], [{ path: '/w/a.pdf', isDir: false }, { path: '/w/d/', isDir: true }], 1)
   expect(first.map(item => item.path)).toEqual(['/w/a.pdf', '/w/d'])
   const noted = addMemo(addMemo(first, '/w/a.pdf', '첫째', 2), '/w/a.pdf', '둘째', 3)
-  const again = remember(noted, [{ path: '/w/a.pdf', isDir: false }, { path: '/w/d', isDir: true }, { path: '/w/d/', isDir: true }], 'v', 4)
+  const again = remember(noted, [{ path: '/w/a.pdf', isDir: false }, { path: '/w/d', isDir: true }, { path: '/w/d/', isDir: true }], 4)
   expect(again.map(item => item.path)).toEqual(['/w/a.pdf', '/w/d'])
-  expect(again[0]).toMatchObject({ project: 'v', at: 4 })
+  expect(again[0]).toMatchObject({ at: 4 })
   expect(again[0].memos.map(memo => memo.text)).toEqual(['첫째', '둘째'])
   expect(when(new Date(2026, 10, 4, 9, 5).getTime())).toBe('11-04 09:05')
 })
@@ -47,13 +47,14 @@ test('링크: 문장 부호와 마크다운을 빼고 http(s)만 찾음', () => 
   expect(links(text)).toEqual(['https://x.com/a?b=1&c=2', 'http://y.io/p', 'https://z.dev/', 'https://w.app/q'])
   expect(isLink('https://x.com')).toBe(true)
   expect(isLink('/tmp/a.pdf')).toBe(false)
+  expect([isImage('/w/a.PNG'), isImage('/w/a.pdf'), isImage('https://x.com/a.png')]).toEqual([true, false, false])
   expect(linkLabel('https://docs.x.com/guide/')).toBe('docs.x.com/guide')
   expect(linkLabel(`https://x.com/${'a'.repeat(60)}`)).toHaveLength(32)
   expect(openCommand('windows', 'https://x.com/a')).toEqual(['rundll32', 'url.dll,FileProtocolHandler', 'https://x.com/a'])
 })
 
 test('기록 삭제: 그 항목만 지움', () => {
-  const list = remember([], [{ path: '/w/a.pdf', isDir: false }, { path: '/w/b.pdf', isDir: false }], 'w', 1)
+  const list = remember([], [{ path: '/w/a.pdf', isDir: false }, { path: '/w/b.pdf', isDir: false }], 1)
   expect(forget(list, '/w/a.pdf').map(item => item.path)).toEqual(['/w/b.pdf'])
 })
 
@@ -176,11 +177,12 @@ test('FileDock 버튼: 파일이 없어도 보이고, 누르면 패널을 열고
 test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 메모를 쌓음', async ($, on) => {
   const time = mock.clock(on)
   const opened: string[] = []
-  const old = { path: '/old/옛날.pdf', isDir: false, project: 'old', at: 1, memos: [{ at: 1, text: '이전 세션 메모' }] }
+  const old = { path: '/old/옛날.pdf', isDir: false, at: 1, memos: [{ at: 1, text: '이어 연 세션 메모' }] }
+  const elsewhere = { path: '/other/남의세션.pdf', isDir: false, at: 1, memos: [] }
   const files = new Set(['/w/new.png', '/w/app.ts'])
   let box = ''
   let images = [] as ReturnType<typeof file>[]
-  mock.store(on, { history: [old] })
+  mock.store(on, { 'history:s1': [old], 'history:s2': [elsewhere], history: [elsewhere] })
   mock.env(on, { HOME: '/home/u' })
   on('process.run', ($, e) => {
     if (e.argv[0] === 'xdg-open') opened.push(String(e.argv.at(-1)))
@@ -190,6 +192,7 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
   const panes: unknown[] = []
   on('ui.open', ($, e) => { panes.push(e); return { value: { isPlaced: true } } })
   on('ui.toast', () => ({ value: undefined }))
+  on('ui.render', { component: 'AbovePrompt' }, () => ({ type: 'Box', props: {}, children: [] }))
   on('session.id', () => ({ value: 's1' }))
   on('session.cwd', () => ({ value: '/w' }))
   on('session.start', ($, e) => ({ cwd: e.cwd }))
@@ -205,11 +208,14 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
 
   const pane = await $.ui.mount(PANE) as any
   expect(await pane.find({ key: 'open:/old/옛날.pdf' })).toMatchObject({ props: { label: '옛날.pdf' } })
-  expect(await pane.find({ key: 'memo:/old/옛날.pdf' })).toMatchObject({ props: { label: '이전 세션 메모' } })
+  expect(await pane.find({ key: 'memo:/old/옛날.pdf' })).toMatchObject({ props: { label: '이어 연 세션 메모' } })
+  expect(await pane.find({ key: 'open:/other/남의세션.pdf' })).toBeUndefined()
+  const band = await $.ui.mount({ plugin: 'file-dock', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, bodyColumns: 120 } } as any)
 
   await $.turn.complete({ answer: '결과는 /w/new.png, 코드는 /w/app.ts 입니다.', durationMs: 1, isAborted: false, turnId: 't1', reason: 'answer' } as any)
   expect(await pane.find({ key: 'open:/w/new.png' })).toBeDefined()
   expect(await pane.find({ key: 'open:/w/app.ts' })).toBeUndefined()
+  expect(await band.find({ key: 'recent-0' })).toMatchObject({ props: { label: 'new.png' } })
 
   box = '[Image #1] '
   images = [file('1.png', 1)]
@@ -218,6 +224,8 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
   box = ''
   await time.advance(2_000)
   expect(await pane.find({ key: 'open:/tmp/claude-1000/-w/s1/images/1.png' })).toMatchObject({ props: { label: '1.png' } })
+  expect(await band.find({ key: 'image-1' })).toMatchObject({ props: { label: 'Image #1' } })
+  expect(await band.find({ key: 'recent-0' })).toBeUndefined()
 
   expect(await pane.find({ key: 'memo:/w/new.png' })).toMatchObject({ props: { label: '메모' } })
   await pane.press({ key: 'memo:/w/new.png' })
@@ -233,6 +241,10 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
 
   await pane.press({ key: 'open:/w/new.png' })
   expect(opened).toEqual(['/w/new.png'])
+  await $.prompt.submit({ text: '/w/new.png 다시', asUser: true })
+  await band.press({ key: 'recent-0' })
+  expect(opened).toEqual(['/w/new.png', '/w/new.png'])
+  await band.unmount()
 
   await $.turn.complete({ answer: '자세한 건 https://docs.x.com/guide 참고', durationMs: 1, isAborted: false, turnId: 't2', reason: 'answer' } as any)
   expect(await pane.find({ key: 'open:https://docs.x.com/guide' })).toMatchObject({ props: { label: 'docs.x.com/guide' } })

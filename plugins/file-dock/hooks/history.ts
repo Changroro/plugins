@@ -2,9 +2,9 @@ import type { Entry, Item } from '../types'
 
 const trimmed = (path: string) => path.replace(/(?<=.)[\\/]$/, '')
 
-export function remember(list: Item[], entries: Entry[], project: string, at: number): Item[] {
+export function remember(list: Item[], entries: Entry[], at: number): Item[] {
   const fresh = new Map(entries.map(entry => [trimmed(entry.path), entry.isDir]))
-  const moved = [...fresh].map(([path, isDir]) => ({ path, isDir, project, at, memos: list.find(item => item.path === path)?.memos ?? [] }))
+  const moved = [...fresh].map(([path, isDir]) => ({ path, isDir, at, memos: list.find(item => item.path === path)?.memos ?? [] }))
   return [...list.filter(item => !fresh.has(item.path)), ...moved]
 }
 
