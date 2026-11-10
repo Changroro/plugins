@@ -1,7 +1,7 @@
 {
   "name": "project-rename",
-  "version": "2.0.0",
-  "description": "mv-session·mv-project로 Claude·Codex 세션 또는 프로젝트 전체 이동·검증·복구",
+  "version": "3.0.0",
+  "description": "asm으로 Claude·Codex 세션 이동(mv-session)·복사(cp-session)·프로젝트 전체 이전(mv-project)",
   "author": {"name": "ChangRoro", "url": "https://github.com/Changroro"},
   "keywords": ["project", "rename", "move", "claude-code", "codex", "sessions", "backup"]
 }
