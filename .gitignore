@@ -26,3 +26,6 @@ plugins/oss-review/skills/oss-review-workspace/
 # Python
 __pycache__/
 *.pyc
+
+# Local session handoff
+/HANDOFF.md
