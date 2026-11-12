@@ -1,6 +1,6 @@
 {
   "name": "attention-ko",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ADHD 친화 한국어 출력 스타일. 결론 먼저, 쉬운 한국어, 진행 멘트까지 한국어로 고정. attention-span의 한국어 수정판",
   "author": { "name": "ChangRoro" },
   "license": "AGPL-3.0-only",
