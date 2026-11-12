@@ -3,14 +3,15 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type { Entry, Item } from '../types'
 import { addMemo, forget, remember, when } from './history'
-import { candidates, isImage, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, visible } from './paths'
+import { candidates, isLink, isShelved, linkLabel, links, pick, refsOf, resolve, slug, unsuffixed, visible } from './paths'
 import type { Os } from './platform'
 import { baseName, openCommand, tmpRoot } from './platform'
 
 const pasted = atom({ plugin: 'file-dock', key: 'pasted' } as const, [])
 const draft = atom({ plugin: 'file-dock', key: 'draft' } as const, [])
 const sent = atom({ plugin: 'file-dock', key: 'sent' } as const, [])
-const recent = atom({ plugin: 'file-dock', key: 'recent' } as const, [])
+const mine = atom({ plugin: 'file-dock', key: 'mine' } as const, [])
+const claude = atom({ plugin: 'file-dock', key: 'claude' } as const, [])
 const revision = atom({ plugin: 'file-dock', key: 'revision' } as const, 0)
 const writing = atom({ plugin: 'file-dock', key: 'writing' } as const, '')
 const removing = atom({ plugin: 'file-dock', key: 'removing' } as const, '')
@@ -42,11 +43,20 @@ async function lookup($: EngineInterface, raw: string, cwd: string) {
   return entry
 }
 
+// 그대로는 없는 경로면 조사를 뗀 경로로 다시 확인
+async function find($: EngineInterface, raw: string, cwd: string) {
+  for (const guess of [raw, ...unsuffixed(raw)]) {
+    const entry = await lookup($, guess, cwd)
+    if (entry) return entry
+  }
+  return null
+}
+
 async function existing($: EngineInterface, text: string) {
   const cwd = await $.session.cwd()
   const found: Entry[] = []
   for (const raw of candidates(text)) {
-    const entry = await lookup($, raw, cwd)
+    const entry = await find($, raw, cwd)
     if (entry && (entry.isDir || isShelved(entry.path)) && !found.some(f => f.path === entry.path)) found.push(entry)
   }
   return [...found, ...links(text).map(path => ({ path, isDir: false }))]
@@ -69,8 +79,6 @@ async function open($: EngineInterface, path: string) {
   const ran = await $.process.run(openCommand(os, path), { timeoutMs: 10_000 })
   $.ui.toast(ran.exitCode === 0 ? `📂 ${labelOf({ path, isDir: false })} 열었습니다` : `file-dock: 열지 못했습니다 (${ran.stderr.trim() || `exit ${ran.exitCode}`})`)
 }
-
-const images = (entries: Entry[]) => entries.filter(entry => !entry.isDir && isImage(entry.path))
 
 const keyOf = async ($: EngineInterface) => `history:${await $.session.id()}`
 const historyOf = async ($: EngineInterface) => ((await $.store.get(await keyOf($))) ?? []) as Item[]
@@ -175,7 +183,8 @@ export const register: Register = on => {
     await update($, sent, () => (refs.length ? refs : typed))
     await update($, draft, () => [])
     const paths = await existing($, e.text)
-    await update($, recent, () => images(paths))
+    await update($, mine, () => paths)
+    await update($, claude, () => [])
     await record($, paths)
     return result
   }).catch(($, e, next) => next(e))
@@ -192,24 +201,28 @@ export const register: Register = on => {
     if (e.agentId || e.reason !== 'answer') return result
     const fromAnswer = await existing($, [e.answer, ...written].join('\n'))
     written.clear()
-    await update($, recent, list => [...list, ...images(fromAnswer).filter(entry => !list.some(old => old.path === entry.path))])
+    await update($, claude, list => [...list, ...fromAnswer.filter(entry => !list.some(old => old.path === entry.path))])
     await record($, fromAnswer)
     return result
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
-    const { Box, Button } = $.ui.resolve(e)
+    const { Box, Text, Button } = $.ui.resolve(e)
     const shots = visible(await read($, pasted), await read($, draft), await read($, sent)).slice(-SHOWN)
-    const given = (await read($, recent)).slice(-SHOWN)
+    const paths = (await read($, mine)).slice(-SHOWN)
+    const given = (await read($, claude)).filter(entry => !paths.some(p => p.path === entry.path)).slice(-SHOWN)
     const below = await next(e)
     return (
       <Box flexDirection="column">
         {below}
         <Box flexDirection="row" flexWrap="wrap" paddingX={1} columnGap={1}>
           <Button key="dock" label="FileDock" onPress={() => togglePane($)} />
+          {(shots.length > 0 || paths.length > 0) && <Box flexShrink={0}><Text dimColor>나</Text></Box>}
           {shots.map(shot => <Button key={`image-${shot.number}`} label={`Image #${shot.number}`} onPress={() => open($, shot.path)} />)}
-          {given.map((entry, index) => <Button key={`recent-${index}`} label={labelOf(entry)} onPress={() => open($, entry.path)} />)}
+          {paths.map((entry, index) => <Button key={`mine-${index}`} label={labelOf(entry)} onPress={() => open($, entry.path)} />)}
+          {given.length > 0 && <Box flexShrink={0}><Text dimColor>Claude</Text></Box>}
+          {given.map((entry, index) => <Button key={`claude-${index}`} label={labelOf(entry)} onPress={() => open($, entry.path)} />)}
         </Box>
       </Box>
     )

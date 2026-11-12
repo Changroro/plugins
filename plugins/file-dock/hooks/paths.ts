@@ -38,11 +38,19 @@ export function candidates(text: string) {
   return [...new Set([...found.filter(pathLike), ...inline].filter(raw => !raw.includes('://')))]
 }
 
+// 한 문자열을 조사로 나누는 방법이 하나뿐이어야 함 (이+나로 되는 "이나" 같은 겹침을 넣으면 긴 한글 이름에서 느려짐)
+const JOSA = '으로|에서|에게|한테|까지|부터|처럼|같이|보다|마다|조차|마저|밖에|하고|라는|라고|라서|지만|니까|인데|이다|입니다|였습니다|이었습니다|이에요|예요|[이가은는을를의에와과도만로나랑며든인일임고께]'
+const TAIL = new RegExp(`^(?:${JOSA})+$`)
+
+// 끝의 한글이 조사일 때만 뗀 후보, 덜 뗀 것부터
+export function unsuffixed(raw: string) {
+  const run = raw.match(/[가-힣]+$/)?.[0].length ?? 0
+  return Array.from({ length: run }, (_, i) => i + 1).filter(n => TAIL.test(raw.slice(-n)) && /[^\\/]$/.test(raw.slice(0, -n))).map(n => raw.slice(0, -n))
+}
+
 const LINK = /https?:\/\/[A-Za-z0-9\-._~:/?#@!$&+,;=%]+/g
 
 export const isLink = (path: string) => /^https?:\/\//i.test(path)
-
-export const isImage = (path: string) => !isLink(path) && new RegExp(`\\.(?:${IMAGE})$`, 'i').test(path)
 
 // shortcut: 한글이 그대로 든 주소는 한글 앞에서 잘림, 조사가 붙은 주소와 구분할 방법이 생기면 넓힘
 export const links = (text: string) => [...new Set([...text.matchAll(LINK)].map(m => m[0].replace(/[.,;:!?]+$/, '')))]
