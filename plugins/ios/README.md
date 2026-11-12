@@ -13,7 +13,7 @@
 | 용도 | 스킬이 요구하는 환경 |
 |---|---|
 | 개발 | Apple Silicon, macOS 26.6+, Xcode 27+ |
-| 에이전트 연결 | Xcode Settings → Intelligence → Model Context Protocol → Xcode Tools 활성화 |
+| 에이전트 연결 | Xcode Settings → Intelligence → Model Context Protocol → Allow External Agents to Use Xcode Tools 를 Always 또는 While Xcode is Open 으로 |
 | 시뮬레이터 | Device Hub, SimSlim과 프로젝트별 프로필 |
 | 실기기 | 기기 연결·Developer Mode, 사용자가 연 iPhone Mirroring |
 | 배포 | `asc`, App Store Connect 인증, 서명·프로비저닝 환경 |
@@ -65,7 +65,7 @@ Xcode MCP 연결 → 빌드·테스트·디버그 → 시뮬레이터·실기기
 
 ```bash
 brew install asc
-asc auth status
+asc auth status --validate
 asc doctor
 ```
 

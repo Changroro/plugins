@@ -16,9 +16,9 @@ Never open `Simulator.app`; Device Hub replaced it. Never `killall`; stop only p
 
 ## 0. Connect to Xcode (once per project)
 
-Linux에서 원격 Mac으로 빌드·검증·업로드할 때는 `company-macbookpro`를 우선하고, 회사 맥북을 사용할 수 없을 때만 `my-macbookpro`를 사용한다. 개인 맥북에 캐시나 서명 환경이 준비돼 있다는 이유로 순서를 바꾸지 않는다. 빌드 스크립트에는 선택한 호스트를 `HOST=`로 명시한다.
+Linux에서 원격 Mac으로 빌드·검증·업로드할 때는 회사 Mac을 우선하고, 회사 Mac을 사용할 수 없을 때만 개인 Mac을 사용한다. 호스트 이름은 현재 PC의 호스트 문서에서 찾는다. 개인 맥북에 캐시나 서명 환경이 준비돼 있다는 이유로 순서를 바꾸지 않는다. 빌드 스크립트에는 선택한 호스트를 `HOST=`로 명시한다.
 
-Requirements: Xcode 27+, macOS 26.6+, Apple Silicon. In Xcode: Settings > Intelligence > Model Context Protocol > **Xcode Tools** on.
+Requirements: Xcode 27+, macOS 26.6+, Apple Silicon. In Xcode: Settings > Intelligence > Model Context Protocol > **Allow External Agents to Use Xcode Tools** — "Always" for headless or remote use, otherwise "While Xcode is Open".
 
 ```bash
 xcrun --find mcpbridge                                   # bridge exists
@@ -28,7 +28,8 @@ xcrun mcp-server status                                  # headless server state
 ```
 
 - Project scope on purpose: the bridge attaches to (or starts) Xcode, so registering it user-wide spawns Xcode in every unrelated session.
-- Headless (no Xcode window): `sudo xcrun mcp-server enable` once, then `xcrun mcp-server open <workspace>`. The user runs the `sudo` step. Never pass `--unsafe-always-allow-all-agents`.
+- Headless (no Xcode window): `sudo xcrun mcp-server enable` once, then `xcrun mcp-server open <workspace>`. Allow the parent folder once so new workspaces under it do not prompt: `sudo xcrun mcp-server allow-folder <parent> --always` (`--for-24-hours` for a day). The user runs every `sudo` step. Never pass `--unsafe-always-allow-all-agents`.
+- A client attached over SSH shows up as an unsigned `sshd-session` and its grant carries an expiry. When the bridge stops attaching, read the pending request id from `xcrun mcp-server status` and ask the user to run `sudo xcrun mcp-server approve <id>`.
 - Xcode shows a permission dialog per session unless the headless server has granted the agent. If the bridge is missing or denied, say so and stop; do not silently fall back to `xcodebuild`.
 - Launch with Xcode's own configuration (Apple skills injected): `xcrun mcpbridge run-agent claude` / `... codex`.
 - Apple's skills (`device-interaction`, `swiftui-specialist`, `modernize-tests`, ...): `xcrun agent skills export --output-dir <dir> --replace-existing`.
@@ -47,12 +48,12 @@ Device Hub (Xcode > Open Developer Tool > Device Hub) is the single window for s
 
 ```bash
 simslim list                       # slim status per simulator
-simslim on                         # after a runtime change or simulator reset
-simslim verify                     # drift against the project's profile JSON
-simslim measure                    # actual memory effect
+simslim on <udid> --profile <proj>.json       # after a runtime change, a simulator reset, or a SimSlim upgrade
+simslim verify <udid> --profile <proj>.json   # drift against the project's profile JSON
+simslim measure <udid>             # actual memory effect
 ```
 
-- Keep a profile JSON in the project; `--except` keeps Push, StoreKit, and Universal Links alive when a test needs them.
+- Keep a profile JSON in the project. When a test needs Push, StoreKit, or Universal Links, list them as exceptions inside that JSON: `--profile` cannot be combined with `--except` or `--keep`.
 - `simslim disk-clean` deletes permanently: never without the user's approval, and `simslim clone` important simulators first.
 - Verify UI through the Xcode device tools: start a workspace session → install and run → synthesize events and capture screenshots and the UI hierarchy (tap `hitPoint` coordinates) → end the session. Keep one session per task; open sessions are expensive.
 - After a UI-affecting change, verify on the simulator before reporting done. Report overlapping, cropped, or unreadable UI as a bug even when the user did not ask.
@@ -69,21 +70,25 @@ Ask before installing or running anything on a device. State the device, the bui
 
 ```bash
 brew install asc                   # rorkai/App-Store-Connect-CLI, MIT
-asc auth status                    # the user runs `asc auth login --name ... --key-id ... --issuer-id ... --private-key <AuthKey.p8>` once
+asc auth status --validate         # the user runs `asc auth login --name ... --key-id ... --issuer-id ... --private-key <AuthKey.p8>` once
 asc doctor
 asc status --app <APP_ID>
 asc xcode archive --workspace <App>.xcworkspace --scheme <App> --archive-path .asc/artifacts/<App>.xcarchive --output json
-asc xcode export  --archive-path .asc/artifacts/<App>.xcarchive --ipa-path .asc/artifacts/<App>.ipa --output json
+asc xcode export  --archive-path .asc/artifacts/<App>.xcarchive --export-options ExportOptions.plist --ipa-path .asc/artifacts/<App>.ipa --output json
 asc publish testflight --app <APP_ID> --ipa .asc/artifacts/<App>.ipa --group <GROUP_ID>
 asc publish appstore   --app <APP_ID> --ipa .asc/artifacts/<App>.ipa --version <X.Y.Z> --submit --confirm
 asc search "<what you want to do>" --output json      # find the exact command
 ```
 
-- API keys live in the keychain via `asc auth login`. Never print, log, or commit a key, key id, or issuer id; never type them yourself - the user runs the login.
+- API keys live in the keychain via `asc auth login`. On a Mac driven over SSH or in the background the login keychain starts locked, so the user logs in with `asc auth login --bypass-keychain` (config file) there. Never print, log, or commit a key, key id, or issuer id; never type them yourself - the user runs the login.
+- On a Mac without an Xcode account, pass `--xcodebuild-flag=-allowProvisioningUpdates` and the `-authenticationKeyPath` / `-authenticationKeyID` / `-authenticationKeyIssuerID` flags to both archive and export.
+- Fix the signing identity at export with `ExportOptions.plist`: `signingStyle` manual, `signingCertificate`, and `provisioningProfiles` per bundle id. `signingCertificate` applies to manual signing only.
+- Raise `CURRENT_PROJECT_VERSION` on every upload, and set `ITSAppUsesNonExemptEncryption` in Info.plist or the build stops at missing export compliance.
+- Create the app record with `asc web auth login` (the user completes 2FA) and `asc web apps create`; `asc apps create` no longer exists.
 - `--submit --confirm` is irreversible: state app, version, build, and release notes, then wait for the user's yes.
 - Definitive API errors (409, 422) fail the step as-is. No retries that hide them.
 - Every published build gets a git tag and a user-facing changelog.
 
 ## Checklist
 
-Xcode MCP bridge connected in project scope · build and tests through the bridge · Device Hub only, `simslim verify` clean · device run approved by the user, iPhone Mirroring open, console read · `asc auth status` valid without exposing keys · submit confirmed by the user · tag and changelog done.
+Xcode MCP bridge connected in project scope · build and tests through the bridge · Device Hub only, `simslim verify` clean · device run approved by the user, iPhone Mirroring open, console read · `asc auth status --validate` valid without exposing keys · submit confirmed by the user · tag and changelog done.
