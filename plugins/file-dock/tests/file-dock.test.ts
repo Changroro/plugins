@@ -238,8 +238,7 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
   await time.advance(2_000)
   expect(await pane.find({ key: 'open:/tmp/claude-1000/-w/s1/images/1.png' })).toMatchObject({ props: { label: '1.png' } })
   expect(await band.find({ key: 'image-1' })).toMatchObject({ props: { label: 'Image #1' } })
-  expect(await band.find({ key: 'claude-0' })).toBeUndefined()
-  expect(await band.find({ type: 'Text', text: /^Claude$/ })).toBeUndefined()
+  expect(await band.find({ key: 'claude-0' })).toMatchObject({ props: { label: 'new.png' } })
   expect(await band.find({ type: 'Text', text: /^나$/ })).toBeDefined()
 
   expect(await pane.find({ key: 'memo:/w/new.png' })).toMatchObject({ props: { label: '메모' } })
@@ -266,6 +265,15 @@ test('패널: 세션을 넘어 쌓인 기록을 최신순으로 보여 주고 �
   expect(await pane.find({ key: 'open:/w/out' })).toMatchObject({ props: { label: 'out/' } })
   expect(await Promise.all([0, 1, 2].map(async n => (await band.find({ key: `claude-${n}` }))?.props.label))).toEqual(['doc.pdf', 'out/', 'docs.x.com/guide'])
   expect(await band.find({ key: 'mine-0' })).toMatchObject({ props: { label: 'new.png' } })
+  expect(await band.find({ key: 'image-1' })).toBeUndefined()
+
+  await $.prompt.submit({ text: '고마워', asUser: true })
+  await $.turn.complete({ answer: '네', durationMs: 1, isAborted: false, turnId: 't3', reason: 'answer' } as any)
+  expect(await Promise.all([0, 1, 2].map(async n => (await band.find({ key: `claude-${n}` }))?.props.label))).toEqual(['doc.pdf', 'out/', 'docs.x.com/guide'])
+  expect(await band.find({ key: 'mine-0' })).toMatchObject({ props: { label: 'new.png' } })
+
+  await $.turn.complete({ answer: '/w/new.png 도 있습니다', durationMs: 1, isAborted: false, turnId: 't4', reason: 'answer' } as any)
+  expect(await band.find({ key: 'claude-0' })).toBeUndefined()
   await band.unmount()
   await pane.press({ key: 'open:https://docs.x.com/guide' })
   expect(opened.at(-1)).toBe('https://docs.x.com/guide')

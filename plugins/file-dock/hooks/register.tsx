@@ -23,6 +23,7 @@ const SHOWN = 5
 const AUTOMATED = new Set(['task-notification', 'scheduled-trigger', 'peer', 'peer-send-message', 'projects-relay', 'coordinator', 'observer', 'observer-activity', 'auto-continuation', 'plugin'])
 const written = new Set<string>()
 const kept = new Set<string>()
+let answered = false
 const known = new Map<string, { entry: Entry | null; at: number }>()
 let os: Os = 'linux'
 let home = ''
@@ -180,11 +181,15 @@ export const register: Register = on => {
     const typed = await read($, draft)
     const refs = refsOf(e.text)
     const result = await next(e)
-    await update($, sent, () => (refs.length ? refs : typed))
+    const shots = refs.length ? refs : typed
     await update($, draft, () => [])
     const paths = await existing($, e.text)
-    await update($, mine, () => paths)
-    await update($, claude, () => [])
+    // 입력창 위에는 경로가 나온 가장 최근 것을 남김: 없는 메시지는 이전 것을 지우지 않음
+    if (shots.length || paths.length) {
+      await update($, sent, () => shots)
+      await update($, mine, () => paths)
+    }
+    answered = false
     await record($, paths)
     return result
   }).catch(($, e, next) => next(e))
@@ -201,7 +206,10 @@ export const register: Register = on => {
     if (e.agentId || e.reason !== 'answer') return result
     const fromAnswer = await existing($, [e.answer, ...written].join('\n'))
     written.clear()
-    await update($, claude, list => [...list, ...fromAnswer.filter(entry => !list.some(old => old.path === entry.path))])
+    if (!fromAnswer.length) return result
+    // 한 메시지에 턴이 여럿이면 이어 붙이고, 새 메시지의 첫 결과는 이전 것을 대체
+    await update($, claude, list => (answered ? [...list, ...fromAnswer.filter(entry => !list.some(old => old.path === entry.path))] : fromAnswer))
+    answered = true
     await record($, fromAnswer)
     return result
   })
