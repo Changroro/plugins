@@ -1,6 +1,6 @@
 {
   "name": "changroro-room",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "데스크톱 앱 대화 뒤에 흑백 도트 책상을 그리는 Mod: 시계, 컨텍스트 배터리, 캐시 커피잔, 프로젝트 명패, Claude가 채우는 오늘 할 일 보드",
   "author": {
     "name": "ChangRoro"

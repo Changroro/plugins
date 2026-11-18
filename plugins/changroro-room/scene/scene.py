@@ -93,23 +93,23 @@ CLAUDE_LEGS_A = "..C.C....C.C..\n..C.C....C.C.."
 CLAUDE_LEGS_B = "...C.C..C.C...\n...C.C..C.C..."
 
 CODEX_BODY = """
-.......K......
-......KKK.....
-..KKKKKKKKKK..
-..KWWWWWWWWK..
-..KWKKKKKKWK..
-..KWKWKKKKWK..
-..KWKKWKKKWK..
-..KWKWKWWKWK..
-..KWKKKKKKWK..
-..KWWWWWWWWK..
-..KKKKKKKKKK..
-...KWWWWWWK...
-...KWWWWWWK...
+.....KKKK.....
+.....KKKK.....
+......KK......
 ...KKKKKKKK...
+..KWWWWWWWWK..
+.KWKKKKKKKKWK.
+.KWKWWKKWWKWK.
+.KWKKKKKKKKWK.
+.KWWWWWWWWWWK.
+.KWBWWKKWWBWK.
+..KWWWWWWWWK..
+...KKKKKKKK...
+....KWWWWK....
+....KKKKKK....
 """
-CODEX_LEGS_A = "....K....K....\n....K....K...."
-CODEX_LEGS_B = ".....K..K.....\n.....K..K....."
+CODEX_LEGS_A = ".....K..K.....\n.....K..K....."
+CODEX_LEGS_B = "....K....K....\n....K....K...."
 
 
 def grid(src):

@@ -110,9 +110,8 @@ export const register: Register = on => {
       $.ui.toast(unpainted)
     }
     const set = await $.theme.set(LOOK)
-    if (!set.isDrawn) {
-      $.ui.status(set.reason)
-    }
+    // A client that attaches later still draws the theme, so the reason is only shown until then.
+    $.ui.status(set.isDrawn ? undefined : set.reason)
 
     const now = await $.clock.now()
     const cwd = await $.session.cwd()
@@ -190,6 +189,7 @@ export const register: Register = on => {
       todos: await read($, todos),
       isCheering: now - (await read($, cheerAt)) < CHEER_MS,
     })
+    $.ui.status(undefined)
     const { Svg } = $.ui.resolve(e)
 
     return <Svg source={svg} alt="Desk scene: clock, context battery, cache mug, project plate and today's to-do board" isInteractive />
