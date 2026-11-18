@@ -17,6 +17,14 @@
       "tags": ["mods", "files", "open", "image", "korean"]
     },
     {
+      "name": "changroro-room",
+      "source": "./plugins/changroro-room",
+      "description": "Claude Code Mod — 데스크톱 앱 대화 뒤 흑백 도트 책상: 시계·컨텍스트·캐시·프로젝트와 Claude가 채우는 오늘 할 일 보드",
+      "author": { "name": "ChangRoro" },
+      "category": "productivity",
+      "tags": ["mods", "theme", "backdrop", "todo", "korean"]
+    },
+    {
       "name": "attention-ko",
       "source": "./plugins/attention-ko",
       "description": "ADHD 친화 한국어 출력 스타일. 결론 먼저, 쉬운 한국어, 진행 멘트까지 한국어 고정 (attention-span 한국어 수정판, AGPL-3.0)",
