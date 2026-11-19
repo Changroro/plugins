@@ -5,6 +5,7 @@ import sqlite3
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 import test_rename_project as fixtures
 import codex_rename
@@ -62,6 +63,37 @@ class SessionModeTests(unittest.TestCase):
         self.assertIn('다른 세션', result.stderr)
         self.assertFalse(self.f.out.exists())
         self.assertEqual(self.transcript.read_bytes(), self.original)
+
+    @unittest.skipUnless(sys.platform == 'darwin', 'macOS lsof 검사')
+    def test_macos_blocks_writers_and_allows_readers(self):
+        data = {'files': [{'path': str(self.transcript), 'metadata': True}], 'moves': []}
+        with patch.object(core, 'PROCESS_ROOT', self.f.root / 'missing-proc'):
+            with self.transcript.open('r+b'):
+                with self.assertRaisesRegex(ValueError, '현재 기록 중'):
+                    core.ensure_idle(data)
+            with self.transcript.open('rb'):
+                core.ensure_idle(data)
+
+    def test_paginated_session_appends_settings_without_shifting_history(self):
+        settings = {'cwd': str(self.f.root), 'runtime_workspace_roots': [str(self.f.root), str(self.f.old)]}
+        event = {'timestamp': '2026-01-01T00:00:00.000Z', 'type': 'event_msg',
+                 'payload': {'type': 'thread_settings_applied', 'thread_id': 'same-id', 'thread_settings': settings}}
+        with self.transcript.open('a') as stream:
+            stream.write(json.dumps(event) + '\n')
+        prefix = self.transcript.read_bytes()
+        with sqlite3.connect(self.database) as db:
+            db.execute('ALTER TABLE threads ADD COLUMN history_mode TEXT DEFAULT "legacy"')
+            db.execute('UPDATE threads SET history_mode="paginated" WHERE id="same-id"')
+
+        result = self.run_cli('caller-id')
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        current = self.transcript.read_bytes()
+        self.assertEqual(current[:len(prefix)], prefix)
+        appended = json.loads(current[len(prefix):])
+        self.assertEqual(appended['payload']['thread_id'], 'same-id')
+        self.assertEqual(appended['payload']['thread_settings'],
+                         {'cwd': str(self.f.new), 'runtime_workspace_roots': [str(self.f.new), str(self.f.old)]})
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ uv run --python 3.11 python <플러그인 경로>/scripts/claude_rename.py mv-se
   --claude-home /actual/claude --out /outside/destination/claude-session-backup
 ```
 
-Codex는 DB에서 선택한 ID의 실제 cwd를 읽고 그 세션의 rollout 경로 메타데이터·DB cwd를 재지정한다. 같은 날짜별 rollout 파일을 유지하며 폴더·다른 세션·공용 설정을 바꾸지 않는다. 홈에서 시작한 세션도 ID로 선택하고 홈 폴더는 옮기지 않는다.
+Codex는 DB에서 선택한 ID의 실제 cwd를 읽고 그 세션의 rollout 경로 메타데이터·DB cwd를 재지정한다. 페이지 단위 대화 저장 형식은 기존 바이트 위치를 보존하기 위해 rollout 끝에 작업 폴더 설정을 추가한다. 같은 날짜별 rollout 파일을 유지하며 폴더·다른 세션·공용 설정을 바꾸지 않는다. 홈에서 시작한 세션도 ID로 선택하고 홈 폴더는 옮기지 않는다.
 
 ```bash
 uv run --python 3.11 python <플러그인 경로>/scripts/codex_rename.py mv-session \
@@ -37,4 +37,4 @@ uv run --python 3.11 python <플러그인 경로>/scripts/codex_rename.py mv-ses
 
 기존 ID·대화 본문·도구 입력/결과·UUID·타임스탬프를 유지한다. Claude는 audit.json의 verified·source_removed와 목적지 해시·원본 세션 부재를, Codex는 state.json의 applied와 verified 결과·대상 ID·DB/rollout cwd를 확인한다. 목적지의 기존 대화를 실행해 검증하지 않는다. 백업 사본은 복구용이며 활성 세션 중복으로 취급하지 않는다.
 
-없는 ID·현재 Codex 세션·잘못된 형식·기존 Claude 목적지·기록 중인 파일·권한 부족·DB 잠금 실패는 중단한다. 현재 writer 검사는 Linux를 지원하며 우회하지 않는다. 프로세스 종료·재시작·신호, Codex 서버 실행, 세션 분기·시작·재개, 검증 메시지·백그라운드 작업은 하지 않는다. 결과에는 실제 대상 ID·목적지·검증 여부·백업 위치만 보고한다.
+없는 ID·현재 Codex 세션·잘못된 형식·기존 Claude 목적지·기록 중인 파일·권한 부족·DB 잠금 실패는 중단한다. 기록 중인 프로세스 확인은 Linux의 `/proc`, macOS의 `/usr/sbin/lsof`를 사용한다. 프로세스 종료·재시작·신호, Codex 서버 실행, 세션 분기·시작·재개, 검증 메시지·백그라운드 작업은 하지 않는다. 결과에는 실제 대상 ID·목적지·검증 여부·백업 위치만 보고한다.

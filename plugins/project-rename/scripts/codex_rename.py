@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
@@ -54,6 +55,22 @@ def session_cwd_paths(raw, previous, target):
     return ''.join(result).encode()
 
 
+def append_session_settings(raw, event, session_id, previous, target):
+    core.require(event and raw.endswith(b'\n'), '페이지 단위 세션에 유효한 최신 설정 레코드가 없습니다')
+    payload = event['payload']
+    settings = payload.get('thread_settings', {})
+    core.require(payload.get('thread_id') in (None, session_id) and settings.get('cwd') == previous,
+                 '저장된 세션 설정과 DB의 작업 폴더가 일치하지 않습니다')
+    payload['thread_id'] = session_id
+    settings['cwd'] = target
+    if 'runtime_workspace_roots' in settings:
+        roots = settings['runtime_workspace_roots']
+        core.require(isinstance(roots, list), '세션 작업 공간 목록 형식 오류')
+        settings['runtime_workspace_roots'] = [target if root == previous else root for root in roots]
+    event['timestamp'] = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+    return raw + (json.dumps(event, ensure_ascii=False, separators=(',', ':')) + '\n').encode()
+
+
 def discover(args, old, new):
     home = Path(args.codex_home).absolute()
     session_move = getattr(args, 'session_move', False)
@@ -63,6 +80,7 @@ def discover(args, old, new):
     if session_ids:
         core.require(args.sessions_only and args.codex_db, '세션 ID 선택에는 --sessions-only와 실제 --codex-db가 필요합니다')
     current_cwds = {}
+    history_modes = {}
     core.require(args.codex_db, '실제 sqlite_home의 Codex 상태 DB를 --codex-db로 명시하세요')
     if args.codex_db:
         path = Path(args.codex_db).absolute()
@@ -72,7 +90,8 @@ def discover(args, old, new):
             core.require({'id', 'cwd', 'rollout_path'} <= columns, '지원하지 않는 Codex 세션 DB 스키마')
             cwd_triggers_safe(db)
             rows = []
-            for session_id, cwd, rollout in db.execute('SELECT id,cwd,rollout_path FROM threads'):
+            history_column = 'history_mode' if 'history_mode' in columns else "'legacy'"
+            for session_id, cwd, rollout, history_mode in db.execute(f'SELECT id,cwd,rollout_path,{history_column} FROM threads'):
                 if (session_id in session_ids if session_ids else isinstance(cwd, str) and core.under(cwd, old)):
                     core.require(isinstance(cwd, str) and Path(cwd).is_absolute(), '세션 ID의 cwd가 올바른 절대 경로가 아닙니다')
                     transcript = Path(rollout)
@@ -80,6 +99,7 @@ def discover(args, old, new):
                     core.require(rollout not in selected, 'Codex DB 세션 파일 중복')
                     selected[rollout] = session_id
                     current_cwds[rollout] = cwd
+                    history_modes[rollout] = history_mode
                     rows.append([session_id, cwd, new if session_ids else core.path_value(cwd, old, new)])
             core.require(not session_ids or session_ids == set(selected.values()), '요청한 세션 ID를 DB에서 모두 찾지 못했습니다')
             if rows:
@@ -88,7 +108,9 @@ def discover(args, old, new):
         transcripts = [Path(path) for path in selected]
     for transcript in sorted(transcripts):
         raw = core.read_file(transcript)
+        rollout = str(transcript)
         ids = []
+        latest_settings = None
         for line in raw.decode().splitlines():
             if not line.strip():
                 continue
@@ -96,11 +118,19 @@ def discover(args, old, new):
             core.require(isinstance(obj, dict), 'Codex 세션 레코드 형식 오류: ' + str(transcript))
             if obj.get('type') == 'session_meta':
                 ids.append(obj.get('payload', {}).get('id'))
+            elif obj.get('type') == 'event_msg' and obj.get('payload', {}).get('type') == 'thread_settings_applied':
+                latest_settings = obj
         if args.codex_db:
-            core.require(ids == [selected[str(transcript)]], 'Codex DB와 세션 파일 ID 불일치: ' + str(transcript))
-        after = raw if session_move else core.jsonl_paths(raw, old, new, 'codex')
-        if session_ids:
-            after = session_cwd_paths(after, current_cwds[str(transcript)], new)
+            core.require(ids == [selected[rollout]], 'Codex DB와 세션 파일 ID 불일치: ' + rollout)
+        if history_modes[rollout] == 'paginated':
+            core.require(session_move, '페이지 단위 Codex 세션은 mv-session으로 이관해야 합니다')
+            # 기존 대화 인덱스가 rollout 바이트 위치를 참조하므로 설정은 끝에 추가한다.
+            after = append_session_settings(raw, latest_settings, selected[rollout], current_cwds[rollout], new)
+        else:
+            core.require(history_modes[rollout] == 'legacy', '지원하지 않는 Codex 대화 저장 형식')
+            after = raw if session_move else core.jsonl_paths(raw, old, new, 'codex')
+            if session_ids:
+                after = session_cwd_paths(after, current_cwds[rollout], new)
         files.append((transcript, after))
     if session_move:
         return files, [], databases

@@ -65,9 +65,9 @@ Claude는 같은 명령과 `scripts/claude_rename.py`·Claude 상태 홈 인수�
 
 기존 ID·대화·도구 결과·타임스탬프를 유지합니다. 완료는 실제 검증 결과·대상 ID·변경 건수·원본 제거 또는 새 cwd에 근거합니다. 백업 사본은 복구 자료이며 활성 세션으로 등록하지 않습니다. Codex 복구는 대상 DB 행만 되돌리고 전체 DB를 덮어쓰지 않습니다.
 
-현재 writer 검사는 Linux를 지원하며 `uv`와 Python 3.11이 필요합니다. 기록 중인 파일·DB 잠금 실패·기존 Claude 목적지·미지원 구조에서는 중단합니다. 프로젝트 rename은 파일시스템 간 이동·Git worktree를 사전 차단합니다. 프로세스 종료·재시작·서버 실행·세션 재개·검증 메시지 전송은 하지 않습니다.
+기록 중인 프로세스 확인은 Linux의 `/proc`, macOS의 `/usr/sbin/lsof`를 사용합니다. `uv`와 Python 3.11이 필요합니다. 기록 중인 파일·DB 잠금 실패·기존 Claude 목적지·미지원 구조에서는 중단합니다. 프로젝트 rename은 파일시스템 간 이동·Git worktree를 사전 차단합니다. 페이지 단위 저장 형식의 Codex 세션은 `mv-session`에서 지원합니다. 프로세스 종료·재시작·서버 실행·세션 재개·검증 메시지 전송은 하지 않습니다.
 
-ASM의 이관 방식을 참고한 독립 구현이며 ASM 설치·호출은 필요하지 않습니다. 실제 Claude 기록의 복사와 Codex 세션의 경로 재지정을 검증했고 Codex는 사용자가 재개해 확인했습니다. Claude의 복사 후 원본 제거·실패 복구는 임시 데이터로 검증합니다. Luna 호출까지 포함한 통합 검증과 macOS writer 검사 지원은 별도 검증 범위입니다.
+ASM의 이관 방식을 참고한 독립 구현이며 ASM 설치·호출은 필요하지 않습니다. 실제 Claude 기록의 복사와 Codex 세션의 경로 재지정을 검증했고 Codex는 사용자가 재개해 확인했습니다. Claude의 복사 후 원본 제거·실패 복구는 임시 데이터로 검증합니다. Luna 호출까지 포함한 통합 검증은 별도 검증 범위입니다.
 
 ```bash
 uv run --python 3.11 python -B -m unittest discover -s tests/project_rename -v

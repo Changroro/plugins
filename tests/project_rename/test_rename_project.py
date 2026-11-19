@@ -127,16 +127,20 @@ class RenameTests(unittest.TestCase):
             self.apply(data, raw)
         self.assertFalse(self.new.exists())
 
-    def test_script_cannot_launch_or_control_processes_or_sessions(self):
-        banned_imports = {'subprocess','signal','socket','ctypes'}
+    def test_script_can_only_launch_the_read_only_process_inspection(self):
+        banned_imports = {'signal','socket','ctypes'}
         for script in SCRIPT.parent.glob('*.py'):
             for node in ast.walk(ast.parse(script.read_text())):
                 if isinstance(node, ast.Import):
                     self.assertFalse(banned_imports.intersection(alias.name for alias in node.names))
                 if isinstance(node, ast.ImportFrom):
-                    self.assertNotIn(node.module, banned_imports)
+                    self.assertNotIn(node.module, banned_imports | {'subprocess'})
                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
                     self.assertNotIn(node.func.attr, {'kill','killpg','terminate','Popen','fork','system','execv','execve'})
+                    if isinstance(node.func.value, ast.Name) and node.func.value.id == 'subprocess':
+                        self.assertEqual(node.func.attr, 'run')
+                        self.assertEqual([arg.value for arg in node.args[0].elts[:-1]],
+                                         ['/usr/sbin/lsof', '-nP', '-V', '-F0a', '--'])
 
 class MetadataTests(unittest.TestCase):
     def setUp(self):

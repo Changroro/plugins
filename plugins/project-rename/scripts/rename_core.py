@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import stat
 import sqlite3
+import subprocess
 import sys
 import tempfile
 
@@ -147,11 +148,47 @@ def jsonl_paths(raw, old, new, kind):
 
 
 def ensure_idle(data):
-    require(PROCESS_ROOT.is_dir(), '현재 자동 수정의 활성 writer 검사는 Linux에서 지원합니다')
     paths = {f['path'] for f in data['files'] if f.get('metadata')}
     paths.update(str(mapped_file(f['path'], data, True)) for f in data['files'] if f.get('metadata'))
     if not paths:
         return
+    if not PROCESS_ROOT.is_dir() and sys.platform == 'darwin':
+        busy = macos_writers(paths)
+    else:
+        require(PROCESS_ROOT.is_dir(), '기록 중인 프로세스 검사는 Linux와 macOS에서 지원합니다')
+        busy = linux_writers(paths)
+    require(not busy, '현재 기록 중인 데이터라 적용하지 않았습니다. 실행을 대신 종료하지 않습니다: ' + ', '.join(sorted(busy)))
+
+
+def macos_writers(paths):
+    busy = set()
+    for path in sorted(paths):
+        try:
+            Path(path).stat()
+        except FileNotFoundError:
+            continue
+        try:
+            result = subprocess.run(
+                ['/usr/sbin/lsof', '-nP', '-V', '-F0a', '--', path],
+                capture_output=True, env=dict(os.environ, LC_ALL='C'), timeout=10,
+            )
+        except subprocess.TimeoutExpired as error:
+            raise ValueError(f'기록 중인 프로세스 확인 시간 초과: {path}') from error
+        if (result.returncode == 1 and not result.stderr
+                and result.stdout.startswith(b'lsof: no file use located: ')
+                and result.stdout.count(b'\n') == 1 and Path(path).is_file()):
+            continue
+        require(result.returncode == 0 and not result.stderr, f'기록 중인 프로세스를 확인할 수 없습니다: {path}')
+        access = [line.partition(b'\0')[2].partition(b'\0')[0]
+                  for line in result.stdout.splitlines() if line.startswith(b'f')]
+        require(access and all(mode in (b'ar', b'au', b'aw') for mode in access),
+                f'열린 파일의 접근 모드를 확인할 수 없습니다: {path}')
+        if any(mode != b'ar' for mode in access):
+            busy.add(path)
+    return busy
+
+
+def linux_writers(paths):
     busy = set()
     for proc in PROCESS_ROOT.iterdir():
         if not proc.name.isdigit():
@@ -181,7 +218,7 @@ def ensure_idle(data):
             continue
         except PermissionError as error:
             raise ValueError('활성 writer 확인 권한이 없습니다; 데이터는 수정하지 않았습니다') from error
-    require(not busy, '현재 기록 중인 데이터라 적용하지 않았습니다. 실행을 대신 종료하지 않습니다: ' + ', '.join(sorted(busy)))
+    return busy
 
 
 def connect_db(path):
